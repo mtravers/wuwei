@@ -8,6 +8,7 @@
 	  html-escape-string clean-js-string
 
 	  publish-ajax-udpate publish-ajax-func ajax-continuation
+	  *ajax-request*
 
 	  unpublish
 	  
@@ -16,7 +17,6 @@
 	  checkbox-to-remote
 
 	  async async-html
-
 	  ))
 
 #|
