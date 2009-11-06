@@ -65,7 +65,7 @@
 Philosophy of this library: Things work via side effect (by using the HTML macro and associated machinery).
 
 If you want a string, wrap the call with html-string.  For example:
-(link-to (html-string (image-tag "collabrx_logo_small.png"))
+(link-to (html-string (image-tag "logo_small.png"))
          "/")
 |#
 
