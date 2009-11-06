@@ -1,27 +1,40 @@
 (in-package :wu)
 
-(export '(html-string 
+(export '(*public-directory* public-url image-url
+	  
 	  javascript-include javascript-includes css-include
 	  
 	  render-update render-scripts
 	  
+	  html-string 
 	  html-escape-string clean-js-string
 
-	  publish-ajax-udpate publish-ajax-func ajax-continuation
+	  publish-ajax-update publish-ajax-func ajax-continuation 
 	  *ajax-request*
 
 	  unpublish
 	  
+	  image-tag 
+
+	  nbsp html-princ
+
+	  remote-function link-to
 	  link-to-remote link-to-function
 	  button-to-remote button-to-function
 	  checkbox-to-remote
 
 	  async async-html
-	  ))
+	  )
+	:wu)
+
 
 #|
 Basic web functions and infrastructure.  Stuff in this file should stand on its own (no prototype or other libraries required).
 |#
+
+
+;;; Define a directory and path for public files
+
 
 (defvar *public-directory* (make-pathname :directory (append (pathname-directory cl-user::*3rdwheel-dir*) '("public"))))
 
@@ -29,6 +42,31 @@ Basic web functions and infrastructure.  Stuff in this file should stand on its 
                    :prefix "/npublic/"
                    :headers `((:expires . ,(net.aserve::universal-time-to-date (+ (get-universal-time) (* 20 60 60))))))
 
+(defun public-url (name)
+  (string+ "/npublic/" name))
+
+(defun image-url (img)
+  (public-url (string+ "images/" img)))
+
+(defun coerce-url  (file-or-url)
+  (if (string-prefix-equals file-or-url "http:")
+      file-or-url
+      (public-url file-or-url)))
+
+(defun javascript-include (file-or-url)
+    (html
+     ((:script :type "text/javascript" :src (coerce-url file-or-url))) :newline ))
+
+(defun javascript-includes (&rest files)
+  (dolist (file files)
+    (javascript-include file)))
+
+(defun css-include (file-or-url)
+  (html
+   ((:link :rel "stylesheet" :type "text/css" :href (coerce-url file-or-url)))))
+
+
+;;;
 
 
 (defvar *upload-directory* (make-pathname :directory (append (pathname-directory cl-user::*3rdwheel-dir*) '("uploads"))))
@@ -79,8 +117,7 @@ If you want a string, wrap the call with html-string.  For example:
      (let ((net.aserve::*html-stream* s))
        (net.aserve::html ,@stuff))))
 
-(defun public-url (name)
-  (string+ "/npublic/" name))
+
 
 (defun generate-relative-upload-path (name)
   (format () "~d/~d/~a" (random 100) (random 100) name))
@@ -111,28 +148,10 @@ If you want a string, wrap the call with html-string.  For example:
                                 :if* alt :title alt
                                 )))))
 
-(defun image-url (img)
-  (public-url (string+ "images/" img)))
-
 (defun break-lines (string)
   (utils:string-replace string (string #\Newline) "<br/>"))
 
-(defun coerce-url  (file-or-url)
-  (if (string-prefix-equals file-or-url "http:")
-      file-or-url
-      (public-url file-or-url)))
 
-(defun javascript-include (file-or-url)
-    (html
-     ((:script :type "text/javascript" :src (coerce-url file-or-url))) :newline ))
-
-(defun javascript-includes (&rest files)
-  (dolist (file files)
-    (javascript-include file)))
-
-(defun css-include (file-or-url)
-  (html
-   ((:link :rel "stylesheet" :type "text/css" :href (coerce-url file-or-url)))))
 
 ;; --> conditionalize to use html or javascript, depending on context.
 ;; Scrub the string more vigorously!

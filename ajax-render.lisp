@@ -210,17 +210,7 @@ Not yet:
 
 (defvar *ajax-counter* 0)
 
-;;; +++ todo: ajax responders should be stored in a table and reaped after a certain time
-(defmacro ajax-continuation (&body body)
-  `(let ((fname (string+ "/ajax/" (fast-string (incf *ajax-counter*)))))
-     (publish-ajax-func fname () 
-			,@body
-			(unpublish fname))
-     (set-responder-timeout fname)
-	  fname))
-
-;;; new version, eventually replace the old
-(defmacro ajax-continuation+ ((&key args keep content-type) &body body)
+(defmacro ajax-continuation ((&key args keep content-type) &body body)
   `(let ((fname (string+ "/ajax/" (fast-string (incf *ajax-counter*)))))
      (publish-ajax-func (:path fname :content-type ,content-type) ,args 
 			,@body
@@ -254,7 +244,6 @@ Not yet:
 		    (sleep 60)
 		    (do-responder-timeouts))))
 
-;;; +++ these should get time-tagged and swept out
 
 #|
 Here's a (stupid) example of use, assumes content is bound.
@@ -357,7 +346,7 @@ Here's a (stupid) example of use, assumes content is bound.
   )
 
 ;;; Generate a remote function (Ajax call)
-;; ex: (remote-function "/new-chunk" :params `(:user ,user :type (:raw ,(formatn "$(~A).value" selector-id))))
+;; ex: (remote-function "/new-chunk" :params `(:user ,user :type (:raw ,(format nil "$(~A).value" selector-id))))
 #|
 :form      If t, serialize the surrounding form, else use params
 :params    List of (:key1 value1 ...), ignored if :form is t
@@ -375,8 +364,8 @@ Here's a (stupid) example of use, assumes content is bound.
 (defun remote-function (url &key form params (in-function? t) confirm before after spinner
                         success failure complete)
   (when spinner
-    (let ((spin-js (formatn "add_spinner('~A');" spinner))
-          (nospin-js (formatn "remove_spinner('~A');" spinner)))
+    (let ((spin-js (format nil "add_spinner('~A');" spinner))
+          (nospin-js (format nil "remove_spinner('~A');" spinner)))
       (setf before (if before
                        (string+ before spin-js)
                        spin-js))
@@ -390,9 +379,9 @@ Here's a (stupid) example of use, assumes content is bound.
                                                :parameters ,(if form
                                                                 '(:raw "Form.serialize(this)")
                                                                 (json-options-transform params))
-                                               ,@(if complete `("onComplete" (:raw ,(formatn "function(request){~A}" complete))))
-                                               ,@(if success `("onSuccess" (:raw ,(formatn "function(request){~A}" success))))
-                                               ,@(if failure `("onFailure" (:raw ,(formatn "function(request){~A}" failure))))
+                                               ,@(if complete `("onComplete" (:raw ,(format nil "function(request){~A}" complete))))
+                                               ,@(if success `("onSuccess" (:raw ,(format nil "function(request){~A}" success))))
+                                               ,@(if failure `("onFailure" (:raw ,(format nil "function(request){~A}" failure))))
                                                ))
                  in-function?)))
 
