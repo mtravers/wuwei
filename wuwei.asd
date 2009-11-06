@@ -1,9 +1,9 @@
 (in-package :asdf)
 
 (defsystem :wuwei
-    :name "Collaborative, Ajaxy version of the web-based listener"
+    :name "Ajax and other tools for web development."
     :serial t
-    :depends-on (:aserve :cl-json :mtlisp :3utils);  :cl-smtp :cl-base64
+    :depends-on (:aserve :cl-json :mtlisp :3utils)
     :components 
     (
      (:file "package")
@@ -11,26 +11,6 @@
      (:file "web")
      (:file "htmlgen-patch")
      (:file "ajax-render")
+     (:file "error")
      (:file "async")
-
-#|
-     (:file "session")
-     (:file "config")
-     (:file "history")
-     (:file "login")
-     (:file "nlistener")
-     (:file "tree")
-     (:file "doc")
-     (:file "discussions")
-     (:file "content")
-     (:file "forms")
-     (:file "frame-browse")
-     (:file "publish")
-     (:file "frame-grid")
-     (:file "ext")
-     (:file "annotate")
-     (:file "graphviz")
-     (:file "user-funs")
-     (:file "heatmap")
-|#
      ))

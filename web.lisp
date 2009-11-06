@@ -24,14 +24,9 @@
 	  checkbox-to-remote
 
 	  async async-html
-	  )
-	:wu)
+	  ))
 
-
-#|
-Basic web functions and infrastructure.  Stuff in this file should stand on its own (no prototype or other libraries required).
-|#
-
+;;; Basic web functions and infrastructure.  Stuff in this file should stand on its own (no prototype or other libraries required).
 
 ;;; Define a directory and path for public files
 
@@ -66,67 +61,18 @@ Basic web functions and infrastructure.  Stuff in this file should stand on its 
    ((:link :rel "stylesheet" :type "text/css" :href (coerce-url file-or-url)))))
 
 
-;;;
-
-
-(defvar *upload-directory* (make-pathname :directory (append (pathname-directory cl-user::*3rdwheel-dir*) '("uploads"))))
-
-(defvar *buffer-size* (* 1024 4))
- 
-(defun buffered-stream-copy (in out)
-  (loop with buffer = (make-array *buffer-size* :element-type '(unsigned-byte 8))
-     for n = (read-sequence buffer in)
-     with len = 0
-     finally (return len)
-     while (and n (< 0 n)) do
-       (incf len n)
-       (if out
-           (write-sequence buffer out :end n))))
-
-;; --> Rely on obfuscated path for security for now
-;; --> In future, produce URL with SPARQL OID and enforce real security.
-
-(defparameter *PATH-QUERY-PARAMETER* "path")
-
-;;; +++ needs to handler missing files more gracefully -- but that depends on the filetype
-(defun serve-up-document (req ent)
-  (with-http-response (req ent) ;; &key timeout check-modified format response content-type)
-    (with-http-body (req ent)
-      (let* ((relative-path (request-query-value *PATH-QUERY-PARAMETER* req))
-             (absolute-path (absolute-upload-path relative-path))
-             (response (request-reply-stream req))
-             )
-	(with-open-file (s absolute-path :direction :input :element-type '(unsigned-byte 8))
-	  (buffered-stream-copy s response))
-	))))
-
-(publish :path "/documents"
-         :function 'serve-up-document)
-
 #|
 Philosophy of this library: Things work via side effect (by using the HTML macro and associated machinery).
 
 If you want a string, wrap the call with html-string.  For example:
 (link-to (html-string (image-tag "collabrx_logo_small.png"))
          "/")
-
 |#
 
 (defmacro html-string (&body stuff)
   `(with-output-to-string (s)
-     (let ((net.aserve::*html-stream* s))
-       (net.aserve::html ,@stuff))))
-
-
-
-(defun generate-relative-upload-path (name)
-  (format () "~d/~d/~a" (random 100) (random 100) name))
-
-(defun absolute-upload-path (relative-path)
-  (string+ (namestring *upload-directory*) relative-path))
-
-(defun uploaded-url (name)
-  (format nil "/documents?~a=~a" *PATH-QUERY-PARAMETER* name))
+     (let ((*html-stream* s))
+       (html ,@stuff))))
 
 (defmacro maybe-to-string (to-string? &body body)
   `(if ,to-string?
@@ -190,12 +136,6 @@ If you want a string, wrap the call with html-string.  For example:
 (defun labelify (string)
   (string-capitalize (substitute #\  #\- string)))
 
-(publish-file :path "/favicon.ico"
-              :content-type "image/x-icon"
-              :file  (namestring (make-pathname :directory (append (pathname-directory cl-user::*3rdwheel-dir*) '("public" "images")) :name "favicon" :type "ico"))
-              ;; (append (pathname-directory cl-user::*3rdwheel-dir*) '("public" "images" "favicon.ico"))
-              )
-
 (defmacro html-princ (text)
   `(html
      (:princ-safe ,text)))
@@ -215,36 +155,23 @@ If you want a string, wrap the call with html-string.  For example:
 (defmacro h3 (label)
   `(:h3 (:princ ,label)))
 
-;; Make a Select element that triggers off of the mouseup event
-(defun action-selector (selector-id name options url &key params selected)
+;;; Make a Select element 
+;;; If URL is given, trigger off of the mouseup event
+(defun action-selector (id name options url &key params selected)
   (html
     ((:select :name name
-              :id selector-id
-              :onmouseup (format nil "if (Ext.isSafari){~a}" (remote-function url :params (append `(:type (:raw "this.value")) params)))
+              :id id
+              :if* url :onmouseup (format nil "if (Ext.isSafari){~a}" (remote-function url :params (append `(:type (:raw "this.value")) params)))
               )
      (loop for (value name) in options do
           (html
             ((:option :value value
-		      :onmouseup (remote-function url :params (append `(:type ,(format nil "~a" value)) params))
+		      :if* url :onmouseup (remote-function url :params (append `(:type ,(format nil "~a" value)) params))
 		      :if* (equal value selected) :selected "selected"
 		      )
-             ;; --> this should persist in a session variable
              (:princ-safe name) :newline)))
      )))
 
-#|
-(defmacro action-selector (selector-id name options url &optional button)
-  `(html
-     ((:select :name ,name
-             :id ,selector-id
-             :onmouseup (format nil "if (Ext.isSafari){~a}" (remote-function ,url :params `(:type (:raw "this.value"))))
-             )
-      ,@(loop for (value name) in (,options)
-          collecting `((:option :value ,value :onmouseup ,(remote-function ,url :params `(:type ,(format nil "~a" value))))
-                       ;; --> this should persist in a session variable
-                       (:princ ,name) :newline))
-     )))
-|#
 
 
 

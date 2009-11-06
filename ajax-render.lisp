@@ -150,7 +150,6 @@ Not yet:
   (with-output-to-string (stream)
     (net.html.generator::emit-safe stream string)))
 
-;;; +++ more might be needed.
 (defun clean-js-string (string)
   (string-replace
    (string-replace string (string #\Newline) "\\n")
@@ -158,27 +157,6 @@ Not yet:
 
 (defvar *multipart-request*)
 (defvar *ajax-request*)
-
-;;; +++ Use a Rails-like flash area instead of alerts
-(defun compose-error-message (path &key error stack-trace)
-  (let ((message (format nil "Lisp error while servicing ~a: ~A~:[~;~a~]" path error *developer-mode* (clean-js-string stack-trace))))
-    (log-message message)
-    ;;; This doesn't work; the header is already generated and sent.
-    ;(setf (request-reply-code *ajax-request*) 400)
-    (if *multipart-request*
-        (html
-          (:princ (json:encode-json-to-string `((failure . true)
-                                                ;;(success . false)
-                                                (message . ,(clean-js-string message))))))
-        (render-update
-          (:alert  (princ-to-string error)))
-        )))
-
-;;; I don't know what this thinks its doing
-(defmacro with-ajax-error-handler (name &body body)
-  `(utils:without-unwinding-restart (compose-error-message ,name)
-    ,@body
-    ))
 
 ;; If the client performs a file upload, an HTML form is used and a page of type text/html must be returned
 (defmacro multipart? (req)
@@ -264,7 +242,6 @@ Here's a (stupid) example of use, assumes content is bound.
 ;;; Drag/drop
 
 ;;; See here for description of options: http://wiki.github.com/madrobby/scriptaculous/draggable
-
 ;;; to make this useful, need patched cl-json that can do :raw strings.
 
 (define-render-update :draggable (elt &rest options)
@@ -304,10 +281,6 @@ Here's a (stupid) example of use, assumes content is bound.
              (or (not (alpha-char-p c))
                  (upper-case-p c)))
          s))
-
-;; checkbox value.
-(defmacro true-string (s)
-  `(string-equal "true" ,s))
 
 ;;; Equivalent of link_to_remote etc.  Could take more options.
 
@@ -390,44 +363,8 @@ Here's a (stupid) example of use, assumes content is bound.
     (when confirm (setf result (format nil "if (confirm('~A')) { ~A };" confirm result)))
     result))
 
-(defvar *system-info* nil)
-(defparameter *bug-report-url* "http://corp.collabrx.com/trac/bioblog/newticket")
 
-(defun system-info ()
-  (unless *system-info*
-    (setf *system-info*
-          (let* ((branch (nthline 1 (run-shell-command-to-string  "cd '~A'; hg branch" (namestring cl-user::*3rdwheel-dir*))))
-                 (rev (nthline 1 (run-shell-command-to-string "cd '~A'; hg heads ~A | egrep -e 'changeset:[[:space:]]+([[:digit:]]+)' -o | egrep -e '[[:digit:]]+' -o" (namestring cl-user::*3rdwheel-dir*)  branch)))
-                 (time (utils:date-time-string (utils::now))))
-            (format nil "System started at ~A using branch ~A:~A" time branch rev))))
-  *system-info*)
 
-(defmacro report-bug-button (&optional (info ""))
-  `((:a :href (format nil "~a?description=~A" *bug-report-url* (url-encode (format nil "In ~A:~%~%~a" *system-info* ,info))) :target "trac") "Report a bug"))
 
-(defun error-box ()
-  (html ((:div :id "error_box"))))
-
-(defun render-error (msg &key stack-trace user-error?)
-  (render-update
-    (:replace "error_box"
-              (html
-                ((:div :class (if user-error? "uerror" "error") :id "error_box") ;!!! have to keep this id or later errors won't work
-                 (:princ-safe msg)
-		 (unless user-error?
-		   (html
-		    (report-bug-button stack-trace)
-		    ((:a :onclick "toggle_visibility('error_box_stack_trace');") "&nbsp;Show stack&nbsp;")
-		    ((:div :class "error" :id "error_box_stack_trace")
-		     ((:script :type "text/javascript")
-		      "make_invisible('error_box_stack_trace');"
-		      )
-		     (:pre
-		      (:princ-safe stack-trace))
-		     ))))))))
-
-(defun clear-error ()
-  (render-update
-   (:update "error_box" "")))
 
 
