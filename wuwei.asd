@@ -7,6 +7,7 @@
     :components 
     (
      (:file "package")
+     (:file "config")
      (:file "bigstring")
      (:file "web")
      (:file "htmlgen-patch")

@@ -30,7 +30,6 @@
 
 ;;; Define a directory and path for public files
 
-
 (defvar *public-directory* (make-pathname :directory (append (pathname-directory cl-user::*3rdwheel-dir*) '("public"))))
 
 (publish-directory :destination (namestring *public-directory*)
@@ -98,34 +97,6 @@ If you want a string, wrap the call with html-string.  For example:
   (utils:string-replace string (string #\Newline) "<br/>"))
 
 
-
-;; --> conditionalize to use html or javascript, depending on context.
-;; Scrub the string more vigorously!
-(defun html-report-error (&key error stack-trace)
-  ;; Log this?
-  (log-message (format nil "~%Unhandled exception caught by with-html-error-handling: ~a~%~a~%" error stack-trace))
-  (html
-    ((:div :class "error")
-     (:b
-      (:princ-safe (string+ "Error: " (princ-to-string error))
-                   ))
-     (if *developer-mode*
-         (html
-           (:pre
-            (:princ-safe stack-trace))
-           )
-         )
-     )
-    ))
-
-
-;;; If you want to close off html elements in case of an error, I think you need to add unwind-protects to  html-body-key-form
-;;;  in /misc/downloads/cl-portable-aserve-1.2.42/aserve/htmlgen/htmlgen.cl
-;;;  get-frames-list for a backtrace (but probably need a different kind of handler in that case)
-(defmacro with-html-error-handling (&body body)
-  `(utils:without-unwinding-restart (html-report-error)
-     ,@body))
-
 ;;; convert lisp-style hyphenated string into camel case
 (defun camel-case (string)
   (apply #'string+
@@ -152,8 +123,13 @@ If you want a string, wrap the call with html-string.  For example:
   `(html
      :newline))
 
+#|
++++ how about generating functions for all suitable HTML commands?
+
 (defmacro h3 (label)
   `(:h3 (:princ ,label)))
+|#
+
 
 ;;; Make a Select element 
 ;;; If URL is given, trigger off of the mouseup event
