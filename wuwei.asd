@@ -3,7 +3,8 @@
 (defsystem :wuwei
     :name "Ajax and other tools for web development."
     :serial t
-    :depends-on (:aserve :cl-json :mtlisp :3utils)
+    :depends-on (:aserve :cl-json :mtlisp :3utils
+			 :swframes)	;+++ temp!  Autocomplete refers to sw still
     :components 
     (
      (:file "package")
@@ -14,4 +15,5 @@
      (:file "ajax-render")
      (:file "error")
      (:file "async")
+     (:file "autocomplete")
      ))
