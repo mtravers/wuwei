@@ -63,13 +63,13 @@ See http://wiki.github.com/madrobby/scriptaculous/ajax-autocompleter
 (defun in-place-field (&key (id (string (gensym "id")))
 		       name
 		       options
-		       frame
-		       predicate
 		       (prompt "Click to edit.")
+		       on-change
+		       value
 		       )
   (when prompt
     (push `("emptyText" . ,prompt) options))
-  (let ((current-value (and frame (ssv frame predicate))))
+  (let ((current-value value))
     (html 
      ((:div :id id :name name); :style "border:1px solid gray"
       (if current-value
@@ -77,8 +77,12 @@ See http://wiki.github.com/madrobby/scriptaculous/ajax-autocompleter
      (render-scripts
       (:js (format nil "new Ajax.InPlaceEditorWithEmptyText('~A', '~A', ~A);"
 		    id
-		    (ajax-continuation+ (:args (value) :content-type "text/text")
-					(write-slot frame predicate :value value) 
+		    (ajax-continuation (:args (value) :content-type "text/text")
+					(funcall on-change value)
 					;; you are supposed to send the value back as the body
 					(write-string value *html-stream*))
 		    (json:encode-json-to-string options)))))))
+
+
+	 
+
