@@ -8,10 +8,11 @@
     :components 
     (
      (:file "package")
+     (:file "aserve-patch")
+     (:file "htmlgen-patch")
      (:file "config")
      (:file "bigstring")
      (:file "web")
-     (:file "htmlgen-patch")
      (:file "ajax-render")
      (:file "error")
      (:file "async")
