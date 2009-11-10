@@ -24,6 +24,9 @@
 	  checkbox-to-remote
 
 	  async async-html
+
+	  action-selector
+
 	  ))
 
 ;;; Basic web functions and infrastructure.  Stuff in this file should stand on its own (no prototype or other libraries required).
