@@ -6,7 +6,9 @@
 
 (export '(error-box render-error clear-error
 	  
-	  with-html-error-handling))
+	  with-html-error-handling
+	  with-ajax-error-handler
+	  ))
 
 (defun error-box ()
   (html ((:div :id "error_box"))))
@@ -78,7 +80,7 @@
 
 ;;; I don't know what this thinks its doing
 (defmacro with-ajax-error-handler (name &body body)
-  `(utils:without-unwinding-restart (compose-error-message ,name)
+  `(without-unwinding-restart (compose-error-message ,name)
     ,@body
     ))
 

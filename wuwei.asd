@@ -14,6 +14,7 @@
      (:file "bigstring")
      (:file "web")
      (:file "ajax-render")
+     (:file "debug-utils")
      (:file "error")
      (:file "async")
      (:file "autocomplete")
