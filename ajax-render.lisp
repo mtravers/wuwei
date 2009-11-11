@@ -25,8 +25,8 @@ Done:
 # remove         :remove
 # redirect_to    :redirect
 # reload
-# delay          
-# alert          
+# delay
+# alert
 # hide
 # show
 # toggle
@@ -47,8 +47,8 @@ Not yet:
 (defmacro define-render-update (type args &body body)
   `(eval-when (:compile-toplevel :load-toplevel :execute)
      (setf (get ,type :renderer)
-	   (named-lambda ,type ,args
-			 ,@body))))
+           (named-lambda ,type ,args
+                         ,@body))))
 
 (define-render-update :update (elt htmlspec)
   `(let ((html
@@ -127,10 +127,10 @@ Not yet:
   `(let ((*render-update-scripts* nil))
      (let ((*within-render-update* t))
        ,@(mapcar #'(lambda (clause)
-		     (apply (or (get (car clause) :renderer)
-				(error "Don't know how to do operation ~A" (car clause)))
-			    (cdr clause)))
-		 clauses))
+                     (apply (or (get (car clause) :renderer)
+                                (error "Don't know how to do operation ~A" (car clause)))
+                            (cdr clause)))
+                 clauses))
      (unless *within-render-update*
        (render-update-scripts))
      ))
@@ -139,11 +139,11 @@ Not yet:
 ;;; appending to the update.
 (defmacro render-scripts (&body clauses)
   `(if *within-render-update*
-       (push-end (html-string 
-		  (render-update ,@clauses))
-		 *render-update-scripts*)
+       (push-end (html-string
+                  (render-update ,@clauses))
+                 *render-update-scripts*)
        (html ((:script :type "text/javascript")
-	      (render-update ,@clauses)))
+              (render-update ,@clauses)))
        ))
 
 (defun html-escape-string (string)
@@ -164,36 +164,36 @@ Not yet:
 
 (defmacro publish-ajax-update (path-or-options &body body)
   (let ((path (if (listp path-or-options)
-		  (findprop :path path-or-options)
-		  path-or-options))
-	(content-type (and (listp path-or-options) (findprop :content-type path-or-options))))
+                  (findprop :path path-or-options)
+                  path-or-options))
+        (content-type (and (listp path-or-options) (findprop :content-type path-or-options))))
     `(publish :path ,path
-	      :function (named-lambda ,path (req ent)
-				      (let* ((*multipart-request* (multipart? req))
-					     (*ajax-request* req)
-					     (content-type (or ,content-type (if *multipart-request* "text/html" "text/javascript"))))
-					(wb::with-http-response-and-body (req ent :content-type content-type)
-					  (wb::with-session (req ent)
-					    (with-ajax-error-handler ,path
-					      ,@body
-					      )))))
-	      )))
+              :function (named-lambda ,path (req ent)
+                                      (let* ((*multipart-request* (multipart? req))
+                                             (*ajax-request* req)
+                                             (content-type (or ,content-type (if *multipart-request* "text/html" "text/javascript"))))
+                                        (wb::with-http-response-and-body (req ent :content-type content-type)
+                                          (wb::with-session (req ent)
+                                            (with-ajax-error-handler ,path
+                                              ,@body
+                                              )))))
+              )))
 
 (defmacro publish-ajax-func (path-or-options args &rest body)
   `(publish-ajax-update ,path-or-options
-			(let (,@(mapcar #'(lambda (arg)
-					    `(,arg (request-query-value ',(smart-string (string arg)) req)))
-					args))
-			  ,@body)))
+                        (let (,@(mapcar #'(lambda (arg)
+                                            `(,arg (request-query-value ',(smart-string (string arg)) req)))
+                                        args))
+                          ,@body)))
 
 (defvar *ajax-counter* 0)
 
 (defmacro ajax-continuation ((&key args keep content-type) &body body)
   `(let ((fname (string+ "/ajax/" (fast-string (incf *ajax-counter*)))))
-     (publish-ajax-func (:path fname :content-type ,content-type) ,args 
-			,@body
-			,(unless keep
-			       '(unpublish fname)))
+     (publish-ajax-func (:path fname :content-type ,content-type) ,args
+                        ,@body
+                        ,(unless keep
+                               '(unpublish fname)))
      fname))
 
 ;;; Inexplicably not in aserve.
@@ -208,19 +208,19 @@ Not yet:
 
 (defun do-responder-timeouts ()
   (let* ((now (get-universal-time))
-	 (expired
-	  (mt:collecting
-	   (dolist (item *responder-timeout*)
-	     (when (> (car item) now)
-	       (unpublish (cadr item))
-	       (mt:collect item))))))
+         (expired
+          (mt:collecting
+           (dolist (item *responder-timeout*)
+             (when (> (car item) now)
+               (unpublish (cadr item))
+               (mt:collect item))))))
     (setf *responder-timeout* (nset-difference *responder-timeout* expired))))
 
 (eval-when (:load-toplevel)
   (in-background "Responder timeout"
-		 (loop
-		    (sleep 60)
-		    (do-responder-timeouts))))
+                 (loop
+                    (sleep 60)
+                    (do-responder-timeouts))))
 
 
 #|
@@ -229,9 +229,9 @@ Here's a (stupid) example of use, assumes content is bound.
 (html
  (dolist (word (slotv content #$crx:words))
    (html (:princ-safe word)
-	 (:princ "&nbsp;")))
+         (:princ "&nbsp;")))
  :newline :br
- (button-to-remote 
+ (button-to-remote
   "Click to add a random word"
   (ajax-continuation
    (push-end (random-word) (slotv content #$crx:words))
@@ -315,7 +315,7 @@ Here's a (stupid) example of use, assumes content is bound.
                ))
 
 (defun uploader (id url)
-  (format nil *uploader-html* id id url *file-field-name*)
+  (format nil *uploader-html* id id url nl::*file-field-name*)
   )
 
 ;;; Generate a remote function (Ajax call)
