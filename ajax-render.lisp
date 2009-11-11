@@ -314,8 +314,10 @@ Here's a (stupid) example of use, assumes content is bound.
                "<script TYPE='text/javascript'>make_uploader('~a', '~a', '~a');</script>"
                ))
 
+(defparameter *file-field-name* "Data")
+
 (defun uploader (id url)
-  (format nil *uploader-html* id id url nl::*file-field-name*)
+  (format nil *uploader-html* id id url *file-field-name*)
   )
 
 ;;; Generate a remote function (Ajax call)
