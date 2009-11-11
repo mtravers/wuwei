@@ -10,7 +10,7 @@
 	  html-escape-string clean-js-string
 
 	  publish-ajax-update publish-ajax-func ajax-continuation 
-	  *ajax-request*
+	  *ajax-request* *within-render-update*
 
 	  unpublish
 	  
