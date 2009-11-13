@@ -7,5 +7,7 @@ Runs on top of portable aserve.
 
 Requires prototpe and scriptaculous.  Also makes some use of Ext (optional).
 
-Needs patched version of cl-json.
-
+TODO BEFORE RELEASE
+- Needs patched version of cl-json.
+- listener.js (and maybe .css) need to be broken up and the appropriate parts put in here.
+- config

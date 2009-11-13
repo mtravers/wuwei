@@ -338,7 +338,7 @@ Here's a (stupid) example of use, assumes content is bound.
 |#
 
 (defun remote-function (url &key form params (in-function? t) confirm before after spinner
-                        success failure complete)
+                        success failure complete eval-scripts?)
   (when spinner
     (let ((spin-js (format nil "add_spinner('~A');" spinner))
           (nospin-js (format nil "remove_spinner('~A');" spinner)))
@@ -358,6 +358,7 @@ Here's a (stupid) example of use, assumes content is bound.
                                                ,@(if complete `("onComplete" (:raw ,(format nil "function(request){~A}" complete))))
                                                ,@(if success `("onSuccess" (:raw ,(format nil "function(request){~A}" success))))
                                                ,@(if failure `("onFailure" (:raw ,(format nil "function(request){~A}" failure))))
+					       ,@(if eval-scripts? `("evalScripts" t))
                                                ))
                  in-function?)))
 
