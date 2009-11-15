@@ -250,7 +250,11 @@ Here's a (stupid) example of use, assumes content is bound.
            ,elt
            (json-options (list ,@options))))
 
-;;; want to be able to specify a callback function
+;;; options are as specified by scriptaculous, see http://wiki.github.com/madrobby/scriptaculous/droppables
+;;; Particulary :accept <css class>
+;;; To specify a callback:
+;;; probably should abstract thos some.
+;;;    :|onDrop| `(:raw "functions (elt) {...}")
 (define-render-update :drop-target (elt &rest options)
   `(format *html-stream* "~%Droppables.add('~A', ~A);"
            ,elt
