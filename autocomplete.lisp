@@ -23,6 +23,7 @@ See http://wiki.github.com/madrobby/scriptaculous/ajax-autocompleter
 
 (defun auto-complete-field (&key (id (string (gensym "id")))
 			    name
+			    value
 			    options
 			    completions-url
 			    on-selected
@@ -37,7 +38,7 @@ See http://wiki.github.com/madrobby/scriptaculous/ajax-autocompleter
 	  `(:raw "postAutocomplete")))
     )
   (html
-   ((:input :id id :name name))
+   ((:input :id id :name name :if* value :value value))
    (render-scripts
     ;; put the autocomplete div somewhere where it won't get clipped
     (:insert :bottom "main"		;+++ this is dependent on a specific layout...
