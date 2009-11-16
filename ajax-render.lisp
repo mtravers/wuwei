@@ -21,17 +21,7 @@ Done:
 # replace_html   :update     Element.update
 # replace        :replace    Element.replace
 # draggable      :draggable
-# drop_receiving :drop-target (not fully working)
-<< (raw js)      :js
-# remove         :remove
-# redirect_to    :redirect
-# reload
-# delay
-# alert
-# hide
-# show
-# toggle
-# visual_effect :visual-effect
+# drop_receiving :drop-target
 
 Not yet:
 
