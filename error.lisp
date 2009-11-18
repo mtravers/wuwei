@@ -84,6 +84,10 @@
     ,@body
     ))
 
-
-
+(defun need-to-login-response (req ent)
+  (declare (ignore req ent))
+  (html
+   (render-scripts
+    (:redirect "/nlogin")		;+++ parameterize
+    )))
 

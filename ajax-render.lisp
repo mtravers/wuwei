@@ -163,8 +163,8 @@ Not yet:
                                       (let* ((*multipart-request* (multipart? req))
                                              (*ajax-request* req)
                                              (content-type (or ,content-type (if *multipart-request* "text/html" "text/javascript"))))
-                                        (wb::with-http-response-and-body (req ent :content-type content-type)
-                                          (wb::with-session (req ent)
+                                        (with-http-response-and-body (req ent :content-type content-type)
+                                          (with-session (req ent)
                                             (with-ajax-error-handler ,path
                                               ,@body
                                               )))))

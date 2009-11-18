@@ -94,26 +94,3 @@ Todo:
 	(error "Couldn't find async request ~A" id)
 	)))
 
-#| WWW
-(defmethod wb::out-record-to-html ((form async-result) (string string) &rest ignore)
-  (declare (ignore ignore))
-  (if (async-result-finished? form)
-      (html
-	(:princ (async-result-result form)))
-      (html 
-       ;; for debugging add:  :style "border-width:1px;border-style:solid;"
-	((:span :id (async-result-id form) )
-	 (aif (async-result-pre-text form)
-	      (html (:princ it)))
-	 ((:img :src "/weblistenerdocs/spinner.gif")))
-	(:newline)
-	;; assume this is done on calling page.
-;	(load-javascripts)
-	(:newline)
-	((:script :type "text/javascript")
-	 (:newline)
-	 (:princ (format nil "Async.getAsyncResult('~A');" (async-result-id form)))
-	 (:newline)
-	 ))
-      ))
-|#

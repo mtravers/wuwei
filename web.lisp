@@ -25,6 +25,7 @@
 
 	  async async-html
 
+	  html-list
 	  action-selector
 
 	  ))
@@ -132,6 +133,12 @@ If you want a string, wrap the call with html-string.  For example:
 (defmacro h3 (label)
   `(:h3 (:princ ,label)))
 |#
+
+
+(defmacro html-list (var)
+  `(:ul
+    ,@(loop for i in (eval var)
+         collecting `(:li (:princ (symbol-name ,i))))))
 
 
 ;;; Make a Select element 

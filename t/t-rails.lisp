@@ -10,7 +10,7 @@
 	 :function 'updated-page)
 
 (defun updated-page (req ent)
-  (wb::with-http-response-and-body (req ent)
+  (with-http-response-and-body (req ent)
     (html (:head
 	   (javascript-includes "prototype.js" "effects.js")
 	   )
