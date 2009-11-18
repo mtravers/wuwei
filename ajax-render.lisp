@@ -250,13 +250,6 @@ Here's a (stupid) example of use, assumes content is bound.
            ,elt
            (json-options (list ,@options))))
 
-#|  Would be nice to have a higher level abstraction for drag/drop...but needs a convention for string identities...think about it +++
-(define-render-update :drop-target2 (elt continuation &rest options)
-  `(format *html-stream* "~%Droppables.add('~A', function(elt) {new Ajax.Request('~A', {asynchronous:true, evalScripts:true, parameters: {target: '~A', dropped: id_elt.innerHTML}});});"
-           ,elt
-	   continuation
-           (json-options (list ,@options))))
-|#
 
 ;;; turn keywords (:k1 v1 :k2 v2 ...) into CL-JSON
 (defun json-options-transform (options)

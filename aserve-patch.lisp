@@ -6,7 +6,6 @@ Fixes a bug in portableaserve.  Modern browsers return headers like this:
 The patch below makes aserve ignore the semicolon and following text. 
 |#
 
-
 (defun header-first-field (s)
   (let ((sep (position #\; s)))
     (if sep

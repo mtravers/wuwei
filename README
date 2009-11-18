@@ -3,9 +3,9 @@ A start at modularizing web utilities out of nlistener.
 Compared with something like Weblocks, this is a much lighter-weight way of doing Ajax-like web pages.  It's a toolkit rather
 than a platform.
 
-Runs on top of portable aserve.
+Runs on top of portable aserve, which it patches.
 
-Requires prototpe and scriptaculous.  Also makes some use of Ext (optional).
+Requires prototype and scriptaculous.  Also makes some use of Ext (optional).
 
 TODO BEFORE RELEASE
 - Needs patched version of cl-json.
