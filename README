@@ -3,11 +3,14 @@ A start at modularizing web utilities out of nlistener.
 Compared with something like Weblocks, this is a much lighter-weight way of doing Ajax-like web pages.  It's a toolkit rather
 than a platform.
 
-Runs on top of portable aserve, which it patches.
+Runs on top of portable aserve, which it patches.  
+  http://sourceforge.net/projects/portableaserve/
+Do not confuse this with non-portable aserve, which might work (but only on Allegro)
+  
 
 Requires prototype and scriptaculous.  Also makes some use of Ext (optional).
 
 TODO BEFORE RELEASE
-- Needs patched version of cl-json.
+- remove wb: dependencies
 - listener.js (and maybe .css) need to be broken up and the appropriate parts put in here.
 - config
