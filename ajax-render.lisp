@@ -279,15 +279,26 @@ Here's a (stupid) example of use, assumes content is bound.
          s))
 
 ;;; Equivalent of link_to_remote etc.  Could take more options.
+;;; We can now deal with arbitrary html-options, so regularize the calling sequence of these...
 
-;;; +++ extend to allow specificaton of html-options
-(defun link-to-remote (text url &rest options)
-  (apply #'link-to-function text (apply #'remote-function url options) nil))
+;;; +++ move to some version of utils
+(defun delete-keyword-arg (key arglist)
+  (awhen (position key arglist)
+	 (if (zerop it)
+	     (setf arglist (cddr arglist))
+	     (setf (nthcdr it arglist) (nthcdr (+ it 2) arglist))))
+  arglist)
 
-;;; unfortunately html macro doesn't make it easy to have variable options so html-options is ignored.
+(defun delete-keyword-args (keys arglist)
+  (if (null keys) arglist
+      (delete-keyword-arg (car keys) (delete-keyword-args (cdr keys) arglist))))
+
+(defun link-to-remote (text url &rest remote-function-options &key html-options &allow-other-keys)
+  (link-to-function text (apply #'remote-function url (delete-keyword-args '(:html-options) remote-function-options)) :html-options html-options))
+
 (defun link-to-function (text js &key html-options)
   (html
-   ((:a :href "#" :onclick js)
+   ((:a :href "#" :onclick js :do* html-options)
     (:princ text))))
 
 (defun button-to-remote (text url &rest options)
@@ -316,8 +327,10 @@ Here's a (stupid) example of use, assumes content is bound.
   (format nil *uploader-html* id id url *file-field-name*)
   )
 
-;;; Generate a remote function (Ajax call)
+;;; Generate a remote function (javascript Ajax call)
 ;; ex: (remote-function "/new-chunk" :params `(:user ,user :type (:raw ,(format nil "$(~A).value" selector-id))))
+;; returns something like:
+;;  new Ajax.Request('/new-chunk', {"asynchronous":true,"parameters":{"user":"mt","type":$(selector23).value}}); return false;
 #|
 :form      If t, serialize the surrounding form, else use params
 :params    List of (:key1 value1 ...), ignored if :form is t
