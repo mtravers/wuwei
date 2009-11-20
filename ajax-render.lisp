@@ -240,6 +240,12 @@ Here's a (stupid) example of use, assumes content is bound.
            ,elt
            (json-options (list ,@options))))
 
+;;; +++ exp, uses a local extension to scriptaculous
+(define-render-update :draggable-class (class &rest options)
+  `(format *html-stream* "~%Draggable.addClass('~A', null, ~A);"
+           ,class
+           (json-options (list ,@options))))
+
 ;;; options are as specified by scriptaculous, see http://wiki.github.com/madrobby/scriptaculous/droppables
 ;;; Particulary :accept <css class>
 ;;; To specify a callback:
