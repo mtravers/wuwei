@@ -81,6 +81,10 @@ Not yet:
 (define-render-update :js (string)
   `(write-string ,string *html-stream*))
 
+;;; A script that gets inserted after the normal updates (+++ experimental, not used yet)
+(define-render-update :post-js (string)
+  (push-end string *render-update-scripts*))
+
 (define-render-update :redirect (url)
   `(format *html-stream* "~%window.location.href = '~A';" ,url))
 
