@@ -67,12 +67,13 @@ See http://wiki.github.com/madrobby/scriptaculous/ajax-autocompleter
 		       (prompt "Click to edit.")
 		       on-change
 		       value
+		       class
 		       )
   (when prompt
     (push `("emptyText" . ,prompt) options))
   (let ((current-value value))
     (html 
-     ((:div :id id :name name); :style "border:1px solid gray"
+     ((:div :id id :name name :if* class :class class); :style "border:1px solid gray"
       (if current-value
 	  (html (:princ-safe current-value))))
      (render-scripts

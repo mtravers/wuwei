@@ -16,7 +16,7 @@
 	  
 	  image-tag 
 
-	  nbsp html-princ
+	  nbsp br html-princ
 
 	  remote-function link-to
 	  link-to-remote link-to-function
