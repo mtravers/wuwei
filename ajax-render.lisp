@@ -141,6 +141,16 @@ Not yet:
               (render-update ,@clauses)))
        ))
 
+;;; I don't understand the above, but am temporarily too scared to mess with it.  Here's a version that is simpler and I think does
+;;; the right thing, should eventually replace the above unless I'm confused ++++
+(defmacro render-scripts+ (&body clauses)
+  `(if *ajax-request*
+       (render-update
+	,@clauses)
+       (html ((:script :type "text/javascript")
+              (render-update ,@clauses)))
+       ))
+
 (defun html-escape-string (string)
   (with-output-to-string (stream)
     (net.html.generator::emit-safe stream string)))
@@ -151,7 +161,7 @@ Not yet:
    "\"" "\\\""))
 
 (defvar *multipart-request*)
-(defvar *ajax-request*)
+(defvar *ajax-request* nil)
 
 ;; If the client performs a file upload, an HTML form is used and a page of type text/html must be returned
 (defmacro multipart? (req)
