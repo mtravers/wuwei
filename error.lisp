@@ -7,6 +7,7 @@
 (export '(error-box render-error clear-error
 	  
 	  with-html-error-handling
+	  with-html-safe-error-handling
 	  with-ajax-error-handler
 	  ))
 
@@ -21,7 +22,7 @@
                  (:princ-safe msg)
 		 (unless user-error?
 		   (html
-		    (report-bug-button stack-trace)
+;+++		    (report-bug-button stack-trace)
 		    ((:a :onclick "toggle_visibility('error_box_stack_trace');") "&nbsp;Show stack&nbsp;")
 		    ((:div :class "error" :id "error_box_stack_trace")
 		     ((:script :type "text/javascript")
@@ -62,7 +63,7 @@
      (:b
       (:princ-safe (string+ "Error: " (princ-to-string error))
                    ))
-     (if *developer-mode*
+     (if (and stack-trace *developer-mode*)
          (html
            (:pre
             (:princ-safe stack-trace))
@@ -78,6 +79,17 @@
   `(utils:without-unwinding-restart (html-report-error)
      ,@body))
 
+;;; Another method: do all generation to a string; if an error occurs catch it and make a error block instaned
+(defmacro with-html-safe-error-handling (&body body)
+  `(let ((result
+	  (handler-case 
+	      (html-string ,@body)
+	    (error (e)
+	      (html-string
+	       (html-report-error :error e)
+	       )))))
+     (write-string result *html-stream*)))
+
 ;;; I don't know what this thinks its doing
 (defmacro with-ajax-error-handler (name &body body)
   `(without-unwinding-restart (compose-error-message ,name)
@@ -91,3 +103,9 @@
     (:redirect "/nlogin")		;+++ parameterize
     )))
 
+(defvar *LOGGING* t)
+(defvar *LOGGING-STREAM* *STANDARD-OUTPUT*)
+
+(defun log-message (message)
+  (if *LOGGING*
+      (format *LOGGING-STREAM* "~a ~a~%" (net.aserve::universal-time-to-date (get-universal-time))  message))) ; +++ (user-string)

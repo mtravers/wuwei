@@ -10,8 +10,6 @@ Support for autocomplete and in-place-editor widgets
 See http://wiki.github.com/madrobby/scriptaculous/ajax-autocompleter
 
  Todo: 
- - should decouple Frame and SPARQL from a more basic layer
-   -  Autocomplete is done, in-place todo
  - layout and bounds stuff.
  - idea: a greyed out type indicator by default (apparently not supported by scriptaculous -- but it ought to layer on top OK).
  - completion machinery for replacing box with frame on comp
@@ -29,6 +27,14 @@ See http://wiki.github.com/madrobby/scriptaculous/ajax-autocompleter
 			    on-selected
 			    (update (string+ id "_auto_complete"))
 			    )
+  #.(doc "Generate an HTML autocompletion field. Arguments below (all except completions-url are optional)"
+"ID - the HTML ID of the element"
+"NAME - the name of the field"
+"VALUE - the current value of the field"
+"OPTIONS - additional options to pass to the scriptaculous Ajax.Autocompleter object, in JSON form"
+"COMPLETIONS-URL - a URL that supplies the completions"
+"ON-SELECTED - a function that is called with the value, value string, and id of the selected option"
+"UPDATE - the HTML ID of the autocompletion box")
   (flet ((default-option (optname value)
 	   (unless (member optname options :key #'car :test #'equal)
 	     (push (cons optname value) options))))
