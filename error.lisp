@@ -46,11 +46,12 @@
           (:princ (json:encode-json-to-string `((failure . true)
                                                 ;;(success . false)
                                                 (message . ,(clean-js-string message))))))
-	;; +++ was alert, changed to this and untested.  Needs to have some way to make the error box disappear, also have different colors?
         (render-update
-	 (:show "error_box")
-	 (:update "error_box"  (princ-to-string error)))
-        )))
+	 (:alert (princ-to-string error))
+; +++ This would be nice but it doesn't work, also needs to be some way to clear error.
+;	 (:show "error_box")
+;	 (:update "error_box"  (princ-to-string error)))
+        ))))
 
 
 ;; --> conditionalize to use html or javascript, depending on context.
