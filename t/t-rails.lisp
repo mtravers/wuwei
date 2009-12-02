@@ -4,7 +4,34 @@
 
 ;;; Test that te generation machinery is sane
 (define-test generation 
-    (link-to-remote "foo" "/foo" :html-options '(:style "font-style:italic") :success "alert('you win');"))
+    (assert-true 
+     (typep
+      (html-string
+       (link-to-remote "foo" "/foo" :html-options '(:style "font-style:italic") :success "alert('you win');"))
+      'string)))
+
+;;; Tests ajax-continuation mechanism
+(define-test ajax
+    (let ((test nil))
+      (get-url (string+ "http://localhost:8002"
+			(ajax-continuation (:no-session? t) 
+					   (setq test t)
+					   (render-update (:alert "foo"))))
+	       :method :post)
+      (assert-true test)))
+
+;;; same as above, but continuation should not run due to login requirement
+(define-test login-required
+    (let ((test nil))
+      (let ((res
+	     (get-url (string+ "http://localhost:8002" 
+			       (ajax-continuation () 
+						  (setq test t)
+						  (render-update (:alert "foo"))))
+		      :method :post)))
+	(assert-false test)
+	;; Should be getting a redirect command back
+	(assert-true (search "window.location.href" res)))))
 
 (publish :path "/updated" 
 	 :function 'updated-page)

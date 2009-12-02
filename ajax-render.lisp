@@ -175,20 +175,24 @@ Not yet:
 
 ;; If the client performs a file upload, an HTML form is used and a page of type text/html must be returned
 (defmacro multipart? (req)
-  `(string= (subseq (header-slot-value ,req :content-type) 0 (length "multipart/form-data")) "multipart/form-data"))
+  `(let ((header (header-slot-value ,req :content-type)))
+     (and header 
+	  (string= (subseq header 0 (min (length header) (length "multipart/form-data")))
+		   "multipart/form-data"))))
 
 (defmacro publish-ajax-update (path-or-options &body body)
   (let ((path (if (listp path-or-options)
                   (findprop :path path-or-options)
                   path-or-options))
-        (content-type (and (listp path-or-options) (findprop :content-type path-or-options))))
+        (content-type (and (listp path-or-options) (findprop :content-type path-or-options)))
+	(no-session? (and (listp path-or-options) (findprop :no-session? path-or-options))))
     `(publish :path ,path
               :function (named-lambda ,path (req ent)
                                       (let* ((*multipart-request* (multipart? req))
                                              (*ajax-request* req)
                                              (content-type (or ,content-type (if *multipart-request* "text/html" "text/javascript"))))
                                         (with-http-response-and-body (req ent :content-type content-type)
-                                          (with-session (req ent)
+                                          (,@(if no-session? '(progn) '(with-session (req ent)))
                                             (with-ajax-error-handler ,path
                                               ,@body
                                               )))))
@@ -203,9 +207,9 @@ Not yet:
 
 (defvar *ajax-counter* 0)
 
-(defmacro ajax-continuation ((&key args keep content-type) &body body)
+(defmacro ajax-continuation ((&key args keep content-type no-session?) &body body)
   `(let ((fname (string+ "/ajax/" (fast-string (incf *ajax-counter*)))))
-     (publish-ajax-func (:path fname :content-type ,content-type) ,args
+     (publish-ajax-func (:path fname :content-type ,content-type :no-session? ,no-session?) ,args
                         ,@body
                         ,(unless keep
                                '(unpublish fname)))
