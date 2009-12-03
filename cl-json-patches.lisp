@@ -36,3 +36,50 @@ New features:
 		 (typep (car elt) '(or symbol string)))
       (return-from alistp nil))))
 
+;;; Patch another bug in symboltojs.lisp
+
+(defun symbol-to-js (symbol)
+  (cond ((listp symbol)
+        (concatenate 'string 
+		     (symbol-to-js (first symbol))
+                     (if (rest symbol)
+			 (concatenate 'string "." (symbol-to-js (rest symbol))) "")))
+        (t
+         (when (symbolp symbol)
+           (setf symbol (symbol-name symbol)))
+         (let ((symbols (string-split symbol '(#\.))))
+           (cond ((null symbols) "")
+                 ((= (length symbols) 1)
+                  (let (res
+                        (do-not-touch nil)
+                        (lowercase t)
+                        (all-uppercase nil))
+                    (cond ((constant-string-p symbol)
+                           (setf all-uppercase t
+                                 symbol (subseq symbol 1 (1- (length symbol)))))
+                          ((first-uppercase-p symbol)
+                           (setf lowercase nil
+                                 symbol (subseq symbol 1)))
+                          ((untouchable-string-p symbol)
+                           (setf do-not-touch t
+                                 symbol (subseq symbol 1))))
+                    (flet ((reschar (c)
+                             (push (cond
+                                     (do-not-touch c)
+                                     ((and lowercase (not all-uppercase))
+                                      (char-downcase c))
+                                     (t (char-upcase c)))
+                                   res)
+                             (setf lowercase t)))
+                      (dotimes (i (length symbol))
+                        (let ((c (char symbol i)))
+                          (cond
+                            ((eql c #\-)
+                             (setf lowercase (not lowercase)))
+                            ((assoc c *special-chars*)
+                             (dolist (i (coerce (cdr (assoc c *special-chars*)) 'list))
+                               (reschar i)))
+                            (t (reschar c))))))
+                    (coerce (nreverse res) 'string)))
+                 (t (concatenate 'string (symbol-to-js (first symbols))
+                                 "." (symbol-to-js (rest symbols)))))))))

@@ -9,7 +9,6 @@
 
 ;;; Also, end sequence ought to be something less likely to be used.
 
-
 (set-dispatch-macro-character #\# #\[ 'bigstring-reader)
 
 (defun bigstring-reader (stream char arg)
