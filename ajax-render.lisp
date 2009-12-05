@@ -268,22 +268,21 @@ Here's a (stupid) example of use, assumes content is bound.
            ,elt
            (json-options (list ,@options))))
 
-;;; +++ exp, uses a local extension to scriptaculous
+;;; Define an entire CSS class as draggable.
+;;; uses a local extension to scriptaculous.  Does not apply to elements or classes added after the fact, a serious limitation.
 (define-render-update :draggable-class (class &rest options)
   `(format *html-stream* "~%Draggable.addClass('~A', null, ~A);"
            ,class
            (json-options (list ,@options))))
 
 ;;; options are as specified by scriptaculous, see http://wiki.github.com/madrobby/scriptaculous/droppables
-;;; Particulary :accept <css class>
-;;; To specify a callback:
-;;; probably should abstract thos some.
-;;;    :|onDrop| `(:raw "functions (elt) {...}")
+;;; Particularly useful:
+;;;   :accept <css class> or list of classes -- specifies what can be dropped here.
+;;;   :|onDrop| `(:raw "function (elt) {...}") -- call the function when a drop occurs
 (define-render-update :drop-target (elt &rest options)
   `(format *html-stream* "~%Droppables.add('~A', ~A);"
            ,elt
            (json-options (list ,@options))))
-
 
 ;;; turn keywords (:k1 v1 :k2 v2 ...) into CL-JSON
 (defun json-options-transform (options)
