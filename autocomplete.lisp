@@ -26,6 +26,7 @@ See http://wiki.github.com/madrobby/scriptaculous/ajax-autocompleter
 			    completions-url
 			    on-selected
 			    (update (string+ id "_auto_complete"))
+			    input-options
 			    )
   #.(doc "Generate an HTML autocompletion field. Arguments below (all except completions-url are optional)"
 "ID - the HTML ID of the element"
@@ -44,7 +45,7 @@ See http://wiki.github.com/madrobby/scriptaculous/ajax-autocompleter
 	  `(:raw "postAutocomplete")))
     )
   (html
-   ((:input :id id :name name :if* value :value value))
+   ((:input :id id :name name :if* value :value value :do* input-options))
    (render-scripts
     ;; put the autocomplete div somewhere where it won't get clipped
     (:insert :bottom "main"		;+++ this is dependent on a specific layout...
