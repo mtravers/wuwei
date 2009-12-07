@@ -48,7 +48,7 @@ See http://wiki.github.com/madrobby/scriptaculous/ajax-autocompleter
    ((:input :id id :name name :if* value :value value :do* input-options))
    (render-scripts
     ;; put the autocomplete div somewhere where it won't get clipped
-    (:insert :bottom "main"		;+++ this is dependent on a specific layout...
+    (:insert :bottom "body"		;+++ this is dependent on a specific layout...
 	     (html ((:div :id update :class "auto_complete"))))
     ;; this complex tangle enables an action to be taken when a completion is selected.
     (:js (if on-selected (format nil "setupAutocomplete('~A', '~A');" id 
