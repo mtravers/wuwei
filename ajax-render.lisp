@@ -332,7 +332,7 @@ Here's a (stupid) example of use, assumes content is bound.
 (defun link-to-function (text js &key html-options)
   (html
    ((:a :href "#" :onclick js :do* html-options)
-    (:princ text))))
+    (:princ-safe text))))
 
 (defun button-to-remote (text url &rest options)
   (button-to-function text (apply #'remote-function url options)))
@@ -340,12 +340,12 @@ Here's a (stupid) example of use, assumes content is bound.
 (defun button-to-function (text js &rest options)
   (html
    ((:input :type "button" :value text :onclick js))))
-
+b
 (defun checkbox-to-remote (text url checked? &rest options)
   (html
    ((:input :type :checkbox :if* checked? :checked "true" :onclick (apply #'remote-function url options))
     (:princ "&nbsp;")
-    (:princ text)
+    (:princ-safe text)
     )))
 
 (defvar *uploader-html*
