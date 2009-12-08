@@ -52,7 +52,7 @@ See http://wiki.github.com/madrobby/scriptaculous/ajax-autocompleter
 	     (html ((:div :id update :class "auto_complete"))))
     ;; this complex tangle enables an action to be taken when a completion is selected.
     (:js (if on-selected (format nil "setupAutocomplete('~A', '~A');" id 
-			      (ajax-continuation (:args (value value_string id))
+			      (ajax-continuation (:args (value value_string id) :name "ac_finish")
 						 (funcall on-selected value value_string id)
 						 ))))
 
@@ -86,7 +86,7 @@ See http://wiki.github.com/madrobby/scriptaculous/ajax-autocompleter
      (render-scripts
       (:js (format nil "new Ajax.InPlaceEditorWithEmptyText('~A', '~A', ~A);"
 		    id
-		    (ajax-continuation (:args (value) :content-type "text/text")
+		    (ajax-continuation (:args (value) :content-type "text/text" :name "inplace")
 					(funcall on-change value)
 					;; you are supposed to send the value back as the body
 					(write-string value *html-stream*))

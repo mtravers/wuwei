@@ -207,8 +207,8 @@ Not yet:
 
 (defvar *ajax-counter* 0)
 
-(defmacro ajax-continuation ((&key args keep content-type no-session?) &body body)
-  `(let ((fname (string+ "/ajax/" (fast-string (incf *ajax-counter*)))))
+(defmacro ajax-continuation ((&key args keep content-type no-session? name) &body body)
+  `(let ((fname (string+ "/ajax/" ,(or name "g") "/" (fast-string (incf *ajax-counter*)))))
      (publish-ajax-func (:path fname :content-type ,content-type :no-session? ,no-session?) ,args
                         ,@body
                         ,(unless keep
