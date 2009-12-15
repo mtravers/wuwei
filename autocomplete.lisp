@@ -52,7 +52,7 @@ See http://wiki.github.com/madrobby/scriptaculous/ajax-autocompleter
 	     (html ((:div :id update :class "auto_complete"))))
     ;; this complex tangle enables an action to be taken when a completion is selected.
     (:js (if on-selected (format nil "setupAutocomplete('~A', '~A');" id 
-			      (ajax-continuation (:args (value value_string id) :name "ac_finish")
+			      (ajax-continuation (:args (value value_string id) :name "ac_finish" :keep t) ;+++ :keep t should be unnecessary, but for some reason this gets called multiple times under some conditions
 						 (funcall on-selected value value_string id)
 						 ))))
 
