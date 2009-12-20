@@ -14,6 +14,7 @@ Session management, for now, largely copied from our modified BioBike
 
 (defmacro with-session ((req ent) &body body)
   `(let* ((package-name (cookie-package ,req))
+	  ;; +++ this is not global, apparently!
 	  (*sessionid* (and package-name (keywordize package-name))))
      (if (and *sessionid*
 	      (get *sessionid* :username))

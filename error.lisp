@@ -1,18 +1,15 @@
 (in-package :wu)
 
-
 ;;; This stuff needs some rethinking. For now, it just gets its own file
 
-
 (export '(error-box render-error clear-error
-	  
 	  with-html-error-handling
 	  with-html-safe-error-handling
 	  with-ajax-error-handler
 	  ))
 
 (defun error-box ()
-  (html ((:div :id "error_box"))))
+  (html ((:div :id "error_box" :style "visibility:none;")))) ;invisible until replaced
 
 (defun render-error (msg &key stack-trace user-error?)
   (render-update
