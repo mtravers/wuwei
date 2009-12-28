@@ -75,9 +75,12 @@ See http://wiki.github.com/madrobby/scriptaculous/ajax-autocompleter
 		       on-change
 		       value
 		       class
+		       submit-on-blur?
 		       )
   (when prompt
     (push `("emptyText" . ,prompt) options))
+  (when submit-on-blur?
+    (push `("submitOnBlur" . "true") options))
   (let ((current-value value))
     (html 
      ((:div :id id :name name :if* class :class class); :style "border:1px solid gray"
