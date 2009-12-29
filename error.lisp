@@ -33,7 +33,7 @@
   (render-update
    (:update "error_box" "")))
 
-(defun compose-error-message (path &key error stack-trace)
+(defun compose-error-message (path &key error stack-trace extra-js)
   (let ((message (format nil "Lisp error while servicing ~a: ~A~:[~;~a~]" path error *developer-mode* (clean-js-string stack-trace))))
     (log-message message)
     ;;; This doesn't work; the header is already generated and sent.
@@ -45,7 +45,8 @@
                                                 (message . ,(clean-js-string message))))))
         (render-update
 	 (:alert (princ-to-string error))
-; +++ This would be nice but it doesn't work, also needs to be some way to clear error.
+	 (:js (or extra-js ""))
+; +++ This would be nice but it doesn't work, also needs to be some way to clear the error.
 ;	 (:show "error_box")
 ;	 (:update "error_box"  (princ-to-string error)))
         ))))
@@ -88,9 +89,8 @@
 	       )))))
      (write-string result *html-stream*)))
 
-;;; I don't know what this thinks its doing
-(defmacro with-ajax-error-handler (name &body body)
-  `(without-unwinding-restart (compose-error-message ,name)
+(defmacro with-ajax-error-handler ((name &key extra-js) &body body)
+  `(without-unwinding-restart (compose-error-message ,name :extra-js ,extra-js)
     ,@body
     ))
 
