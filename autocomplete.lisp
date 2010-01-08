@@ -89,7 +89,8 @@ See http://wiki.github.com/madrobby/scriptaculous/ajax-autocompleter
      (render-scripts
       (:js (format nil "new Ajax.InPlaceEditorWithEmptyText('~A', '~A', ~A);"
 		    id
-		    (ajax-continuation (:args (value) :content-type "text/text" :name "inplace")
+		    ;; :keep t permits multiple editings.
+		    (ajax-continuation (:args (value) :content-type "text/text" :name "inplace" :keep t)
 					(funcall on-change value)
 					;; you are supposed to send the value back as the body
 					(write-string value *html-stream*))
