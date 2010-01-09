@@ -349,6 +349,9 @@ Here's a (stupid) example of use, assumes content is bound.
     (:princ-safe text)
     )))
 
+(defun goto-url-function (url)
+  (format nil "~%window.location.href = '~A';" url))
+
 (defvar *uploader-html*
   (concatenate 'string
                "<div id='~a'></div>"
