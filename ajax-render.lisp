@@ -193,7 +193,7 @@ Not yet:
                                              (content-type (or ,content-type (if *multipart-request* "text/html" "text/javascript"))))
                                         (with-http-response-and-body (req ent :content-type content-type)
                                           (,@(if no-session? '(progn) '(with-session (req ent)))
-                                            (with-ajax-error-handler ,path
+                                            (with-ajax-error-handler (,path)
                                               ,@body
                                               )))))
               )))

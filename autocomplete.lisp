@@ -75,9 +75,12 @@ See http://wiki.github.com/madrobby/scriptaculous/ajax-autocompleter
 		       on-change
 		       value
 		       class
+		       submit-on-blur?
 		       )
   (when prompt
     (push `("emptyText" . ,prompt) options))
+  (when submit-on-blur?
+    (push `("submitOnBlur" . "true") options))
   (let ((current-value value))
     (html 
      ((:div :id id :name name :if* class :class class); :style "border:1px solid gray"
@@ -86,7 +89,8 @@ See http://wiki.github.com/madrobby/scriptaculous/ajax-autocompleter
      (render-scripts
       (:js (format nil "new Ajax.InPlaceEditorWithEmptyText('~A', '~A', ~A);"
 		    id
-		    (ajax-continuation (:args (value) :content-type "text/text" :name "inplace")
+		    ;; :keep t permits multiple editings.
+		    (ajax-continuation (:args (value) :content-type "text/text" :name "inplace" :keep t)
 					(funcall on-change value)
 					;; you are supposed to send the value back as the body
 					(write-string value *html-stream*))
