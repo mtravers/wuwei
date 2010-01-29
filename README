@@ -1,15 +1,14 @@
-A start at modularizing web utilities out of nlistener.
+Ajaxy web utilities for Common Lisp
 
 Wu wei is Chinese for "effortless doing".  
   http://en.wikipedia.org/wiki/Wu_wei
-
 
 Compared with something like Weblocks, this is a much lighter-weight way of doing Ajax-like web pages.  It's a toolkit rather
 than a platform.
 
 Runs on top of portable aserve, which it patches.  
   http://sourceforge.net/projects/portableaserve/
-Do not confuse this with non-portable aserve, which might work (but only on Allegro)
+Do not confuse this with non-portable aserve.  Wuwei might work with that, but it hasn't been tested.
 
 Requires prototype and scriptaculous.  Also makes some use of Ext (optional).
 
@@ -18,4 +17,5 @@ TODO BEFORE RELEASE
    in progress: made session.lisp of stuff pulled out from biobike
    some of nlistener/login should migrate
 - listener.js (and maybe .css) need to be broken up and the appropriate parts put in here.
+   partly done
 - config
