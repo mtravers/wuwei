@@ -12,6 +12,7 @@ Session management, for now, largely copied from our modified BioBike
 (defun cookie-package (req)
   (cookie-value req "Biobike-pkg"))
 
+;;; Note: has to be INSIDE with-http-response-and-body or equiv
 (defmacro with-session ((req ent) &body body)
   `(let* ((package-name (cookie-package ,req))
 	  ;; +++ this is not global, apparently!

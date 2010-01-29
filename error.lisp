@@ -21,17 +21,14 @@
 		   (html
 ;+++		    (report-bug-button stack-trace)
 		    ((:a :onclick "toggle_visibility('error_box_stack_trace');") "&nbsp;Show stack&nbsp;")
-		    ((:div :class "error" :id "error_box_stack_trace")
-		     ((:script :type "text/javascript")
-		      "make_invisible('error_box_stack_trace');"
-		      )
+		    ((:div :id "error_box_stack_trace" :style "display:none;")  ;:class "error"
 		     (:pre
 		      (:princ-safe stack-trace))
 		     ))))))))
 
 (defun clear-error ()
   (render-update
-   (:update "error_box" "")))
+   (:replace "error_box" (html ((:div :id "error_box"))))))
 
 (defun compose-error-message (path &key error stack-trace extra-js)
   (let ((message (format nil "Lisp error while servicing ~a: ~A~:[~;~a~]" path error *developer-mode* (clean-js-string stack-trace))))

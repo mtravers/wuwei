@@ -156,7 +156,7 @@ Not yet:
 (defmacro render-scripts+ (&body clauses)
   `(if *ajax-request*
        (render-update
-	,@clauses)
+        ,@clauses)
        (html ((:script :type "text/javascript")
               (render-update ,@clauses)))
        ))
@@ -176,16 +176,16 @@ Not yet:
 ;; If the client performs a file upload, an HTML form is used and a page of type text/html must be returned
 (defmacro multipart? (req)
   `(let ((header (header-slot-value ,req :content-type)))
-     (and header 
-	  (string= (subseq header 0 (min (length header) (length "multipart/form-data")))
-		   "multipart/form-data"))))
+     (and header
+          (string= (subseq header 0 (min (length header) (length "multipart/form-data")))
+                   "multipart/form-data"))))
 
 (defmacro publish-ajax-update (path-or-options &body body)
   (let ((path (if (listp path-or-options)
                   (findprop :path path-or-options)
                   path-or-options))
         (content-type (and (listp path-or-options) (findprop :content-type path-or-options)))
-	(no-session? (and (listp path-or-options) (findprop :no-session? path-or-options))))
+        (no-session? (and (listp path-or-options) (findprop :no-session? path-or-options))))
     `(publish :path ,path
               :function (named-lambda ,path (req ent)
                                       (let* ((*multipart-request* (multipart? req))
@@ -318,9 +318,9 @@ Here's a (stupid) example of use, assumes content is bound.
 ;;; +++ move to some version of utils
 (defun delete-keyword-arg (key arglist)
   (awhen (position key arglist)
-	 (if (zerop it)
-	     (setf arglist (cddr arglist))
-	     (setf (nthcdr it arglist) (nthcdr (+ it 2) arglist))))
+         (if (zerop it)
+             (setf arglist (cddr arglist))
+             (setf (nthcdr it arglist) (nthcdr (+ it 2) arglist))))
   arglist)
 
 (defun delete-keyword-args (keys arglist)
@@ -333,7 +333,7 @@ Here's a (stupid) example of use, assumes content is bound.
 (defun link-to-function (text js &key html-options)
   (html
    ((:a :href "#" :onclick js :do* html-options)
-    (:princ text))))			;+++ has to be :princ rather than :princ-safe to allow image tags in text.  Should be rethought, maybe this should be a macro that wraps arbitrary html gen.
+    (:princ text))))                    ;+++ has to be :princ rather than :princ-safe to allow image tags in text.  Should be rethought, maybe this should be a macro that wraps arbitrary html gen.
 
 (defun button-to-remote (text url &rest options)
   (button-to-function text (apply #'remote-function url options)))
@@ -355,13 +355,13 @@ Here's a (stupid) example of use, assumes content is bound.
 (defvar *uploader-html*
   (concatenate 'string
                "<div id='~a'></div>"
-               "<script TYPE='text/javascript'>make_uploader('~a', '~a', '~a');</script>"
+               "<script TYPE='text/javascript'>make_uploader('~a', '~a', '~a', ~a);</script>"
                ))
 
 (defparameter *file-field-name* "Data")
 
-(defun uploader (id url)
-  (format nil *uploader-html* id id url *file-field-name*)
+(defun uploader (id url &optional isDrugrank)
+  (format nil *uploader-html* id id url *file-field-name* (if isDrugrank "true" "false"))
   )
 
 ;;; Generate a remote function (javascript Ajax call)
@@ -403,7 +403,7 @@ Here's a (stupid) example of use, assumes content is bound.
                                                ,@(if complete `("onComplete" (:raw ,(format nil "function(request){~A}" complete))))
                                                ,@(if success `("onSuccess" (:raw ,(format nil "function(request){~A}" success))))
                                                ,@(if failure `("onFailure" (:raw ,(format nil "function(request){~A}" failure))))
-					       ,@(if eval-scripts? `("evalScripts" t))
+                                               ,@(if eval-scripts? `("evalScripts" t))
                                                ))
                  in-function?)))
 
