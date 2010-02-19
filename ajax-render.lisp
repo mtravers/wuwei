@@ -366,10 +366,10 @@ Here's a (stupid) example of use, assumes content is bound.
 
 ;;; Generate a remote function (javascript Ajax call)
 ;; ex: (remote-function "/new-chunk" :params `(:user ,user :type (:raw ,(format nil "$(~A).value" selector-id))))
-;; returns something like:
+;; returns:
 ;;  new Ajax.Request('/new-chunk', {"asynchronous":true,"parameters":{"user":"mt","type":$(selector23).value}}); return false;
 #|
-:form      If t, serialize the surrounding form, else use params
+:form      If t, serialize the surrounding form; if a string serialise the form with that name; else use params
 :params    List of (:key1 value1 ...), ignored if :form is t
 :confirm   Ask user for confirmation first (value is the message)
 :complete  Javascript to execute when action completes
@@ -378,7 +378,7 @@ Here's a (stupid) example of use, assumes content is bound.
 :before    Javascript to run before the Ajax request
 :after     Javascript to run after the Ajax request
 :spinner   The ID of an elt, a spinner will be inserted after the elt before the Ajax request and removed when completed
-:in-function?
+:in-function?  
 
 |#
 
@@ -398,7 +398,8 @@ Here's a (stupid) example of use, assumes content is bound.
                  url
                  (json-options `(:asynchronous t
                                                :parameters ,(if form
-                                                                '(:raw "Form.serialize(this)")
+                                                                `(:raw ,(format nil "Form.serialize(~A)"
+										(if (stringp form) (format nil "document.~A" form) "this")))
                                                                 (json-options-transform params))
                                                ,@(if complete `("onComplete" (:raw ,(format nil "function(request){~A}" complete))))
                                                ,@(if success `("onSuccess" (:raw ,(format nil "function(request){~A}" success))))
