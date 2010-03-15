@@ -327,20 +327,23 @@ Here's a (stupid) example of use, assumes content is bound.
   (if (null keys) arglist
       (delete-keyword-arg (car keys) (delete-keyword-args (cdr keys) arglist))))
 
-(defun link-to-remote (text url &rest remote-function-options &key html-options &allow-other-keys)
-  (link-to-function text (apply #'remote-function url (delete-keyword-args '(:html-options) remote-function-options)) :html-options html-options))
-
 (defun link-to-function (text js &key html-options)
   (html
    ((:a :href "#" :onclick js :do* html-options)
     (:princ text))))                    ;+++ has to be :princ rather than :princ-safe to allow image tags in text.  Should be rethought, maybe this should be a macro that wraps arbitrary html gen.
 
-(defun button-to-remote (text url &rest options)
-  (button-to-function text (apply #'remote-function url options)))
-
-(defun button-to-function (text js &rest options)
+(defun button-to-function (text js &key html-options)
   (html
-   ((:input :type "button" :value text :onclick js))))
+   ((:input :type "button" :value text :onclick js :do* html-options))))
+
+(defun link-to-remote (text url &rest remote-function-options &key html-options &allow-other-keys)
+  (link-to-function text (apply #'remote-function url (delete-keyword-args '(:html-options) remote-function-options))
+		    :html-options html-options))
+
+(defun button-to-remote (text url &rest remote-function-options &key html-options &allow-other-keys)
+  (button-to-function text (apply #'remote-function url (delete-keyword-args '(:html-options) remote-function-options))
+		      :html-options html-options))))
+
 
 (defun checkbox-to-remote (text url checked? &rest options)
   (html
