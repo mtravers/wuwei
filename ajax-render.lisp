@@ -1,4 +1,3 @@
-
 (in-package :wu)
 
 #|
@@ -342,8 +341,7 @@ Here's a (stupid) example of use, assumes content is bound.
 
 (defun button-to-remote (text url &rest remote-function-options &key html-options &allow-other-keys)
   (button-to-function text (apply #'remote-function url (delete-keyword-args '(:html-options) remote-function-options))
-		      :html-options html-options))))
-
+		      :html-options html-options))
 
 (defun checkbox-to-remote (text url checked? &rest options)
   (html
