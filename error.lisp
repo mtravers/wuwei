@@ -91,11 +91,11 @@
     ,@body
     ))
 
-(defun need-to-login-response (req ent)
+(defun need-to-login-response (req ent &optional (page "/nlogin"))
   (declare (ignore req ent))
   (html
    (render-scripts
-    (:redirect "/nlogin")		;+++ parameterize
+    (:redirect page)	
     )))
 
 (defvar *LOGGING* t)

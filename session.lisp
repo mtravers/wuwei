@@ -13,7 +13,7 @@ Session management, for now, largely copied from our modified BioBike
   (cookie-value req "Biobike-pkg"))
 
 ;;; Note: has to be INSIDE with-http-response-and-body or equiv
-(defmacro with-session ((req ent) &body body)
+(defmacro with-session ((req ent &key login-page) &body body)
   `(let* ((package-name (cookie-package ,req))
 	  ;; +++ this is not global, apparently!
 	  (*sessionid* (and package-name (keywordize package-name))))
@@ -23,7 +23,7 @@ Session management, for now, largely copied from our modified BioBike
 	 (wb::with-protected-globals-bound *sessionid*
 	   ,@body)
 	 ;; else
-	 (need-to-login-response ,req ,ent)
+	 (need-to-login-response ,req ,ent ,@(when login-page (list login-page)))
 	 )))
 
 (defmacro session-wrap ((req ent session) &body body)
