@@ -88,7 +88,8 @@ Not yet:
 
 ;;; pretty simple!
 (define-render-update :js (string)
-  `(write-string ,string *html-stream*))
+  `(progn (terpri *html-stream*)
+	  (write-string ,string *html-stream*)))
 
 ;;; A script that gets inserted after the normal updates (+++ experimental, not used yet)
 (define-render-update :post-js (string)
