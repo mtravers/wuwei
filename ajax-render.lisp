@@ -127,18 +127,23 @@ Not yet:
   (dolist (script *render-update-scripts*)
     (write-string script *html-stream*)))
 
-;;; The main macro used to generate update code.
-(defmacro render-update (&body clauses)
+;;; Wrap this around anything that does javascript updating
+(defmacro with-render-update (&body body)
   `(let ((*render-update-scripts* nil))
      (let ((*within-render-update* t))
-       ,@(mapcar #'(lambda (clause)
-                     (apply (or (get (car clause) :renderer)
-                                (error "Don't know how to do operation ~A" (car clause)))
-                            (cdr clause)))
-                 clauses))
+       ,@body)
      (unless *within-render-update*
        (render-update-scripts))
      ))
+
+(defmacro render-update (&body clauses)
+  `(with-render-update
+     ,@(mapcar #'(lambda (clause)
+		   (apply (or (get (car clause) :renderer)
+			      (error "Don't know how to do operation ~A" (car clause)))
+			  (cdr clause)))
+	       clauses)))
+
 
 ;;; Like render-update, but for use with HTML blocks.  Will either render scripts as part of a page, or (if done inside an Ajax update) collect them for
 ;;; appending to the update.
@@ -194,9 +199,10 @@ Not yet:
                                         (with-http-response-and-body (req ent :content-type content-type)
                                           (,@(if no-session? '(progn) '(with-session (req ent)))
                                             (with-ajax-error-handler (,path)
-                                              ,@body
-                                              )))))
-              )))
+					      (with-render-update
+						,@body
+						)))))
+				      ))))
 
 (defmacro publish-ajax-func (path-or-options args &rest body)
   `(publish-ajax-update ,path-or-options
