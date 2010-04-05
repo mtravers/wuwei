@@ -407,7 +407,9 @@ Here's a (stupid) example of use, assumes content is bound.
                  (json-options `(:asynchronous t
                                                :parameters ,(if form
                                                                 `(:raw ,(format nil "Form.serialize(~A)"
-										(if (stringp form) (format nil "document.~A" form) "this")))
+										(if (stringp form)
+										    (format nil "document.~A" form)
+										    "this")))
                                                                 (json-options-transform params))
                                                ,@(if complete `("onComplete" (:raw ,(format nil "function(request){~A}" complete))))
                                                ,@(if success `("onSuccess" (:raw ,(format nil "function(request){~A}" success))))
