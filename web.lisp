@@ -44,7 +44,7 @@
   (string+ "/npublic/" name))
 
 (defun image-url (img)
-  (public-url (string+ "images/" img)))
+  (public-url (string+ "images/" (string img))))
 
 (defun coerce-url  (file-or-url)
   (if (string-prefix-equals file-or-url "http:")
