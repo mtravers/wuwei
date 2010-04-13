@@ -34,9 +34,9 @@
 	(assert-true (search "window.location.href" res)))))
 
 (publish :path "/updated" 
-	 :function 'updated-page)
+	 :function 'updated-defun)
 
-(defun updated-page (req ent)
+(page updated-page (req ent)
   (with-http-response-and-body (req ent)
     (html (:head
 	   (javascript-includes "prototype.js" "effects.js")
@@ -49,12 +49,14 @@
 							 (render-update
 							  (:update "FOO" (html (:i (:princ "I have been replaced")))))))
 
+	   #|
 	   :br
 	   ((:a :href "#" :onclick "new Ajax.Request('/fupdation', {contentType: 'text/javascript', asynchronous:true, evalScripts:true});")
 	    "Do via server update")
 	   :br
 	   ((:a :href "#" :onclick "new Ajax.Request('/gupdation', {contentType: 'text/javascript', asynchronous:true, evalScripts:true});")
 	    "More tricks")
+	   |#
 	   :br
 	   "Watch closely"
 	   ((:div :id "bar"))
