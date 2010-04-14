@@ -19,4 +19,5 @@
      (:file "error")
      (:file "async")
      (:file "autocomplete")
+     (:file "dom-objects")
      ))
