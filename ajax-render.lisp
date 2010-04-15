@@ -372,26 +372,24 @@ Here's a (stupid) example of use, assumes content is bound.
   (format nil *uploader-html* id id url *file-field-name* (if isDrugrank "true" "false"))
   )
 
-;;; Generate a remote function (javascript Ajax call)
-;; ex: (remote-function "/new-chunk" :params `(:user ,user :type (:raw ,(format nil "$(~A).value" selector-id))))
-;; returns:
-;;  new Ajax.Request('/new-chunk', {"asynchronous":true,"parameters":{"user":"mt","type":$(selector23).value}}); return false;
-#|
-:form      If t, serialize the surrounding form; if a string serialise the form with that name; else use params
-:params    List of (:key1 value1 ...), ignored if :form is t
-:confirm   Ask user for confirmation first (value is the message)
-:complete  Javascript to execute when action completes
-:success   as :complete, but on success only
-:failure   as :complete, but on failure only
-:before    Javascript to run before the Ajax request
-:after     Javascript to run after the Ajax request
-:spinner   The ID of an elt, a spinner will be inserted after the elt before the Ajax request and removed when completed
-:in-function?  
-
-|#
-
 (defun remote-function (url &key form params (in-function? t) confirm before after spinner
                         success failure complete eval-scripts?)
+  #.(doc
+     "Generate a remote function (javascript Ajax call)"
+     " ex: (remote-function \"/new-chunk\" :params `(:user ,user :type (:raw ,(format nil \"$(~A).value\" selector-id))))"
+     " returns:"
+     "  new Ajax.Request('/new-chunk', {\"asynchronous\":true,\"parameters\":{\"user\":\"mt\",\"type\":$(selector23).value}}); return false;"
+     ":form      If t, serialize the surrounding form; if a string serialise the form with that name; else use params"
+     ":params    List of (:key1 value1 ...), ignored if :form is t"
+     ":confirm   Ask user for confirmation first (value is the message)"
+     ":complete  Javascript to execute when action completes"
+     ":success   as :complete, but on success only"
+     ":failure   as :complete, but on failure only"
+     ":before    Javascript to run before the Ajax request"
+     ":after     Javascript to run after the Ajax request"
+     ":spinner   The ID of an elt, a spinner will be inserted after the elt before the Ajax request and removed when completed"
+     ":in-function?  "
+     )
   (when spinner
     (let ((spin-js (format nil "add_spinner('~A');" spinner))
           (nospin-js (format nil "remove_spinner('~A');" spinner)))

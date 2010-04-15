@@ -26,7 +26,7 @@
 	  async async-html
 
 	  html-list
-	  action-selector
+	  select-field action-selector
 
 	  ))
 
@@ -142,8 +142,8 @@ If you want a string, wrap the call with html-string.  For example:
 
 
 ;;; Make a Select element 
-;;; If URL is given, trigger off of the mouseup event
-;;; Options is a list of (value name) pairs.
+
+
 (defun action-selector (id name options url &key params selected html-options)
   (html
     ((:select :name name
@@ -160,6 +160,29 @@ If you want a string, wrap the call with html-string.  For example:
              (:princ-safe name) :newline)))
      )))
 
+
+;;; for compatibility (+++ flush)
+(defun action-selector (id name options url &key params selected html-options)
+  (select-field :id id :name name :options options :url url :params params :selected selected :html-options html-options))
+
+(defun select-field (&key id name options url params selected html-options)
+  #.(doc "Generate an HTML select field."
+	 "If URL is given, trigger off of the mouseup event"
+	 "OPTIONS is a list of (value name) pairs.")
+  (html
+    ((:select :if* name :name name
+              :if* id :id id
+              :if* url :onmouseup (format nil "if (Ext.isSafari){~a}" (remote-function url :params (append `(:type (:raw "this.value")) params)))
+	      :do* html-options
+              )
+     (loop for (value name) in options do
+          (html
+            ((:option :value value
+		      :if* url :onmouseup (remote-function url :params (append `(:type ,(format nil "~a" value)) params))
+		      :if* (equal value selected) :selected "selected"
+		      )
+             (:princ-safe name) :newline)))
+     )))
 
 
 
