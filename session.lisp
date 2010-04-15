@@ -1,6 +1,8 @@
 (in-package :wu)
 
-(export '(with-session with-http-response-and-body))
+(export '(with-session with-http-response-and-body
+	  def-session-variable init-session
+	  *user*))
 
 #|
 Session management, for now, largely copied from our modified BioBike
@@ -48,4 +50,27 @@ Session management, for now, largely copied from our modified BioBike
              ,@body))
         )))
 
+;;; Session management
 
+(defvar *session-variables* ())
+(defvar *user*)
+
+(defmacro def-session-variable (name &optional initform)
+  `(progn
+    (defvar ,name)
+    (push '(,name ,initform) *session-variables*)
+    )
+  )
+
+(defun init-session (id &optional user)
+  (destructuring-bind (vars vals) (gethash id utils::*saved-variables-hash-table*)
+    (when user
+      (push '*user* vars)
+      (push user vals))
+    (loop for (var val) in *session-variables* do
+         (push var vars)
+         (push (eval val) vals)
+         )
+    (setf (gethash id utils::*saved-variables-hash-table*) (list vars vals))
+    )
+  )
