@@ -93,7 +93,7 @@ Not yet:
 
 ;;; A script that gets inserted after the normal updates (+++ experimental, not used yet)
 (define-render-update :post-js (string)
-  (push-end string *render-update-scripts*))
+  (render-script-later string))
 
 (define-render-update :redirect (url)
   `(format *html-stream* "~%window.location.href = '~A';" ,url))
@@ -123,18 +123,30 @@ Not yet:
 ;;; Mechanism for including js in HTML that might be an Ajax update or not.
 (defvar *render-update-scripts* nil)
 
-(defun render-update-scripts ()
-  (dolist (script *render-update-scripts*)
-    (write-string script *html-stream*)))
+(defvar *render-debugging* nil)
+
+(defmacro render-debug (msg)
+  `(when *render-debugging*
+     (format t "~%render-debug: ~A" ,msg)))
 
 ;;; Wrap this around anything that does javascript updating
 (defmacro with-render-update (&body body)
-  `(let ((*render-update-scripts* nil))
+  `(let ((*render-update-scripts* (if *within-render-update* *render-update-scripts* nil)))
+     (render-debug "with render-update")
      (let ((*within-render-update* t))
        ,@body)
      (unless *within-render-update*
        (render-update-scripts))
      ))
+
+(defun render-script-later (script)
+  (push-end script *render-update-scripts*))
+
+;;; Render
+(defun render-update-scripts ()
+  (dolist (script *render-update-scripts*)
+    (render-debug (list 'script-out script))
+    (write-string script *html-stream*)))
 
 (defmacro render-update (&body clauses)
   `(with-render-update
@@ -145,24 +157,15 @@ Not yet:
 	       clauses)))
 
 
-;;; Like render-update, but for use with HTML blocks.  Will either render scripts as part of a page, or (if done inside an Ajax update) collect them for
+;;; Like render-update, but for use within HTML blocks.
+;;; Will either render scripts in script element as part of a page, or (if done inside an render-update) collect them for
 ;;; appending to the update.
 (defmacro render-scripts (&body clauses)
   `(if *within-render-update*
-       (push-end (html-string
-                  (render-update ,@clauses))
-                 *render-update-scripts*)
+       (render-script-later (html-string
+			      (render-update ,@clauses)))
        (html ((:script :type "text/javascript")
-              (render-update ,@clauses)))
-       ))
-
-;;; I don't understand the above, but am temporarily too scared to mess with it.  Here's a version that is simpler and I think does
-;;; the right thing, should eventually replace the above unless I'm confused ++++
-(defmacro render-scripts+ (&body clauses)
-  `(if *ajax-request*
-       (render-update
-        ,@clauses)
-       (html ((:script :type "text/javascript")
+	      (render-debug "rendering <script> elt")
               (render-update ,@clauses)))
        ))
 
