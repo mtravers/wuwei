@@ -321,17 +321,7 @@ Here's a (stupid) example of use, assumes content is bound.
 ;;; Equivalent of link_to_remote etc.  Could take more options.
 ;;; We can now deal with arbitrary html-options, so regularize the calling sequence of these...
 
-;;; +++ move to some version of utils
-(defun delete-keyword-arg (key arglist)
-  (awhen (position key arglist)
-         (if (zerop it)
-             (setf arglist (cddr arglist))
-             (setf (nthcdr it arglist) (nthcdr (+ it 2) arglist))))
-  arglist)
 
-(defun delete-keyword-args (keys arglist)
-  (if (null keys) arglist
-      (delete-keyword-arg (car keys) (delete-keyword-args (cdr keys) arglist))))
 
 (defun link-to-function (text js &key html-options)
   (html
