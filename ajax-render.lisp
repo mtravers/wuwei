@@ -93,7 +93,7 @@ Not yet:
 
 ;;; A script that gets inserted after the normal updates (+++ experimental, not used yet)
 (define-render-update :post-js (string)
-  (push-end string *render-update-scripts*))
+  (render-script-later string))
 
 (define-render-update :redirect (url)
   `(format *html-stream* "~%window.location.href = '~A';" ,url))
@@ -123,18 +123,30 @@ Not yet:
 ;;; Mechanism for including js in HTML that might be an Ajax update or not.
 (defvar *render-update-scripts* nil)
 
-(defun render-update-scripts ()
-  (dolist (script *render-update-scripts*)
-    (write-string script *html-stream*)))
+(defvar *render-debugging* nil)
+
+(defmacro render-debug (msg)
+  `(when *render-debugging*
+     (format t "~%render-debug: ~A" ,msg)))
 
 ;;; Wrap this around anything that does javascript updating
 (defmacro with-render-update (&body body)
-  `(let ((*render-update-scripts* nil))
+  `(let ((*render-update-scripts* (if *within-render-update* *render-update-scripts* nil)))
+     (render-debug "with render-update")
      (let ((*within-render-update* t))
        ,@body)
      (unless *within-render-update*
        (render-update-scripts))
      ))
+
+(defun render-script-later (script)
+  (push-end script *render-update-scripts*))
+
+;;; Render
+(defun render-update-scripts ()
+  (dolist (script *render-update-scripts*)
+    (render-debug (list 'script-out script))
+    (write-string script *html-stream*)))
 
 (defmacro render-update (&body clauses)
   `(with-render-update
@@ -145,24 +157,15 @@ Not yet:
 	       clauses)))
 
 
-;;; Like render-update, but for use with HTML blocks.  Will either render scripts as part of a page, or (if done inside an Ajax update) collect them for
+;;; Like render-update, but for use within HTML blocks.
+;;; Will either render scripts in script element as part of a page, or (if done inside an render-update) collect them for
 ;;; appending to the update.
 (defmacro render-scripts (&body clauses)
   `(if *within-render-update*
-       (push-end (html-string
-                  (render-update ,@clauses))
-                 *render-update-scripts*)
+       (render-script-later (html-string
+			      (render-update ,@clauses)))
        (html ((:script :type "text/javascript")
-              (render-update ,@clauses)))
-       ))
-
-;;; I don't understand the above, but am temporarily too scared to mess with it.  Here's a version that is simpler and I think does
-;;; the right thing, should eventually replace the above unless I'm confused ++++
-(defmacro render-scripts+ (&body clauses)
-  `(if *ajax-request*
-       (render-update
-        ,@clauses)
-       (html ((:script :type "text/javascript")
+	      (render-debug "rendering <script> elt")
               (render-update ,@clauses)))
        ))
 
@@ -321,17 +324,7 @@ Here's a (stupid) example of use, assumes content is bound.
 ;;; Equivalent of link_to_remote etc.  Could take more options.
 ;;; We can now deal with arbitrary html-options, so regularize the calling sequence of these...
 
-;;; +++ move to some version of utils
-(defun delete-keyword-arg (key arglist)
-  (awhen (position key arglist)
-         (if (zerop it)
-             (setf arglist (cddr arglist))
-             (setf (nthcdr it arglist) (nthcdr (+ it 2) arglist))))
-  arglist)
 
-(defun delete-keyword-args (keys arglist)
-  (if (null keys) arglist
-      (delete-keyword-arg (car keys) (delete-keyword-args (cdr keys) arglist))))
 
 (defun link-to-function (text js &key html-options)
   (html
@@ -372,26 +365,24 @@ Here's a (stupid) example of use, assumes content is bound.
   (format nil *uploader-html* id id url *file-field-name* (if isDrugrank "true" "false"))
   )
 
-;;; Generate a remote function (javascript Ajax call)
-;; ex: (remote-function "/new-chunk" :params `(:user ,user :type (:raw ,(format nil "$(~A).value" selector-id))))
-;; returns:
-;;  new Ajax.Request('/new-chunk', {"asynchronous":true,"parameters":{"user":"mt","type":$(selector23).value}}); return false;
-#|
-:form      If t, serialize the surrounding form; if a string serialise the form with that name; else use params
-:params    List of (:key1 value1 ...), ignored if :form is t
-:confirm   Ask user for confirmation first (value is the message)
-:complete  Javascript to execute when action completes
-:success   as :complete, but on success only
-:failure   as :complete, but on failure only
-:before    Javascript to run before the Ajax request
-:after     Javascript to run after the Ajax request
-:spinner   The ID of an elt, a spinner will be inserted after the elt before the Ajax request and removed when completed
-:in-function?  
-
-|#
-
 (defun remote-function (url &key form params (in-function? t) confirm before after spinner
                         success failure complete eval-scripts?)
+  #.(doc
+     "Generate a remote function (javascript Ajax call)"
+     " ex: (remote-function \"/new-chunk\" :params `(:user ,user :type (:raw ,(format nil \"$(~A).value\" selector-id))))"
+     " returns:"
+     "  new Ajax.Request('/new-chunk', {\"asynchronous\":true,\"parameters\":{\"user\":\"mt\",\"type\":$(selector23).value}}); return false;"
+     ":form      If t, serialize the surrounding form; if a string serialise the form with that name; else use params"
+     ":params    List of (:key1 value1 ...), ignored if :form is t"
+     ":confirm   Ask user for confirmation first (value is the message)"
+     ":complete  Javascript to execute when action completes"
+     ":success   as :complete, but on success only"
+     ":failure   as :complete, but on failure only"
+     ":before    Javascript to run before the Ajax request"
+     ":after     Javascript to run after the Ajax request"
+     ":spinner   The ID of an elt, a spinner will be inserted after the elt before the Ajax request and removed when completed"
+     ":in-function?  "
+     )
   (when spinner
     (let ((spin-js (format nil "add_spinner('~A');" spinner))
           (nospin-js (format nil "remove_spinner('~A');" spinner)))
