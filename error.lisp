@@ -75,16 +75,18 @@
   `(utils:without-unwinding-restart (html-report-error)
      ,@body))
 
-;;; Another method: do all generation to a string; if an error occurs catch it and make a error block instaned
+
+(defun create-block-for-error (&key error stack-trace)
+  (html-report-error :error error :stack-trace stack-trace)
+  (write-string (html-string
+    (html-report-error :error error))))
+  
+
+;;; Another method: do all generation to a string; if an error occurs catch it and make a error block instead
 (defmacro with-html-safe-error-handling (&body body)
-  `(let ((result
-	  (handler-case 
-	      (html-string ,@body)
-	    (error (e)
-	      (html-string
-	       (html-report-error :error e)
-	       )))))
-     (write-string result *html-stream*)))
+  `(utils:without-unwinding-restart (create-block-for-error)
+     (write-string (html-string ,@body) *html-stream*)))
+
 
 (defmacro with-ajax-error-handler ((name &key extra-js) &body body)
   `(without-unwinding-restart (compose-error-message ,name :extra-js ,extra-js)
