@@ -129,15 +129,15 @@ Not yet:
   `(when *render-debugging*
      (format t "~%render-debug: ~A" ,msg)))
 
-;;; Wrap this around anything that does javascript updating
+;;; Wrap this around anything that does javascript updating.  
+;;; Saner version (duplicates body, might want to fix that +++)
 (defmacro with-render-update (&body body)
-  `(let ((*render-update-scripts* (if *within-render-update* *render-update-scripts* nil)))
-     (render-debug "with render-update")
-     (let ((*within-render-update* t))
-       ,@body)
-     (unless *within-render-update*
-       (render-update-scripts))
-     ))
+  `(if *within-render-update*
+       (progn ,@body)
+       (let ((*render-update-scripts* nil)
+	     (*within-render-update* t))
+	 ,@body
+	 (render-update-scripts))))
 
 (defun render-script-later (script)
   (push-end script *render-update-scripts*))
