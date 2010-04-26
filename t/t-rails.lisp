@@ -34,9 +34,9 @@
 	(assert-true (search "window.location.href" res)))))
 
 (publish :path "/updated" 
-	 :function 'updated-defun)
+	 :function 'updated-page)
 
-(page updated-page (req ent)
+(defun updated-page (req ent)
   (with-http-response-and-body (req ent)
     (html (:head
 	   (javascript-includes "prototype.js" "effects.js")
