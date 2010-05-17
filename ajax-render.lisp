@@ -324,12 +324,13 @@ Here's a (stupid) example of use, assumes content is bound.
 ;;; Equivalent of link_to_remote etc.  Could take more options.
 ;;; We can now deal with arbitrary html-options, so regularize the calling sequence of these...
 
-
-
-(defun link-to-function (text js &key html-options)
+;;;+++ default needs to be :princ rather than :princ-safe to allow image tags in text.  Should be rethought, maybe this should be a macro that wraps arbitrary html gen.
+(defun link-to-function (text js &key html-options safe?)
   (html
    ((:a :href "#" :onclick js :do* html-options)
-    (:princ text))))                    ;+++ has to be :princ rather than :princ-safe to allow image tags in text.  Should be rethought, maybe this should be a macro that wraps arbitrary html gen.
+    (if safe?
+	(html (:princ-safe text))
+	(html (:princ text))))) )
 
 (defun button-to-function (text js &key html-options)
   (html

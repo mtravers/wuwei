@@ -48,7 +48,7 @@ Todo:
        ;; for debugging add:  :style "border-width:1px;border-style:solid;"
 	((:span :id (async-result-id form) )
 	 (aif (async-result-pre-text form)
-	      (html (:princ it)))
+	      (html (:princ-safe it)))
 	 ((:img :src "/npublic/images/spinner.gif")))
 	(:newline)
 	((:script :type "text/javascript")
