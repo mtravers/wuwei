@@ -120,8 +120,10 @@ If you want a string, wrap the call with html-string.  For example:
      (:princ "&nbsp;")))
 
 (defmacro br ()
-  `(html
-     (:princ "<br>")))
+  `(html (:br)))
+
+(defmacro p ()
+  `(html (:p)))
 
 (defmacro nl ()
   `(html
