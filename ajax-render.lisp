@@ -400,7 +400,7 @@ Here's a (stupid) example of use, assumes content is bound.
                                                :parameters ,(if form
                                                                 `(:raw ,(format nil "Form.serialize(~A)"
 										(if (stringp form)
-										    (format nil "document.~A" form)
+										    (format nil "document.getElementById('~A')" form)
 										    "this")))
                                                                 (json-options-transform params))
                                                ,@(if complete `("onComplete" (:raw ,(format nil "function(request){~A}" complete))))
