@@ -27,8 +27,8 @@ Patched because schar was causing problems
 	 then (setq cvt "&amp;")
        elseif (eq ch #\")
 	 then (setq cvt "&quot;")
-       elseif (eq ch #\Greek_Small_Letter_Mu)
-	 then (setq cvt "&mu;"))
+       elseif (>= (char-code ch) #x100)
+         then (setq cvt (format nil "&#~a;" (char-code ch))))
       (if* cvt
 	 then ; must do a conversion, emit previous chars first
 	 (if* (< start i)
