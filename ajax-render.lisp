@@ -173,10 +173,21 @@ Not yet:
   (with-output-to-string (stream)
     (net.html.generator::emit-safe stream string)))
 
+;; Amazingly, FireFox will generate close tags for lisp objects
+;; printed in pointy brackets, but then we *are* lying about the
+;; content type.
+;; This is not real JSON escaping....
+(defun clean-upload-js-string (string)
+  (string-replace 
+   (string-replace string ">" "&gt;")
+   "<" "&lt;")
+  )
+
 (defun clean-js-string (string)
   (string-replace
    (string-replace string (string #\Newline) "\\n")
-   "\"" "\\\""))
+   "\"" "\\\"")
+  )
 
 (defvar *multipart-request*)
 (defvar *ajax-request* nil)
@@ -400,7 +411,7 @@ Here's a (stupid) example of use, assumes content is bound.
                                                :parameters ,(if form
                                                                 `(:raw ,(format nil "Form.serialize(~A)"
 										(if (stringp form)
-										    (format nil "document.~A" form)
+										    (format nil "document.getElementById('~A')" form)
 										    "this")))
                                                                 (json-options-transform params))
                                                ,@(if complete `("onComplete" (:raw ,(format nil "function(request){~A}" complete))))

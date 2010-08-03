@@ -4,6 +4,7 @@
 
 (export '(error-box render-error clear-error
 	  with-html-error-handling
+	  with-json-error-handling
 	  with-html-safe-error-handling
 	  with-ajax-error-handler
 	  ))
@@ -31,7 +32,7 @@
    (:replace "error_box" (html ((:div :id "error_box"))))))
 
 (defun compose-error-message (path &key error stack-trace extra-js)
-  (let ((message (format nil "Lisp error while servicing ~a: ~A~:[~;~a~]" path error *developer-mode* (clean-js-string stack-trace))))
+  (let ((message (format nil "Lisp error while servicing ~a: ~A~:[~;~a~]" path error *developer-mode* stack-trace)))
     (log-message message)
     ;;; This doesn't work; the header is already generated and sent.
     ;(setf (request-reply-code *ajax-request*) 400)
@@ -39,9 +40,9 @@
         (html
           (:princ (json:encode-json-to-string `((failure . true)
                                                 ;;(success . false)
-                                                (message . ,(clean-js-string message))))))
+                                                (records ((data . ,(clean-upload-js-string message))))))))
         (render-update
-	 (:alert (princ-to-string error))
+	 (:alert (princ-to-string (clean-js-string error)))
 	 (:js (or extra-js ""))
 ; +++ This would be nice but it doesn't work, also needs to be some way to clear the error.
 ;	 (:show "error_box")
@@ -68,14 +69,6 @@
      )
     ))
 
-;;; If you want to close off html elements in case of an error, I think you need to add unwind-protects to  html-body-key-form
-;;;  in /misc/downloads/cl-portable-aserve-1.2.42/aserve/htmlgen/htmlgen.cl
-;;;  get-frames-list for a backtrace (but probably need a different kind of handler in that case)
-(defmacro with-html-error-handling (&body body)
-  `(utils:without-unwinding-restart (html-report-error)
-     ,@body))
-
-
 (defun create-block-for-error (&key error stack-trace)
   (html-report-error :error error :stack-trace stack-trace)
   (write-string (html-string
@@ -92,6 +85,26 @@
   `(without-unwinding-restart (compose-error-message ,name :extra-js ,extra-js)
     ,@body
     ))
+
+(defun json-report-error (&key error stack-trace)
+  (log-message (format nil "~%Unhandled exception caught by with-html-error-handling: ~a~%~a~%" error stack-trace))
+  (html
+    (:princ (json:encode-json-to-string `((failure . true)
+					  (success . false)
+					  (message . ,(format nil "~A" error)))))))
+
+(defmacro with-json-error-handling (&body body)
+  `(utils:without-unwinding-restart (json-report-error)
+     ,@body))
+
+;;; If you want to close off html elements in case of an error, I think you need to add unwind-protects to  html-body-key-form
+;;;  in /misc/downloads/cl-portable-aserve-1.2.42/aserve/htmlgen/htmlgen.cl
+;;;  get-frames-list for a backtrace (but probably need a different kind of handler in that case)
+(defmacro with-html-error-handling (&body body)
+  `(utils:without-unwinding-restart (html-report-error)
+     ,@body))
+
+
 
 (defun need-to-login-response (req ent &optional (page "/nlogin"))
   (declare (ignore req ent))

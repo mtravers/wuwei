@@ -26,11 +26,12 @@ Patched because schar was causing problems
        elseif (eq ch #\&)
 	 then (setq cvt "&amp;")
        elseif (eq ch #\")
-	 then (setq cvt "&quot;"))
+	 then (setq cvt "&quot;")
+       elseif (>= (char-code ch) #x100)
+         then (setq cvt (format nil "&#~a;" (char-code ch))))
       (if* cvt
 	 then ; must do a conversion, emit previous chars first
-		
-	      (if* (< start i)
+	 (if* (< start i)
 		 then  (write-sequence string
 				       stream
 				       :start start
