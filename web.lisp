@@ -21,7 +21,7 @@
 	  remote-function link-to
 	  link-to-remote link-to-function
 	  button-to-remote button-to-function
-	  checkbox-to-remote
+	  checkbox-to-remote radio-to-remote
 
 	  async async-html
 
