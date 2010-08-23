@@ -2,6 +2,7 @@
 
 (export '(html-element 
 	  element-named element-render element-update
+	  dom-id
 	  html-element-dom-id)
 	)
 
