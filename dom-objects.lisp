@@ -30,4 +30,6 @@
              (element-render e))))
 
 (defun element-named (dom-id)
-  (gethash dom-id *dom-ht*))
+  (or (gethash dom-id *dom-ht*)
+      (error "No element named ~A" dom-id))) ;+++ may want to make error checking optional
+
