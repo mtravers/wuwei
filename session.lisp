@@ -23,7 +23,11 @@ Session management, for now, largely copied from our modified BioBike
 	      (get *sessionid* :username))
 	 ;; +++ remaining link to wb world
 	 (wb::with-protected-globals-bound *sessionid*
-	   ,@body)
+	   (cond ((and (boundp 'wu::*constrained-to-application*) wu::*constrained-to-application*
+		       (string/= wu::*constrained-to-application* (net.aserve::path ,ent)))
+		  (need-to-login-response ,req ,ent wu::*constrained-to-application*))
+		 (t
+		  ,@body)))
 	 ;; else
 	 (need-to-login-response ,req ,ent ,@(when login-page (list login-page)))
 	 )))
@@ -54,6 +58,7 @@ Session management, for now, largely copied from our modified BioBike
 
 (defvar *session-variables* ())
 (defvar *user*)
+(defvar *constrained-to-application*)
 
 (defmacro def-session-variable (name &optional initform)
   `(progn
@@ -62,11 +67,14 @@ Session management, for now, largely copied from our modified BioBike
     )
   )
 
-(defun init-session (id &optional user)
+(defun init-session (id &optional user app-url)
   (destructuring-bind (vars vals) (gethash id utils::*saved-variables-hash-table*)
     (when user
       (push '*user* vars)
       (push user vals))
+    (when app-url
+      (push '*constrained-to-application* vars)
+      (push app-url vals))
     (loop for (var val) in *session-variables* do
          (push var vars)
          (push (eval val) vals)
@@ -74,3 +82,5 @@ Session management, for now, largely copied from our modified BioBike
     (setf (gethash id utils::*saved-variables-hash-table*) (list vars vals))
     )
   )
+
+
