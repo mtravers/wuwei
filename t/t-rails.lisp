@@ -10,10 +10,12 @@
        (link-to-remote "foo" "/foo" :html-options '(:style "font-style:italic") :success "alert('you win');"))
       'string)))
 
+(defparameter *ajax-test-url* (format nil "http://localhost:~A" cl-user:*weblistener-port*))
+
 ;;; Tests ajax-continuation mechanism
 (define-test ajax
     (let ((test nil))
-      (get-url (string+ "http://localhost:8002"
+      (get-url (string+ *ajax-test-url*
 			(ajax-continuation (:no-session? t) 
 					   (setq test t)
 					   (render-update (:alert "foo"))))
@@ -24,7 +26,7 @@
 (define-test login-required
     (let ((test nil))
       (let ((res
-	     (get-url (string+ "http://localhost:8002" 
+	     (get-url (string+ *ajax-test-url* 
 			       (ajax-continuation () 
 						  (setq test t)
 						  (render-update (:alert "foo"))))
