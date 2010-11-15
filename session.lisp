@@ -26,13 +26,14 @@ Now decoupled from Biobike and user/package convention.
   `(let ((*session* (keywordize (cookie-value ,req *cookie-name*))))
      (unless *session*
        (if ,login-handler
-	   (funcall ,login-handler req ent)	;+++ wrong
+	   (funcall ,login-handler .req ,ent)	;+++ not fleshed out yet PPP
 	   (progn
 	     (setf *session* (make-new-session req ent)))))
      (with-session-variables 
 	 ,@body)))
 
 (defun make-new-session (req ent)
+  (declare (ignore ent))
   (let ((*session* (keywordize (gensym "S"))))
     (when req (set-cookie-header req :name *cookie-name* :value (string *session*)))
     (setf (gethash *session* *sessions*) (make-hash-table :test #'eq))

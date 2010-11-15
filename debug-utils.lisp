@@ -52,7 +52,7 @@ Borrowed from BioBike
 (defun get-frames-list ()
   nil)
 
-#-(or :allegro :lispworks :sbcl :mcl)
+#-(or :allegro :lispworks :sbcl :ccl)
 (cformatt "*** get-frames-list not implemented ***")
 
 (defun dump-stack (&optional (stream *standard-output*))

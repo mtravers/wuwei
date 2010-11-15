@@ -7,9 +7,11 @@
     :components 
     (
      (:file "package")
+     ;; Patches to existing systems
      (:file "aserve-patch")
      (:file "htmlgen-patch")
      (:file "cl-json-patches")
+     ;; Config
      (:file "config")
      (:file "bigstring")
      (:file "web")

@@ -11,8 +11,7 @@
   :initable-instance-variables
   :readable-instance-variables)
 
-;;; should be defvar but slime has problem with that
-(defparameter *dom-id-counter* 0)
+(defvar *dom-id-counter* 0)
 
 (defun gen-dom-id ()
   (format nil "id~A" (incf *dom-id-counter*)))
@@ -32,4 +31,8 @@
 (defun element-named (dom-id)
   (or (gethash dom-id *dom-ht*)
       (error "No element named ~A" dom-id))) ;+++ may want to make error checking optional
+
+(defgeneric element-render (dom-object)
+  (:documentation "This method should do the actual HTML rendering of the object"))
+  
 

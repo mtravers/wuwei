@@ -1,19 +1,15 @@
 (in-package :json)
 
 #|
-Patches to lib/cl-json/src/encoder.lisp
+Extensions to lib/cl-json/src/encoder.lisp
 
-NOTE: as it happens these are patched in our source, so this file is not needed or loaded.
-But it might be useful if we get a new version of cl-json, so kept here for reference.
-
-ought to make these work in the decoding direction
-
-New features:
-:empty-list
-:empty-dict
-(:raw "function(foo) ...")
+New features, for encoding functions:
+:empty-list ==> "[]"
+:empty-dict ==> "{}"
+(:raw "function(foo) ...") ==>
   produces unquoted string for javascript
 
+TODO:  make these work in the decoding direction
 |#
 
 (defmethod encode-json ((s (eql :empty-dict)) stream)
@@ -23,7 +19,6 @@ New features:
   (write-string "[]" stream))
 
 (defmethod encode-json ((s list) stream)
-;  (print `(encode list ,s))
   (cond ((eq (car s) :raw)			
 	 (write-string (cadr s) stream))
 	((alistp s)

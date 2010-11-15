@@ -84,10 +84,6 @@
   (write-string (html-string
     (html-report-error :error error))))
 
-;;; mt+++ was in BioLisp/Utils/debug-utils.lisp ... should move that to 3utils and make this real
-(defmacro without-unwinding-restart ((restart &rest args) &body body)
-  `(progn ,@body))
-
 ;;; Another method: do all generation to a string; if an error occurs catch it and make a error block instead
 (defmacro with-html-safe-error-handling (&body body)
   `(without-unwinding-restart (create-block-for-error)

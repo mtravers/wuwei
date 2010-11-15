@@ -13,9 +13,11 @@ Do not confuse this with non-portable aserve.  Wuwei might work with that, but i
 Requires prototype and scriptaculous.  Also makes some use of Ext (optional).
 
 TODO BEFORE RELEASE
-- remove wb: dependencies
+- remove wb: dependencies (DONE)
    in progress: made session.lisp of stuff pulled out from biobike
    some of nlistener/login should migrate
 - listener.js (and maybe .css) need to be broken up and the appropriate parts put in here.
    partly done
 - config
+- Uses HTML extensions do*; document or something
+  oh nevermind, they are in htmlgen-patch.lisp -- 

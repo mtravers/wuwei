@@ -1,8 +1,10 @@
 (in-package :net.html.generator)
 
 #|
-Patched because schar was causing problems
+Extensions/patches to htmlgen.
 |#
+
+;;; Patched because schar was causing problems
 (defun emit-safe (stream string)
   ;; send the string to the http response stream watching out for
   ;; special html characters and encoding them appropriately
@@ -15,8 +17,6 @@ Patched because schar was causing problems
                                    stream
                                    :start start
                                    :end i)))
-	 
-      
     (let ((ch (char string i))		;was schar
 	  (cvt ))
       (if* (eql ch #\<)
