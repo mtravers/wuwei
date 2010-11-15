@@ -34,14 +34,15 @@
 
 ;;; Define a directory and path for public files
 
-(defvar *public-directory* (make-pathname :directory (append (pathname-directory cl-user::*3rdwheel-dir*) '("public"))))
+(defparameter *public-directory* (make-pathname
+			    :directory (append (butlast (pathname-directory *load-pathname*)) '("public"))))
 
 (publish-directory :destination (namestring *public-directory*)
-                   :prefix "/npublic/"
+                   :prefix "/wupub/"
                    :headers `((:expires . ,(net.aserve::universal-time-to-date (+ (get-universal-time) (* 20 60 60))))))
 
 (defun public-url (name)
-  (string+ "/npublic/" name))
+  (string+ "/wupub/" name))
 
 (defun image-url (img)
   (public-url (string+ "images/" (string img))))
@@ -98,8 +99,7 @@ If you want a string, wrap the call with html-string.  For example:
                                 )))))
 
 (defun break-lines (string)
-  (utils:string-replace string (string #\Newline) "<br/>"))
-
+  (string-replace string (string #\Newline) "<br/>"))
 
 ;;; convert lisp-style hyphenated string into camel case
 (defun camel-case (string)

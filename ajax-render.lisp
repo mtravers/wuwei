@@ -130,7 +130,7 @@ Not yet:
      (format t "~%render-debug: ~A" ,msg)))
 
 ;;; Wrap this around anything that does javascript updating.  
-;;; Saner version (duplicates body, might want to fix that +++)
+;;; Saner version (duplicates body, might want to fix that with a closure or something +++)
 (defmacro with-render-update (&body body)
   `(if *within-render-update*
        (progn ,@body)
@@ -227,7 +227,10 @@ Not yet:
 
 (defvar *ajax-counter* 0)
 
-(defmacro ajax-continuation ((&key args keep content-type no-session? name) &body body)
+;;; Set to T to default to no session (sorry about the gnarly gnegations).
+(defvar *default-no-session?* nil)
+
+(defmacro ajax-continuation ((&key args keep content-type (no-session? '*default-no-session?*) name) &body body)
   `(let ((fname (string+ "/ajax/" ,(or name "g") "/" (fast-string (incf *ajax-counter*)))))
      (publish-ajax-func (:path fname :content-type ,content-type :no-session? ,no-session?) ,args
                         ,@body
@@ -335,7 +338,8 @@ Here's a (stupid) example of use, assumes content is bound.
 ;;; Equivalent of link_to_remote etc.  Could take more options.
 ;;; We can now deal with arbitrary html-options, so regularize the calling sequence of these...
 
-;;;+++ default needs to be :princ rather than :princ-safe to allow image tags in text.  Should be rethought, maybe this should be a macro that wraps arbitrary html gen.
+;;; default is :princ rather than :princ-safe to allow image tags in text.  
+;;; Should be rethought, maybe this should be a macro that wraps arbitrary html gen.
 (defun link-to-function (text js &key html-options safe?)
   (html
    ((:a :href "#" :onclick js :do* html-options)

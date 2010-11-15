@@ -9,6 +9,16 @@
 	  with-ajax-error-handler
 	  ))
 
+(defparameter *bug-report-url* "http://wuwei.org/trac")
+
+(defun system-info ()
+  "Replace with commands to get your system version info, eg by running 'hg log -l 1' in a shell")
+
+(defun report-bug-button (&optional (info ""))
+  (html
+   ((:a :href (format nil "~a?description=~A" *bug-report-url* (url-encode (format nil "In ~A:~%~%~a" (system-info) info)))
+	:target "error") "Report a bug")))
+
 (defun error-box ()
   (html ((:div :id "error_box" :style "visibility:none;")))) ;invisible until replaced
 
@@ -20,7 +30,7 @@
                  (:princ-safe msg)
 		 (unless user-error?
 		   (html
-;+++		    (report-bug-button stack-trace)
+		    (report-bug-button stack-trace)
 		    ((:a :onclick "toggle_visibility('error_box_stack_trace');") "&nbsp;Show stack&nbsp;")
 		    ((:div :id "error_box_stack_trace" :style "display:none;")  ;:class "error"
 		     (:pre
@@ -73,11 +83,14 @@
   (html-report-error :error error :stack-trace stack-trace)
   (write-string (html-string
     (html-report-error :error error))))
-  
+
+;;; mt+++ was in BioLisp/Utils/debug-utils.lisp ... should move that to 3utils and make this real
+(defmacro without-unwinding-restart ((restart &rest args) &body body)
+  `(progn ,@body))
 
 ;;; Another method: do all generation to a string; if an error occurs catch it and make a error block instead
 (defmacro with-html-safe-error-handling (&body body)
-  `(utils:without-unwinding-restart (create-block-for-error)
+  `(without-unwinding-restart (create-block-for-error)
      (write-string (html-string ,@body) *html-stream*)))
 
 
@@ -94,17 +107,15 @@
 					  (message . ,(format nil "~A" error)))))))
 
 (defmacro with-json-error-handling (&body body)
-  `(utils:without-unwinding-restart (json-report-error)
+  `(without-unwinding-restart (json-report-error)
      ,@body))
 
 ;;; If you want to close off html elements in case of an error, I think you need to add unwind-protects to  html-body-key-form
 ;;;  in /misc/downloads/cl-portable-aserve-1.2.42/aserve/htmlgen/htmlgen.cl
 ;;;  get-frames-list for a backtrace (but probably need a different kind of handler in that case)
 (defmacro with-html-error-handling (&body body)
-  `(utils:without-unwinding-restart (html-report-error)
+  `(without-unwinding-restart (html-report-error)
      ,@body))
-
-
 
 (defun need-to-login-response (req ent &optional (page "/nlogin"))
   (declare (ignore req ent))
@@ -118,4 +129,4 @@
 
 (defun log-message (message)
   (if *LOGGING*
-      (format *LOGGING-STREAM* "~a ~a~%" (net.aserve::universal-time-to-date (get-universal-time))  message))) ; +++ (user-string)
+      (format *LOGGING-STREAM* "~a ~a~%" (net.aserve::universal-time-to-date (get-universal-time))  message))) 

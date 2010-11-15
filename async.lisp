@@ -49,7 +49,7 @@ Todo:
 	((:span :id (async-result-id form) )
 	 (aif (async-result-pre-text form)
 	      (html (:princ-safe it)))
-	 ((:img :src "/npublic/images/spinner.gif")))
+	 ((:img :src (image-url "spinner.gif"))))
 	(:newline)
 	((:script :type "text/javascript")
 	 (:newline)

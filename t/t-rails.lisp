@@ -1,8 +1,11 @@
 (in-package :wu)
 
-;;;; Test and example code
+(defvar *test-port* 8001)
+(net.aserve:start :port *test-port*)
 
-;;; Test that te generation machinery is sane
+;;; Test and example code
+
+;;; Test that the generation machinery is sane
 (define-test generation 
     (assert-true 
      (typep
@@ -10,7 +13,7 @@
        (link-to-remote "foo" "/foo" :html-options '(:style "font-style:italic") :success "alert('you win');"))
       'string)))
 
-(defparameter *ajax-test-url* (format nil "http://localhost:~A" cl-user:*weblistener-port*))
+(defparameter *ajax-test-url* (format nil "http://localhost:~A" *test-port*))
 
 ;;; Tests ajax-continuation mechanism
 (define-test ajax
@@ -38,58 +41,55 @@
 (publish :path "/updated" 
 	 :function 'updated-page)
 
+(setq *default-no-session?* t)
+
 (defun updated-page (req ent)
   (with-http-response-and-body (req ent)
     (html (:head
-	   (javascript-includes "prototype.js" "effects.js")
+	   (javascript-includes "prototype.js" "effects.js" "dragdrop.js")
 	   )
 	  (:body
-	   (:h1 "Behold!")
+	   (:h1 "WuWei basic tests")
 	   ((:div :id "FOO")
 	    "I will get replaced")
 	   (link-to-remote "Click me" (ajax-continuation () 
-							 (render-update
-							  (:update "FOO" (html (:i (:princ "I have been replaced")))))))
+					(render-update
+					  (:update "FOO" (html (:i (:princ "I have been replaced")))))))
 
-	   #|
-	   :br
-	   ((:a :href "#" :onclick "new Ajax.Request('/fupdation', {contentType: 'text/javascript', asynchronous:true, evalScripts:true});")
-	    "Do via server update")
-	   :br
-	   ((:a :href "#" :onclick "new Ajax.Request('/gupdation', {contentType: 'text/javascript', asynchronous:true, evalScripts:true});")
-	    "More tricks")
-	   |#
-	   :br
-	   "Watch closely"
-	   ((:div :id "bar"))
-	   (link-to-remote "Even more tricks"
-			   (ajax-continuation ()
-					      (render-update
-					       (:update "FOO" "this is getting cooler")
-					       (:update "bar" (html "a " (:b "bold") " advance for computer science"))
-					       (:insert :after "bar" (html ((:div :style "background:#FFBDAD; border 1px solid; margin 5px; padding 5x")
-									    (:princ (NET.ASERVE::UNIVERSAL-TIME-TO-DATE (get-universal-time))))))
-					       )))
-
-
-	   ((:div :id "dragme" :style "background:#BBFFAD; border: 1px solid; margin: 5px; padding: 5x; width: 50px; height: 50px;"))
+	   :hr
 	   ((:div :id "notdragme" :style "background:#FFBBAD; border: 1px solid; margin: 5px; padding: 5x; width: 50px; height: 50px;"))
+	   (link-to-remote "Click me" (ajax-continuation ()
+					(render-update 
+					  (:visual-effect :fade "notdragme"))))
+	   " for a disappearing act"
+
+	   :hr
+
+	   (let ((n 1) (acc 1))
+	     (link-to-remote "Factorial the hard way"
+			     (ajax-continuation (:keep t)
+			     (render-update
+			       (:insert :after "bar" (html ((:div :style "background:#FFFFAD; border 1px solid; margin 5px; padding 5x")
+							    (setq acc (* acc (incf n)))
+							    (:princ (format nil "~A ~A" n acc))
+							    )))
+			       ))))
+	   ((:div :id "bar"))
+	   :hr
+
+	   :hr
+	   "Some drag-n-drop"
+	   ((:div :id "dragme" :style "background:#BBFFAD; border: 1px solid; margin: 5px; padding: 5x; width: 100px; height: 50px;")
+	    "Draggable")
+	   ((:div :id "target" :style "background:#BBFAFD; border: 1px solid; margin: 5px; padding: 5x; width: 100px; height: 50px;")
+	    "Target")
 	   (render-scripts
-	    (:draggable "dragme"))
-	    
-	   :br
-	   (link-to-remote "Click me" (ajax-continuation ()
-							 (render-update 
-							  (:delay 2
-								  (:insert :after "bar" 
-									   (html 
-									    ((:div :id "delayed" :style "background:#BDFFAD; border 1px solid; margin 5px; padding 5x")
-									     (:princ (NET.ASERVE::UNIVERSAL-TIME-TO-DATE (get-universal-time))))))))))
-	   (:princ " to experience some delays") :br
-	   (link-to-remote "Click me" (ajax-continuation ()
-							 (render-update 
-							  (:visual-effect :fade "notdragme"))))
-	   (:princ " for some visual effects"
+	     (:draggable "dragme")
+	     (:drop-target "target"
+			   :|onDrop| `(:raw "function (elt) {alert('thanks!');}")))
+	   
+	   
+
 	   )))))
 
 

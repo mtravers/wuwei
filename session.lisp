@@ -1,86 +1,84 @@
 (in-package :wu)
 
-(export '(with-session with-http-response-and-body
-	  def-session-variable init-session
-	  *user*))
+(export '(with-session def-session-variable 
+	  with-http-response-and-body))
 
 #|
 Session management, for now, largely copied from our modified BioBike
+
+Now decoupled from Biobike and user/package convention.
+
 |#
+
+(defvar *sessions* (make-hash-table :test #'eq))
+
+(defparameter *cookie-name* "Wuwei-session") ;feel free to change this for your application
 
 (defun cookie-value (req name)
   (assocdr name (get-cookie-values req) :test #'equal))
 
-(defun cookie-package (req)
-  (cookie-value req "Biobike-pkg"))
+;;; Bound by session handler to the session name (a keyword)
+(defvar *session* nil)
 
 ;;; Note: has to be INSIDE with-http-response-and-body or equiv
-(defmacro with-session ((req ent &key login-page) &body body)
-  `(let* ((package-name (cookie-package ,req))
-	  ;; +++ this is not global, apparently!
-	  (*sessionid* (and package-name (keywordize package-name))))
-     (if (and *sessionid*
-	      (get *sessionid* :username))
-	 ;; +++ remaining link to wb world
-	 (wb::with-protected-globals-bound *sessionid*
-	   (cond ((and (boundp 'wu::*constrained-to-application*) wu::*constrained-to-application*
-		       (string/= wu::*constrained-to-application* (net.aserve::path ,ent)))
-		  (need-to-login-response ,req ,ent wu::*constrained-to-application*))
-		 (t
-		  ,@body)))
-	 ;; else
-	 (need-to-login-response ,req ,ent ,@(when login-page (list login-page)))
-	 )))
+;;; PPP um, no, outside, apparently.  Fuck.
+(defmacro with-session ((req ent &key login-handler) &body body)
+  `(let ((*session* (keywordize (cookie-value ,req *cookie-name*))))
+     (unless *session*
+       (if ,login-handler
+	   (funcall ,login-handler req ent)	;+++ wrong
+	   (progn
+	     (setf *session* (make-new-session req ent)))))
+     (with-session-variables 
+	 ,@body)))
 
-(defmacro session-wrap ((req ent session) &body body)
-  (if session
-      `(with-session (,req ,ent)
-           ,@body)
-      `(progn ,@body)))
-
-(defmacro with-http-response-and-body ((req ent &key (whole-page nil) (content-type "text/html") session) &body body)
+(defun make-new-session (req ent)
+  (let ((*session* (keywordize (gensym "S"))))
+    (when req (set-cookie-header req :name *cookie-name* :value (string *session*)))
+    (setf (gethash *session* *sessions*) (make-hash-table :test #'eq))
+    *session*))
+    
+;;; PPP removed session and whole-page options; do those through independent mechanisms
+(defmacro with-http-response-and-body ((req ent &key  (content-type "text/html")) &body body)
   #.(doc
      "Combines WITH-HTTP-RESPONSE and WITH-HTTP-BODY, which is the"
      "normal way we use those macros.  In doing this we also gain in that"
      "Lispworks will now indent this new macro properly, whereas for some"
      "reason it won't indent WITH-HTTP-RESPONSE or WITH-HTTP-BODY sanely.")
-  `(session-wrap (,req ,ent ,session)
-    ,(if whole-page
-        `(with-http-response (,req ,ent :content-type ,content-type)
-           (with-http-body (,req ,ent)
-             (html (:html ,@body))))
-        `(with-http-response (,req ,ent :content-type ,content-type)
-           (with-http-body (,req ,ent)
-             ,@body))
-        )))
+  `(with-http-response (,req ,ent :content-type ,content-type)
+     (with-http-body (,req ,ent)
+       ,@body)
+     ))
 
 ;;; Session management
 
+;;; Default value (for new sessions) is simply the symbol's global value, so we don't need to store it anywhere else.
+
 (defvar *session-variables* ())
-(defvar *user*)
-(defvar *constrained-to-application*)
 
 (defmacro def-session-variable (name &optional initform)
   `(progn
-    (defvar ,name)
-    (push '(,name ,initform) *session-variables*)
-    )
-  )
+    (defparameter ,name ,initform)
+    (pushnew ',name *session-variables*)
+    ))
 
-(defun init-session (id &optional user app-url)
-  (destructuring-bind (vars vals) (gethash id utils::*saved-variables-hash-table*)
-    (when user
-      (push '*user* vars)
-      (push user vals))
-    (when app-url
-      (push '*constrained-to-application* vars)
-      (push app-url vals))
-    (loop for (var val) in *session-variables* do
-         (push var vars)
-         (push (eval val) vals)
-         )
-    (setf (gethash id utils::*saved-variables-hash-table*) (list vars vals))
-    )
-  )
+(defmacro with-session-variables (&body body)
+  `(progn
+     (unless *session* (error "No session"))
+     (progv *session-variables*
+	 (mapcar #'(lambda (var) (session-variable-value *session* var)) *session-variables*)
+       (unwind-protect
+	    (progn ,@body)
+	 (dolist (v *session-variables*)
+	   (set-session-variable-value *session* v (symbol-value v)))))))
 
+(defun session-named (session-key)
+  (or (gethash session-key *sessions*)
+      (error "Session ~A not found" session-key)))
 
+(defun session-variable-value (session var)
+  (gethash var (session-named session) (symbol-value var)))
+
+(defun set-session-variable-value (session var val)
+  (setf (gethash var (session-named session)) val))
+      
