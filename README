@@ -3,12 +3,14 @@ Ajaxy web utilities for Common Lisp
 Wu wei is Chinese for "effortless doing".  
   http://en.wikipedia.org/wiki/Wu_wei
 
-Compared with something like Weblocks, this is a much lighter-weight way of doing Ajax-like web pages.  It's a toolkit rather
-than a platform.
+Compared with something like Weblocks, this is a much lighter-weight way of doing Ajax-like web
+pages.  It's a toolkit rather than a platform.
 
 Runs on top of portable aserve, which it patches.  
   http://sourceforge.net/projects/portableaserve/
-Do not confuse this with non-portable aserve.  Wuwei might work with that, but it hasn't been tested.
+
+Do not confuse this with non-portable aserve.  Wuwei might work with that, but it hasn't been
+tested.
 
 Requires prototype and scriptaculous.  Also makes some use of Ext (optional).
 
@@ -19,5 +21,9 @@ TODO BEFORE RELEASE
 - listener.js (and maybe .css) need to be broken up and the appropriate parts put in here.
    partly done
 - config
-- Uses HTML extensions do*; document or something
-  oh nevermind, they are in htmlgen-patch.lisp -- 
+- tests
+- examples
+  - demo page
+  - color page (in progress)
+  - Ajax expando frame browser (from SRI)
+    use with freebase or something

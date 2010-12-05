@@ -1,6 +1,6 @@
 (in-package :wu)
 
-(defvar *test-port* 8001)
+(defparameter *test-port* 8002)
 (net.aserve:start :port *test-port*)
 
 ;;; Test and example code
@@ -15,7 +15,7 @@
 
 (defparameter *ajax-test-url* (format nil "http://localhost:~A" *test-port*))
 
-;;; Tests ajax-continuation mechanism
+;;; Tests ajax-continuation mechanism via GET-URL
 (define-test ajax
     (let ((test nil))
       (get-url (string+ *ajax-test-url*
@@ -30,7 +30,7 @@
     (let ((test nil))
       (let ((res
 	     (get-url (string+ *ajax-test-url* 
-			       (ajax-continuation () 
+			       (ajax-continuation (:no-session? nil) 
 						  (setq test t)
 						  (render-update (:alert "foo"))))
 		      :method :post)))
@@ -38,6 +38,28 @@
 	;; Should be getting a redirect command back
 	(assert-true (search "window.location.href" res)))))
 
+(publish :path "/intro"
+	 :function #'(lambda (req ent)
+		       (with-http-response-and-body (req ent)
+			 (html
+			  (:body
+			   (:h3 "Welcome to WuWei")
+			   ((:img :src (image-url "wuwei.jpg")))
+			   (:p
+			    ((:a :href "http://en.wikipedia.org/wiki/Wu_wei")
+			     (:princ-safe "\"Wu wei wu\""))
+			    (:princ-safe " translates to \"effortless doing\" or \"action without action\".  Certainly effortlessness is something for a web toolkit to aspire to!"))
+			   (:ul
+			    (:li "Continuation-based AJAX user interfaces")
+			    (:li "Extensions and fixes to Portable Allegroserve")
+			    (:li "Functions for HTML widget generation")
+			    (:li "Server-side high-level DOM operations (add/remove elements, visual fades, drag and drop")
+			    (:li "Login and session management")
+
+			    ))))))
+			   
+
+;;; Generates a page to show off Wuwei render-update tools.  This test requires manual intervention.
 (publish :path "/updated" 
 	 :function 'updated-page)
 

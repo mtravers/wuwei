@@ -9,6 +9,8 @@ Support for autocomplete and in-place-editor widgets
 
 See http://wiki.github.com/madrobby/scriptaculous/ajax-autocompleter
 
+Requires a DOM element named "body" to control where the autocomplete box gets inserted.
+
  Todo: 
  - layout and bounds stuff.
  - idea: a greyed out type indicator by default (apparently not supported by scriptaculous -- but it ought to layer on top OK).
@@ -16,8 +18,8 @@ See http://wiki.github.com/madrobby/scriptaculous/ajax-autocompleter
      updateElement     
  - highlighting match (esp for :match-type :word)
  - style stuff should be pulled out
-|#
 
+|#
 
 (defun auto-complete-field (&key (id (string (gensym "id")))
 			    name
@@ -48,7 +50,7 @@ See http://wiki.github.com/madrobby/scriptaculous/ajax-autocompleter
    ((:input :id id :name name :if* value :value value :do* input-options))
    (render-scripts
     ;; put the autocomplete div somewhere where it won't get clipped
-    (:insert :bottom "body"		;+++ this is dependent on a specific layout...
+    (:insert :bottom "body"		
 	     (html ((:div :id update :class "auto_complete"))))
     ;; this complex tangle enables an action to be taken when a completion is selected.
     (:js (if on-selected (format nil "setupAutocomplete('~A', '~A');" id 

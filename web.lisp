@@ -15,6 +15,8 @@
 	  unpublish
 	  
 	  image-tag 
+	  html-list
+	  select-field
 
 	  nbsp br html-princ
 
@@ -25,9 +27,6 @@
 
 	  async async-html
 
-	  html-list
-	  select-field
-
 	  ))
 
 ;;; Basic web functions and infrastructure.  Stuff in this file should stand on its own (no prototype or other libraries required).
@@ -35,7 +34,7 @@
 ;;; Define a directory and path for public files
 
 (defparameter *public-directory* (make-pathname
-			    :directory (append (butlast (pathname-directory *load-pathname*)) '("public"))))
+				  :directory (append (pathname-directory *load-pathname*) '("public"))))
 
 (publish-directory :destination (namestring *public-directory*)
                    :prefix "/wupub/"

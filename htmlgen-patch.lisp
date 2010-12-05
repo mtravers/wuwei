@@ -40,7 +40,6 @@ Extensions/patches to htmlgen.
 		
 	      (setq start (1+ i))))))
 
-
 ;;; Patched to support a new keyword in option list
 ;;; do* takes a list (key1 val1 key2 val2...) and turns the key/vals into HTML options
 ;;; ie (html ((:a :href "http://foo.com :do* options) ...))
@@ -57,11 +56,8 @@ Extensions/patches to htmlgen.
 			 then `(write-html-string  ,(format nil "</~a>" string-code)
 					      *html-stream*)))
 	      (t (error "illegal arg ~s to ~s" args string-code)))))
-  
   (if* (not (evenp (length args)))
      then (warn "arg list ~s isn't even" args))
-  
-  
   (if* args
      then `(progn (write-string ,(format nil "<~a" string-code)
 				*html-stream*)

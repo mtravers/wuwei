@@ -1,0 +1,42 @@
+/* General look and feel */
+
+body {
+    font-family: 'Gill Sans'
+}
+
+pre {
+}
+
+/* autocomplete */
+div.auto_complete {
+    width: 350px;
+    background: #fff;
+    z-index: 10000;
+}
+div.auto_complete ul {
+    border:1px solid #888;
+    margin:0;
+    padding:0;
+    width:100%;
+    list-style-type:none;
+    font-family: 'Gill Sans'
+}
+div.auto_complete ul li {
+    margin:0;
+    padding:3px;
+}
+div.auto_complete ul li.selected {
+    background-color: #ffb;
+}
+div.auto_complete ul strong.highlight {
+    color: #800; 
+    margin:0;
+    padding:0;
+}
+
+/* in-place editor */
+.inplaceeditor-empty {
+    font-style: italic;
+    color: #999;
+}
+
