@@ -141,7 +141,9 @@ If you want a string, wrap the call with html-string.  For example:
   (html
     ((:select :if* name :name name
               :if* id :id id
-              :if* url :onmouseup (format nil "if (Ext.isSafari){~a}" (remote-function url :params (append `(:type (:raw "this.value")) params)))
+;;; Fix for Safari (but it depends on Ext which we no longer use)
+;;; +++ Prototype.Browser.WebKit may be equivalent but haven't tried it +++
+;;;            :if* url :onmouseup (format nil "if (Ext.isSafari){~a}" (remote-function url :params (append `(:type (:raw "this.value")) params)))
 	      :do* html-options
               )
      (loop for (value name) in options do

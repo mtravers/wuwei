@@ -19,14 +19,14 @@ function setupAutocomplete(input, continuation) {
     var input = $(input);
     input.continuation = continuation;
     // on blur, if autocomplete hasn't happend, send the string to the continuation in case it can do something (+++ should be an option)
-    Event.observe($(input), 'blur', function (event) { 
-	if (input.continuation != null) {
-	    window.setTimeout(function () { // yes this is horrible, but this has to happen AFTER the click handler or you get the wrong thing
-		new Ajax.Request(continuation, {asynchronous:true, evalScripts:true, parameters: {value_string: $(input).value, id: $(input).id} });
-		input.continuation = null;
-	    },150);
-	}
-    });
+    // Event.observe($(input), 'blur', function (event) { 
+    // 	if (input.continuation != null) {
+    // 	    window.setTimeout(function () { // yes this is horrible, but this has to happen AFTER the click handler or you get the wrong thing
+    // 		new Ajax.Request(continuation, {asynchronous:true, evalScripts:true, parameters: {value_string: $(input).value, id: $(input).id} });
+    // 		input.continuation = null;
+    // 	    },150);
+    // 	}
+    // });
 }
 		 
 
@@ -37,7 +37,7 @@ function postAutocomplete(text, li) {
     var id = text.id
     if (continuation != null) {
 	new Ajax.Request(continuation, {asynchronous:true, evalScripts:true, parameters: {value: value, value_string: value_string, id: id} });
-	text.continuation = null;
+//	text.continuation = null;
     }
 }
 

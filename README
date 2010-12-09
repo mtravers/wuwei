@@ -3,8 +3,8 @@ Ajaxy web utilities for Common Lisp
 Wu wei is Chinese for "effortless doing".  
   http://en.wikipedia.org/wiki/Wu_wei
 
-Compared with something like Weblocks, this is a much lighter-weight way of doing Ajax-like web
-pages.  It's a toolkit rather than a platform.
+WuWei is a toolkit for building Ajax web pages and web sites from Common Lisp. It's designed to be
+light-weight, a toolkit rather than a platform.  
 
 Runs on top of portable aserve, which it patches.  
   http://sourceforge.net/projects/portableaserve/
@@ -19,11 +19,13 @@ TODO BEFORE RELEASE
    in progress: made session.lisp of stuff pulled out from biobike
    some of nlistener/login should migrate
 - listener.js (and maybe .css) need to be broken up and the appropriate parts put in here.
-   partly done
+   DONE
 - config
 - tests
+   in progress
 - examples
   - demo page
   - color page (in progress)
   - Ajax expando frame browser (from SRI)
     use with freebase or something
+

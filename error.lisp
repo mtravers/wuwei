@@ -16,7 +16,7 @@
 
 (defun report-bug-button (&optional (info ""))
   (html
-   ((:a :href (format nil "~a?description=~A" *bug-report-url* (url-encode (format nil "In ~A:~%~%~a" (system-info) info)))
+   ((:a :href (format nil "~a?description=~A" *bug-report-url* (uriencode-string (format nil "In ~A:~%~%~a" (system-info) info)))
 	:target "error") "Report a bug")))
 
 (defun error-box ()

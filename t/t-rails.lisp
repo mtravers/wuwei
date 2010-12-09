@@ -73,10 +73,9 @@
 	  (:body
 	   (:h1 "WuWei basic tests")
 	   ((:div :id "FOO")
-	    "I will get replaced")
-	   (link-to-remote "Click me" (ajax-continuation () 
-					(render-update
-					  (:update "FOO" (html (:i (:princ "I have been replaced")))))))
+	    (link-to-remote "Click me and I will be replaced" (ajax-continuation () 
+								(render-update
+								  (:update "FOO" (html (:i (:princ "I have been replaced"))))))))
 
 	   :hr
 	   ((:div :id "notdragme" :style "background:#FFBBAD; border: 1px solid; margin: 5px; padding: 5x; width: 50px; height: 50px;"))
@@ -88,12 +87,12 @@
 	   :hr
 
 	   (let ((n 1) (acc 1))
-	     (link-to-remote "Factorial the hard way"
+	     (link-to-remote "Ajax makes computing factorials fun and interactive!"
 			     (ajax-continuation (:keep t)
 			     (render-update
 			       (:insert :after "bar" (html ((:div :style "background:#FFFFAD; border 1px solid; margin 5px; padding 5x")
 							    (setq acc (* acc (incf n)))
-							    (:princ (format nil "~A ~A" n acc))
+							    (:princ (format nil "~A! = ~A" n acc))
 							    )))
 			       ))))
 	   ((:div :id "bar"))
@@ -102,9 +101,9 @@
 	   :hr
 	   "Some drag-n-drop"
 	   ((:div :id "dragme" :style "background:#BBFFAD; border: 1px solid; margin: 5px; padding: 5x; width: 100px; height: 50px;")
-	    "Draggable")
+	    "Drag me")
 	   ((:div :id "target" :style "background:#BBFAFD; border: 1px solid; margin: 5px; padding: 5x; width: 100px; height: 50px;")
-	    "Target")
+	    "Drop it here")
 	   (render-scripts
 	     (:draggable "dragme")
 	     (:drop-target "target"
