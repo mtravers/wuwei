@@ -15,14 +15,18 @@ tested.
 Requires prototype and scriptaculous.  Also makes some use of Ext (optional).
 
 TODO BEFORE RELEASE
-- remove wb: dependencies (DONE)
-   in progress: made session.lisp of stuff pulled out from biobike
+- deal with repository branches
+
+- made session.lisp of stuff pulled out from biobike
    some of nlistener/login should migrate
-- listener.js (and maybe .css) need to be broken up and the appropriate parts put in here.
-   DONE
+
 - config
+
+- doc
+
 - tests
    in progress
+
 - examples
   - demo page
   - color page (in progress)

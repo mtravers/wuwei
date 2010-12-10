@@ -1,0 +1,6 @@
+syntax: glob
+*.fasl
+*.dx64fsl
+*~
+*\#
+.\#*
