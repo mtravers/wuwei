@@ -121,6 +121,9 @@ If you want a string, wrap the call with html-string.  For example:
 (defmacro br ()
   `(html :br))
 
+(defmacro p ()
+  `(html :p))
+
 (defmacro nl ()
   `(html
      :newline))
