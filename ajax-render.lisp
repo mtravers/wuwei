@@ -359,11 +359,20 @@ Here's a (stupid) example of use, assumes content is bound.
   (button-to-function text (apply #'remote-function url (delete-keyword-args '(:html-options) remote-function-options))
 		      :html-options html-options))
 
+;;; +++ catch up to radio-to-remote.  Also, these should have -to-function version I suppose
 (defun checkbox-to-remote (text url checked? &rest options)
   (html
    ((:input :type :checkbox :if* checked? :checked "true" :onclick (apply #'remote-function url options))
     (:princ "&nbsp;")
-    (:princ-safe text)
+    (:princ-safe (or text ""))
+    )))
+
+(defun radio-to-remote (text url checked? &rest remote-function-options &key html-options &allow-other-keys)
+  (html
+   ((:input :type :radio :if* checked? :checked "true" :onclick (apply #'remote-function url (delete-keyword-args '(:html-options) remote-function-options))
+	    :do* html-options)
+    (:princ "&nbsp;")
+    (:princ-safe (or text ""))
     )))
 
 (defun goto-url-function (url)

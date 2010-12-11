@@ -41,6 +41,7 @@
   (render-update
    (:replace "error_box" (html ((:div :id "error_box"))))))
 
+;;; ++ needs better name: this composes, logs, and sends it back to client
 (defun compose-error-message (path &key error stack-trace extra-js)
   (let ((message (format nil "Lisp error while servicing ~a: ~A~:[~;~a~]" path error *developer-mode* stack-trace)))
     (log-message message)
