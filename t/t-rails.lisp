@@ -87,7 +87,7 @@
 	   :hr
 
 	   (let ((n 1) (acc 1))
-	     (link-to-remote "Ajax makes computing factorials fun and interactive!"
+	     (link-to-remote "A hand-cranked factorial engine."
 			     (ajax-continuation (:keep t)
 			     (render-update
 			       (:insert :after "bar" (html ((:div :style "background:#FFFFAD; border 1px solid; margin 5px; padding 5x")
@@ -96,8 +96,6 @@
 							    )))
 			       ))))
 	   ((:div :id "bar"))
-	   :hr
-
 	   :hr
 	   "Some drag-n-drop"
 	   ((:div :id "dragme" :style "background:#BBFFAD; border: 1px solid; margin: 5px; padding: 5x; width: 100px; height: 50px;")

@@ -4,6 +4,7 @@
 Borrowed from BioBike
 |#
 
+;;; Used to use functions in debug: package, appears to have changed
 #+:allegro
 (defun get-frames-list ()
   (let ((*terminal-io* excl::*null-stream*)
@@ -21,22 +22,22 @@ Borrowed from BioBike
     ;; at the weblistener won't get you any stack listing.
     (handler-case
         (progn
-          (setq prev (debug:newest-frame))
-          (setq old (debug:oldest-frame))
+          (setq prev (excl::int-newest-frame))
+          (setq old (excl::int-oldest-frame))
           (loop
-           (setq cur (debug:next-older-frame prev))
+           (setq cur (excl::int-next-older-frame prev))
            (when (null cur)
              (return-from get-frames-list (nreverse frames-before-error)))
-           (push (debug:frame-expression cur) frames-before-error)
-           (when (eq 'error (car (debug:frame-expression cur)))
+           (push (excl::int-frame-expression cur) frames-before-error)
+           (when (eq 'error (car (excl::int-frame-expression cur)))
              (setq prev cur) (return))
            (setq prev cur))
           (loop
-           (setq cur (debug:next-older-frame prev))
+           (setq cur (excl::int-next-older-frame prev))
            ;; We want to see every frame and make a decision ourselves.
-           (if t ;(debug:frame-visible-p cur)
-               (push (debug:frame-expression cur) lis))
-           (if (debug:frame-reference-eq cur old)
+           (if t ;(excl::int-frame-visible-p cur)
+               (push (excl::int-frame-expression cur) lis))
+           (if (excl::int-frame-reference-eq cur old)
                (return))
            (setq prev cur))
           )
