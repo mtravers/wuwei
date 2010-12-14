@@ -6,7 +6,7 @@
 (defsystem :wuwei
     :name "Ajax and other tools for web development."
     :serial t
-    :depends-on (#-ALLEGRO :aserve :cl-json :mtlisp)
+    :depends-on (#-ALLEGRO :aserve #-:CL-JSON :cl-json :mtlisp)
     :components 
     (
      (:file "package")
