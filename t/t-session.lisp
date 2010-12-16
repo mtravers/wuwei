@@ -1,7 +1,7 @@
 (in-package :wu)
 
 (defun test-url (s)
-  (string+ "http://localhost:8001/tests/" s))
+  (string+ "http://localhost:8002/tests/" s))
 
 (defun test-path (s)
   (string+ "/tests/" s))

@@ -294,22 +294,6 @@ Not yet:
                     (do-responder-timeouts))))
 
 
-#|
-Here's a (stupid) example of use, assumes content is bound.
-
-(html
- (dolist (word (slotv content #$crx:words))
-   (html (:princ-safe word)
-         (:princ "&nbsp;")))
- :newline :br
- (button-to-remote
-  "Click to add a random word"
-  (ajax-continuation
-   (push-end (random-word) (slotv content #$crx:words))
-   (render-replace-chunk (content-chunk content)))))
-|#
-
-
 ;;; Drag/drop
 
 ;;; See here for description of options: http://wiki.github.com/madrobby/scriptaculous/draggable

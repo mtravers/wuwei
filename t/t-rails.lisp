@@ -27,16 +27,16 @@
 
 ;;; same as above, but continuation should not run due to login requirement
 (define-test login-required
-    (let ((test nil))
-      (let ((res
-	     (get-url (string+ *ajax-test-url* 
-			       (ajax-continuation (:no-session? nil) 
-						  (setq test t)
-						  (render-update (:alert "foo"))))
-		      :method :post)))
-	(assert-false test)
-	;; Should be getting a redirect command back
-	(assert-true (search "window.location.href" res)))))
+  (let ((test nil))
+    (let ((res
+	   (get-url (string+ *ajax-test-url* 
+			     (ajax-continuation (:no-session? nil) 
+			       (setq test t)
+			       (render-update (:alert "foo"))))
+		    :method :post)))
+      (assert-false test)
+      ;; Should be getting a redirect command back
+      (assert-true (search "window.location.href" res)))))
 
 (publish :path "/intro"
 	 :function #'(lambda (req ent)

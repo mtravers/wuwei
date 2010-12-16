@@ -96,6 +96,7 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
    ))
 
 ;;; In-place editor (see http://wiki.github.com/madrobby/scriptaculous/ajax-inplaceeditor )
+;;; :on-change function called with new value
 (defun in-place-field (&key (id (string (gensym "id")))
 		       name
 		       options
@@ -119,9 +120,9 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
 		    id
 		    ;; :keep t permits multiple editings.
 		    (ajax-continuation (:args (value) :content-type "text/text" :name "inplace" :keep t)
-					(funcall on-change value)
-					;; you are supposed to send the value back as the body
-					(write-string value *html-stream*))
+		      (when on-change (funcall on-change value))
+		      ;; you are supposed to send the value back as the body
+		      (write-string value *html-stream*))
 		    (json:encode-json-to-string options)))))))
 
 
