@@ -3,6 +3,9 @@
 #+ALLEGRO
 (require :aserve)
 
+(when (find-package :json)
+  (pushnew :cl-json *features*))
+
 (defsystem :wuwei
     :name "Ajax and other tools for web development."
     :serial t

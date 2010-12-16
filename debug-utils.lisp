@@ -28,20 +28,21 @@ Borrowed from BioBike
            (setq cur (excl::int-next-older-frame prev))
            (when (null cur)
              (return-from get-frames-list (nreverse frames-before-error)))
-           (push (excl::int-frame-expression cur) frames-before-error)
-           (when (eq 'error (car (excl::int-frame-expression cur)))
+           (push (debug:frame-expression cur) frames-before-error)
+           (when (eq 'error (car (debug:frame-expression cur)))
              (setq prev cur) (return))
            (setq prev cur))
           (loop
            (setq cur (excl::int-next-older-frame prev))
            ;; We want to see every frame and make a decision ourselves.
            (if t ;(excl::int-frame-visible-p cur)
-               (push (excl::int-frame-expression cur) lis))
+               (push (debug:frame-expression cur) lis))
            (if (excl::int-frame-reference-eq cur old)
                (return))
            (setq prev cur))
           )
-      (error () (setq lis nil)))
+      (error () (setq lis nil))
+      )
     (nreverse lis)))
 
 #+ccl

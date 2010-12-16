@@ -95,10 +95,7 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
 		  (json:encode-json-to-string options))))
    ))
 
-
-
 ;;; In-place editor (see http://wiki.github.com/madrobby/scriptaculous/ajax-inplaceeditor )
-
 (defun in-place-field (&key (id (string (gensym "id")))
 		       name
 		       options

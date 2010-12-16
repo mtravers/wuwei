@@ -28,6 +28,11 @@
 
 ;;; Author:  Mike Travers
 
+#|
+Notes: this is sort of half-baked
+- elements are responsible for rendering their dom-id themselves (in a <div> typically)
+|#
+
 
 (export '(html-element 
 	  element-named element-render element-update
