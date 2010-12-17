@@ -40,3 +40,10 @@ div.auto_complete ul strong.highlight {
     color: #999;
 }
 
+/* error box */
+#error_box {
+    background-color: #F77;
+    border: 1px solid black;
+    padding: 2px;
+    margin: 2px;
+}

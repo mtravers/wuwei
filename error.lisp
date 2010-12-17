@@ -47,9 +47,16 @@
    ((:a :href (format nil "~a?description=~A" *bug-report-url* (uriencode-string (format nil "In ~A:~%~%~a" (system-info) info)))
 	:target "error") "Report a bug")))
 
+;;; Insert an error box for use by the error handler (+++ should have a clear button)
 (defun error-box ()
-  (html ((:div :id "error_box" :style "visibility:none;")))) ;invisible until replaced
+  (html ((:div :id "error_box" :style "display:none;")))) ;invisible until replaced
 
+;;; This isn't called anywhere  (and should :update and set invisible rather than :replace)
+(defun clear-error ()
+  (render-update
+   (:replace "error_box" (html ((:div :id "error_box"))))))
+
+;;; This isn't called anywhere (and should :update rather than :replace)
 (defun render-error (msg &key stack-trace user-error?)
   (render-update
     (:replace "error_box"
@@ -65,9 +72,9 @@
 		      (:princ-safe stack-trace))
 		     ))))))))
 
-(defun clear-error ()
-  (render-update
-   (:replace "error_box" (html ((:div :id "error_box"))))))
+
+;;; Set to T to use the error box rather than alert method.  
+(defvar *ajax-error-box?* nil)
 
 ;;; ++ needs better name: this composes, logs, and sends it back to client
 (defun compose-error-message (path &key error stack-trace extra-js)
@@ -80,13 +87,18 @@
           (:princ (json:encode-json-to-string `((failure . true)
                                                 ;;(success . false)
                                                 (records ((data . ,(clean-upload-js-string message))))))))
-        (render-update
-	 (:alert (princ-to-string (clean-js-string error)))
-	 (:js (or extra-js ""))
-; +++ This would be nice but it doesn't work, also needs to be some way to clear the error.
-;	 (:show "error_box")
-;	 (:update "error_box"  (princ-to-string error)))
-        ))))
+	(let ((estring (clean-js-string (princ-to-string error))))
+	  (if *ajax-error-box?*
+	      (render-update
+		(:update "error_box" (:princ-safe estring))
+		(:show "error_box"))
+	      ;; alertbox method
+	      (render-update
+		(:alert estring)))
+	  (when extra-js
+	    (render-update
+	      (:js extra-js)))
+	  ))))
 
 
 ;; --> conditionalize to use html or javascript, depending on context.

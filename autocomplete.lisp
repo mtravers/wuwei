@@ -114,7 +114,7 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
     (html 
      ((:div :id id :name name :if* class :class class); :style "border:1px solid gray"
       (if current-value
-	  (html (:princ-safe current-value))))
+	  (html (:princ current-value)))) ;was :princ-safe, but this lets you use html markup
      (render-scripts
       (:js (format nil "new Ajax.InPlaceEditorWithEmptyText('~A', '~A', ~A);"
 		    id
