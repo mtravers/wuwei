@@ -227,19 +227,29 @@ Not yet:
           (string= (subseq header 0 (min (length header) (length "multipart/form-data")))
                    "multipart/form-data"))))
 
+
+(defvar *default-session* nil)
+
+;;; :SESSION is NIL if no session management, T for session management, or the name of login
+;;; handling procedure if login is required.  The procedure takes req and ent and is responsible for
+;;; redirecting to a login page. 
 (defmacro publish-ajax-update (path-or-options &body body)
   (let ((path (if (listp path-or-options)
                   (findprop :path path-or-options)
                   path-or-options))
         (content-type (and (listp path-or-options) (findprop :content-type path-or-options)))
-        (no-session? (and (listp path-or-options) (findprop :no-session? path-or-options))))
+        (session (aif (and (listp path-or-options) (member :session path-or-options))
+		   (cadr it)
+		   *default-session*)))
     `(publish :path ,path
               :function (named-lambda ,path (req ent)
                                       (let* ((*multipart-request* (multipart? req))
                                              (*ajax-request* req)
                                              (content-type (or ,content-type (if *multipart-request* "text/html" "text/javascript"))))
                                         (with-http-response-and-body (req ent :content-type content-type)
-                                          (,@(if no-session? '(progn) '(with-session (req ent)))
+                                          (,@(if session `(with-session (req ent ,@(if (and session (not (eq t session)))
+										       `(:login-handler ,session))))
+						 '(progn))
                                             (with-ajax-error-handler (,path)
 					      (with-render-update
 						,@body
@@ -255,12 +265,10 @@ Not yet:
 
 (defvar *ajax-counter* 0)
 
-;;; Set to T to default to no session (sorry about the gnarly gnegations).
-(defvar *default-no-session?* nil)
 
-(defmacro ajax-continuation ((&key args keep content-type (no-session? '*default-no-session?*) name) &body body)
+(defmacro ajax-continuation ((&key args keep content-type session name) &body body)
   `(let ((fname (string+ "/ajax/" ,(or name "g") "/" (fast-string (incf *ajax-counter*)))))
-     (publish-ajax-func (:path fname :content-type ,content-type :no-session? ,no-session?) ,args
+     (publish-ajax-func (:path fname :content-type ,content-type ,@(if session `(:session ,session))) ,args
                         ,@body
                         ,(unless keep
                                '(unpublish fname)))

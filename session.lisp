@@ -49,13 +49,16 @@
 ;;; PPP um, no, outside, apparently.  Fuck.
 (defmacro with-session ((req ent &key login-handler) &body body)
   `(let ((*session* (keywordize (cookie-value ,req *cookie-name*))))
-     (unless *session*
-       (if ,login-handler
-	   (funcall ,login-handler .req ,ent)	;+++ not fleshed out yet PPP
-	   (progn
-	     (setf *session* (make-new-session req ent)))))
-     (with-session-variables 
-	 ,@body)))
+     (cond (*session*
+	    (with-session-variables 
+	      ,@body))
+	   (,login-handler
+	    (funcall ,login-handler ,req ,ent)) 
+	   (t
+	    (setf *session* (make-new-session req ent))
+	    (with-session-variables 
+	      ,@body)	    
+	    ))))
 
 (defun make-new-session (req ent)
   (declare (ignore ent))

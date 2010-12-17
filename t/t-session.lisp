@@ -1,5 +1,7 @@
 (in-package :wu)
 
+;;; Tests of session and login machinery
+
 (defun test-url (s)
   (string+ "http://localhost:8002/tests/" s))
 
@@ -53,3 +55,34 @@
 	  :cookies cookie-jar)
       (assert-true (search "v1" response)))
       ))
+
+
+(defun test-login (req ent)
+  (with-http-response-and-body (req ent)
+    (render-update
+      (:redirect "/login"))))
+
+;;; Tests protection of an ajax method against unlogged-in users
+(define-test login-required
+  (let* ((test nil)
+	 (url (string+ *ajax-test-url* 
+		       (ajax-continuation (:session 'test-login :keep t) 
+			 (setq test t)
+			 (render-update (:alert "snockity"))))))
+    (let ((res (net.aserve.client:do-http-request url :method :post)))
+      (assert-false test)		;should NOT run the continuation
+      ;; Should be getting a redirect command back
+      (assert-true (search "window.location.href" res)))
+
+    ;; simulate a login and try again
+    (let ((cookie-jar (make-instance 'net.aserve.client:cookie-jar)))
+      (multiple-value-bind (response response-code response-headers)
+	  (net.aserve.client::do-http-request (test-url "session1")
+	    :cookies cookie-jar)
+	(assert-equal 200 response-code)
+	(assert-true (net.aserve.client::cookie-jar-items cookie-jar))
+	(let ((res (net.aserve.client:do-http-request url :method :post
+						      :cookies cookie-jar)))
+	  (assert-true test)
+	  (assert-true (search "alert(" res)))
+	))))

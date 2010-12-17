@@ -3,7 +3,7 @@
 (defparameter *test-port* 8002)
 (net.aserve:start :port *test-port*)
 
-;;; Test and example code
+;;; Tests for basic Ajax machinery and update generation
 
 ;;; Test that the generation machinery is sane
 (define-test generation 
@@ -14,29 +14,6 @@
       'string)))
 
 (defparameter *ajax-test-url* (format nil "http://localhost:~A" *test-port*))
-
-;;; Tests ajax-continuation mechanism via GET-URL
-(define-test ajax
-    (let ((test nil))
-      (get-url (string+ *ajax-test-url*
-			(ajax-continuation (:no-session? t) 
-					   (setq test t)
-					   (render-update (:alert "foo"))))
-	       :method :post)
-      (assert-true test)))
-
-;;; same as above, but continuation should not run due to login requirement
-(define-test login-required
-  (let ((test nil))
-    (let ((res
-	   (get-url (string+ *ajax-test-url* 
-			     (ajax-continuation (:no-session? nil) 
-			       (setq test t)
-			       (render-update (:alert "foo"))))
-		    :method :post)))
-      (assert-false test)
-      ;; Should be getting a redirect command back
-      (assert-true (search "window.location.href" res)))))
 
 (publish :path "/intro"
 	 :function #'(lambda (req ent)
@@ -57,13 +34,21 @@
 			    (:li "Login and session management")
 
 			    ))))))
-			   
+
+;;; Tests ajax-continuation mechanism via GET-URL
+(define-test ajax
+    (let ((test nil))
+      (get-url (string+ *ajax-test-url*
+			(ajax-continuation () 
+					   (setq test t)
+					   (render-update (:alert "foo"))))
+	       :method :post)
+      (assert-true test)))
+
 
 ;;; Generates a page to show off Wuwei render-update tools.  This test requires manual intervention.
 (publish :path "/updated" 
 	 :function 'updated-page)
-
-(setq *default-no-session?* t)
 
 (defun updated-page (req ent)
   (with-http-response-and-body (req ent)

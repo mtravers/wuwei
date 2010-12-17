@@ -154,16 +154,9 @@
   `(without-unwinding-restart (html-report-error)
      ,@body))
 
-(defun need-to-login-response (req ent &optional (page "/nlogin"))
-  (declare (ignore req ent))
-  (html
-   (render-scripts
-    (:redirect page)	
-    )))
-
-(defvar *LOGGING* t)
-(defvar *LOGGING-STREAM* *STANDARD-OUTPUT*)
+(defvar *logging* t)
+(defvar *logging-stream* *standard-output*)
 
 (defun log-message (message)
-  (if *LOGGING*
-      (format *LOGGING-STREAM* "~a ~a~%" (net.aserve::universal-time-to-date (get-universal-time))  message))) 
+  (if *logging*
+      (format *logging-stream* "~a ~a~%" (net.aserve::universal-time-to-date (get-universal-time))  message))) 
