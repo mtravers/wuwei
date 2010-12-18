@@ -228,6 +228,7 @@ Not yet:
                    "multipart/form-data"))))
 
 
+;;; +++ this gets expanded by macros, so can't be changed at runtime?  Fix.
 (defvar *default-session* nil)
 
 ;;; :SESSION is NIL if no session management, T for session management, or the name of login
@@ -243,18 +244,19 @@ Not yet:
 		   *default-session*)))
     `(publish :path ,path
               :function (named-lambda ,path (req ent)
-                                      (let* ((*multipart-request* (multipart? req))
-                                             (*ajax-request* req)
-                                             (content-type (or ,content-type (if *multipart-request* "text/html" "text/javascript"))))
-                                        (with-http-response-and-body (req ent :content-type content-type)
-                                          (,@(if session `(with-session (req ent ,@(if (and session (not (eq t session)))
-										       `(:login-handler ,session))))
-						 '(progn))
-                                            (with-ajax-error-handler (,path)
-					      (with-render-update
-						,@body
-						)))))
-				      ))))
+			  (let* ((*multipart-request* (multipart? req))
+				 (*ajax-request* req)
+				 (content-type (or ,content-type (if *multipart-request* "text/html" "text/javascript"))))
+			    (,@(if session `(with-session (req ent ,@(if (and session (not (eq t session)))
+									 `(:login-handler ,session))))
+				   '(progn))
+			       (with-http-response-and-body (req ent :content-type content-type)
+
+				 (with-ajax-error-handler (,path)
+				   (with-render-update
+				     ,@body
+				     )))))
+			  ))))
 
 (defmacro publish-ajax-func (path-or-options args &rest body)
   `(publish-ajax-update ,path-or-options

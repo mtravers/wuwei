@@ -45,8 +45,7 @@
 ;;; Bound by session handler to the session name (a keyword)
 (defvar *session* nil)
 
-;;; Note: has to be INSIDE with-http-response-and-body or equiv
-;;; PPP um, no, outside, apparently.  Fuck.
+;;; Note: has to be OUTSIDE with-http-response-and-body or equiv
 (defmacro with-session ((req ent &key login-handler) &body body)
   `(let ((*session* (keywordize (cookie-value ,req *cookie-name*))))
      (cond (*session*
