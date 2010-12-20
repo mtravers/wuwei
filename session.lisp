@@ -54,7 +54,7 @@
 	   (,login-handler
 	    (funcall ,login-handler ,req ,ent)) 
 	   (t
-	    (setf *session* (make-new-session req ent))
+	    (setf *session* (make-new-session ,req ,ent))
 	    (with-session-variables 
 	      ,@body)	    
 	    ))))

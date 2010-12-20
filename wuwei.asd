@@ -8,6 +8,9 @@
 
 (defsystem :wuwei
     :name "Ajax and other tools for web development."
+    :version "0.1"
+    :author "Mike Travers <mt@hyperphor.com>"
+    :license "MIT"
     :serial t
     :depends-on (#-ALLEGRO :aserve #-:CL-JSON :cl-json :mtlisp)
     :components 
@@ -15,7 +18,7 @@
      (:file "package")
      ;; Patches to existing systems
      #-ALLEGRO (:file "aserve-patch")
-     #-ALLEGRO (:file "htmlgen-patch")
+     (:file "htmlgen-patch")
      (:file "cl-json-patches")
      ;; Config
      (:file "config")

@@ -6,40 +6,15 @@
 ;;; the page
 (defun mql-autocomplete-demo (req ent)
   (with-http-response-and-body (req ent)
-    (html
-     (:head
-      (javascript-includes "prototype.js" "effects.js" "controls.js" "wuwei.js")
-      (css-include "wuwei.css"))
-     (:html 
-      ((:body :id "body")
-       "Autocomplete demo: " :newline
-       (autocomplete-mql-field :type "/people/person"
-			       :on-selected
-			       #'(lambda (value string id)
-				   (print `(autocomplete-finish ,value ,string ,id))
-				   (render-update 
-				     (:update "result"
-					      (html
-					       (:princ-safe (format nil "You picked ~A" value))))))
-			       )
-       :p :newline
-       ((:div :id "result")
-	"Result goes here")
-       )))))
-
-;;; Slightly more complex version
-(defun mql-autocomplete-demo (req ent)
-  (with-http-response-and-body (req ent)
     (flet ((render-instance-chooser (type human-name)
 	     (html ((:div :id "instance_c")
-		    (:princ-safe (format nil "Choose a ~A: " human-name))
 		    (autocomplete-mql-field :type type
 					    :on-selected
 					    #'(lambda (value string id)
 						(render-update 
 						  (:update "result"
 							   (html
-							    (:princ-safe (format nil "You picked ~A" value))))))
+							    (:princ-safe value)))))
 					    )))))
 
       (html
@@ -49,35 +24,55 @@
        (:html 
 	((:body :id "body")
 	 :newline
-	 "Type: " 
-	 (autocomplete-mql-field :type "/type/type"
-				 :on-selected
+	 (:table
+	  (:tr
+	   ((:td :align :right) "Type")
+	   (:td
+	    (autocomplete-mql-field :type "/type/type"
+				    :anchor-start? t
+				    :show-ids? t
+				    :on-selected
 				 #'(lambda (value string id)
 				     (print `(autocomplete-finish ,value ,string ,id))
 				     (render-update 
+				       (:update "typeid" (html (:princ-safe value)))
 				       (:replace "instance_c"
-						 (render-instance-chooser value string)))))
-	 :newline
-	 (render-instance-chooser "/people/person" "Person")
-	 :p :newline
-	 ((:div :id "result")
-	  "Result goes here")
-	 ))))))			     
+						 (render-instance-chooser value string))))))
+	   (:td ((:span :id "typeid"))))
+	  (:tr
+	   (:td "Choose an instance")
+	   (:td (render-instance-chooser "/people/person" "Person"))
+	   (:td ((:span :id "result")))
+	 ))))))))			     
+
+
+#|	   (:td "or " (link-to-remote "click to see all" (ajax-continuation ()
+							   (render-update
+							     (:update :instances
+								      (html 
+								       
+								       
+							   "(up to 100)"
+	   )
+
+|#
 
 ;;; the field
-(defun autocomplete-mql-field (&rest other &key type &allow-other-keys)
+(defun autocomplete-mql-field (&rest other &key anchor-start? type show-ids? &allow-other-keys)
   (apply 'auto-complete-field 
 	 :completions-url (ajax-continuation (:args (prefix) :keep t :name "mql_completions")
 			    (html
 			     (:ul
-			      (dolist (item (mql-autocomplete prefix type :anchor-start? nil))
+			      (dolist (item (mql-autocomplete prefix type :anchor-start? anchor-start?))
 				(html
 				 ((:li :id (cdr (assoc :id item)))
-				  (:princ-safe (cdr (assoc :|A:NAME| item)))))))))
-	 (delete-keyword-arg :type other)))
+				  (:princ (cdr (assoc :|A:NAME| item)))
+				  (if show-ids?
+				      (html (format nil " (~A)" id)))))))))
+	 (delete-keyword-args '(:anchor-start? :type :show-ids?) other)))
 	 
 
-;;; MQL
+;;; MQL machinery
 
 (defvar *freebase-host* "www.freebase.com") ; The Metaweb host
 (defvar *freebase-readservice* "/api/service/mqlread")   ; Path to mqlread service
@@ -95,8 +90,6 @@
       (princ json))
     (setq response
 	  (json:decode-json-from-string 
-					;     (util:get-url url)
-					;     (net.aserve.client::do-http-request url)
 	   (get-url url)
 	   ))
     (unless (equal "/api/status/ok" (assocdr :code response))
@@ -107,13 +100,14 @@
     (assocdr :result response)))
 
 ;;; eg: (mql-autocomplete "Marv" "/people/person")
-(defun mql-autocomplete (prefix type &key (property "name") (anchor-start? t) (limit 10))
+(defun mql-autocomplete (prefix type &key (property "name") (anchor-start? nil) (limit 10))
   (mql-read
    `((,(string+ (string property) "~=") . ,(string+ (if anchor-start? "^" "") prefix "*"))
      (:type . ,type)
      (:id . nil)
      ("a:name" . nil)
      (:limit . ,limit)
+     (:sort . "a:name")
      )))
 
 ;;; Gets way way too much stuff

@@ -15,23 +15,15 @@ Dependencies:
 In Franz's Allegro Lisp, it will use the built-in version of AllegroServe, but some things won't work, since the local extensions
 to Aserve aren't loaded.  
 
-
 - Uses the CL-JSON and MTLISP Lisp libraries, available in the standard places.
+    MTLISP can be obtained here: https://github.com/mtravers/mtlisp
 
 - Requires the prototype and scriptaculous JavaScript libraries (included in the source).
 
 TODO BEFORE RELEASE
-- deal with repository branches
-
-- made session.lisp of stuff pulled out from biobike
-   some of nlistener/login should migrate
-
 - config
 
 - doc
-
-- tests
-   in progress
 
 - examples
   - demo page

@@ -7,7 +7,7 @@
 
 ;;; Test that the generation machinery is sane
 (define-test generation 
-    (assert-true 
+  (assert-true 
      (typep
       (html-string
        (link-to-remote "foo" "/foo" :html-options '(:style "font-style:italic") :success "alert('you win');"))
@@ -15,7 +15,7 @@
 
 (defparameter *ajax-test-url* (format nil "http://localhost:~A" *test-port*))
 
-(publish :path "/intro"
+(publish :path "/"
 	 :function #'(lambda (req ent)
 		       (with-http-response-and-body (req ent)
 			 (html
@@ -25,7 +25,9 @@
 			   (:p
 			    ((:a :href "http://en.wikipedia.org/wiki/Wu_wei")
 			     (:princ-safe "\"Wu wei wu\""))
-			    (:princ-safe " translates to \"effortless doing\" or \"action without action\".  Certainly effortlessness is something for a web toolkit to aspire to!"))
+			    (:princ-safe " means \"effortless doing\" or \"action without action\".") :br
+			    (:princ "Wuwei the software toolkit aims to make making Ajaxified web sites in Lisp as close to effortless as possible."))
+			   (:h4 "Features")
 			   (:ul
 			    (:li "Continuation-based AJAX user interfaces")
 			    (:li "Extensions and fixes to Portable Allegroserve")
@@ -33,7 +35,11 @@
 			    (:li "Server-side high-level DOM operations (add/remove elements, visual fades, drag and drop")
 			    (:li "Login and session management")
 
-			    ))))))
+			    )
+			   (:h4 "Examples")
+			   (:ul
+			    (:li ((:a :href "/updated") "Demo/test Ajax machinery")))
+			   )))))
 
 ;;; Tests ajax-continuation mechanism via GET-URL
 (define-test ajax

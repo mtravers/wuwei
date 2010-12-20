@@ -31,7 +31,7 @@
 
 (export '(auto-complete-field 
 	  auto-complete-field-sparql
-	  in-place-field))
+	  in-place-field in-place-setf-field))
 
 #|
 Support for autocomplete and in-place-editor widgets
@@ -125,6 +125,11 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
 		      (write-string value *html-stream*))
 		    (json:encode-json-to-string options)))))))
 
+;;; A convenience for the simple case of a 
+(defmacro in-place-setf-field (object accessor &key options)
+  `(in-place-field :value (,accessor ,object)
+		   :options ,options
+		   :on-change #'(lambda (v) (setf (,accessor ,object) v))))
 
 	 
 
