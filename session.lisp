@@ -29,7 +29,7 @@
 ;;; Author:  Mike Travers
 
 
-(export '(with-session def-session-variable 
+(export '(with-session def-session-variable *default-session*
 	  with-http-response-and-body))
 
 
@@ -48,7 +48,7 @@
 ;;; Note: has to be OUTSIDE with-http-response-and-body or equiv
 (defmacro with-session ((req ent &key login-handler) &body body)
   `(let ((*session* (keywordize (cookie-value ,req *cookie-name*))))
-     (cond (*session*
+     (cond ((session-named *session* t)
 	    (with-session-variables 
 	      ,@body))
 	   (,login-handler
@@ -100,9 +100,10 @@
 	 (dolist (v *session-variables*)
 	   (set-session-variable-value *session* v (symbol-value v)))))))
 
-(defun session-named (session-key)
-  (or (gethash session-key *sessions*)
-      (error "Session ~A not found" session-key)))
+(defun session-named (session-key &optional no-error?)
+  (cond ((gethash session-key *sessions*))
+	(no-error? nil)
+	(t (error "Session ~A not found" session-key))))
 
 (defun session-variable-value (session var)
   (gethash var (session-named session) (symbol-value var)))

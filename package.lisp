@@ -1,10 +1,10 @@
-
 (defpackage :wuwei
   (:nicknames :wu)
-  (:use :cl :mt ;+++ :3utils
+  (:use :cl :mt
         :net.aserve :net.html.generator
-	:clos*				;added for c1lite
+	:clos*				;added for dom-objects, not necessary otherwise
 	:lisp-unit)
-  (:export #:uploader #:*file-field-name*)
+;;; exports are within the source files
+;  (:export #:uploader #:*file-field-name*)
   (:shadowing-import-from :mt "SET-EQUAL")
   )
