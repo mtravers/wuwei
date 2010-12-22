@@ -228,8 +228,8 @@ Not yet:
                    "multipart/form-data"))))
 
 
-;;; +++ this gets expanded by macros, so can't be changed at runtime?  Fix.
-(defvar *default-session* nil)
+;;; +++ this gets expanded by macros, so can't be changed at runtime?  Fix.  Or lets just say we always do session?
+(defvar *default-session* t)
 
 ;;; :SESSION is NIL if no session management, T for session management, or the name of login
 ;;; handling procedure if login is required.  The procedure takes req and ent and is responsible for
@@ -241,7 +241,7 @@ Not yet:
         (content-type (and (listp path-or-options) (findprop :content-type path-or-options)))
         (session (aif (and (listp path-or-options) (member :session path-or-options))
 		   (cadr it)
-		   *default-session*)))
+		   '*default-session*)))
     `(publish :path ,path
               :function (named-lambda ,path (req ent)
 			  (let* ((*multipart-request* (multipart? req))

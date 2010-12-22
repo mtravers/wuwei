@@ -46,6 +46,7 @@
 (defvar *session* nil)
 
 ;;; Note: has to be OUTSIDE with-http-response-and-body or equiv
+;;; +++ this expand body multiple times, bad.
 (defmacro with-session ((req ent &key login-handler) &body body)
   `(let ((*session* (keywordize (cookie-value ,req *cookie-name*))))
      (cond ((session-named *session* t)
@@ -111,3 +112,19 @@
 (defun set-session-variable-value (session var val)
   (setf (gethash var (session-named session)) val))
       
+;;; +++ put this under development flag
+(publish :path "/session-debug"
+	 :function 'session-debug-page)
+
+(defun session-debug-page (req ent)
+  (with-session (req ent)
+    (with-http-response-and-body (req ent)
+      (html
+       (:h1 "Session State")
+       (:p "Session name: " (:princ *session*))
+       (:table
+	(dolist (elt (ht-contents (session-named *session*)))
+	  (html
+	   (:tr
+	    (:td (:princ-safe (car elt)))
+	    (:td (:princ-safe (cadr elt)))))))))))  
