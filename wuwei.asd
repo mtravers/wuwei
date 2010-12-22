@@ -23,7 +23,6 @@
      ;; Config
      (:file "config")
      (:file "net-utils")
-     (:file "bigstring")
      (:file "web")
      (:file "ajax-render")
      (:file "session")
