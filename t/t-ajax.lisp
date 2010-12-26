@@ -1,6 +1,7 @@
 (in-package :wu)
 
 (defparameter *test-port* 8002)
+;;; aserve started acting hincky in ccl, so this stops working if it is called >1 time...or something like that.
 (net.aserve:start :port *test-port*)
 
 ;;; Tests for basic Ajax machinery and update generation

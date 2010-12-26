@@ -228,9 +228,6 @@ Not yet:
                    "multipart/form-data"))))
 
 
-;;; +++ this gets expanded by macros, so can't be changed at runtime?  Fix.  Or lets just say we always do session?
-(defvar *default-session* t)
-
 ;;; :SESSION is NIL if no session management, T for session management, or the name of login
 ;;; handling procedure if login is required.  The procedure takes req and ent and is responsible for
 ;;; redirecting to a login page. 
@@ -240,15 +237,17 @@ Not yet:
                   path-or-options))
         (content-type (and (listp path-or-options) (findprop :content-type path-or-options)))
         (session (aif (and (listp path-or-options) (member :session path-or-options))
-		   (cadr it)
-		   '*default-session*)))
+		      (cadr it)
+		      t))		;defaults to t
+	(login-handler (aif (and (listp path-or-options) (member :login-handler path-or-options))
+			    (cadr it))))
     `(publish :path ,path
               :function (named-lambda ,path (req ent)
 			  (let* ((*multipart-request* (multipart? req))
 				 (*ajax-request* req)
 				 (content-type (or ,content-type (if *multipart-request* "text/html" "text/javascript"))))
-			    (,@(if session `(with-session (req ent ,@(if (and session (not (eq t session)))
-									 `(:login-handler ,session))))
+			    (,@(if session 
+				   `(with-session (req ent ,@(if login-handler `(:login-handler ,login-handler))))
 				   '(progn))
 			       (with-http-response-and-body (req ent :content-type content-type)
 
@@ -268,9 +267,12 @@ Not yet:
 (defvar *ajax-counter* 0)
 
 
-(defmacro ajax-continuation ((&key args keep content-type session name) &body body)
+(defmacro ajax-continuation ((&key args keep content-type session name login-handler) &body body)
   `(let ((fname (string+ "/ajax/" ,(or name "g") "/" (fast-string (incf *ajax-counter*)))))
-     (publish-ajax-func (:path fname :content-type ,content-type ,@(if session `(:session ,session))) ,args
+     (publish-ajax-func (:path fname :content-type ,content-type
+			       ,@(if session `(:session ,session))
+			       ,@(if login-handler `(:login-handler ,login-handler)))
+			,args
                         ,@body
                         ,(unless keep
                                '(unpublish fname)))

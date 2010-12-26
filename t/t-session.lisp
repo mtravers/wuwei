@@ -66,7 +66,7 @@
 (define-test login-required
   (let* ((test nil)
 	 (url (string+ *ajax-test-url* 
-		       (ajax-continuation (:session 'test-login :keep t) 
+		       (ajax-continuation (:login-handler 'test-login :keep t) 
 			 (setq test t)
 			 (render-update (:alert "snockity"))))))
     (let ((res (net.aserve.client:do-http-request url :method :post)))
