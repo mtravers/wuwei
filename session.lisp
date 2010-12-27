@@ -45,7 +45,8 @@
 ;;; Bound by session handler to the session name (a keyword)
 (defvar *session* nil)
 
-(defparameter *default-login-handler* nil)
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defparameter *default-login-handler* nil))
 
 ;;; Note: has to be OUTSIDE with-http-response-and-body or equiv
 ;;; +++ this expand body multiple times, bad.

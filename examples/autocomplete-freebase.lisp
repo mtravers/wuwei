@@ -20,7 +20,7 @@
       (html
        (:head
 	(javascript-includes "prototype.js" "effects.js" "controls.js" "wuwei.js")
-	(css-include "wuwei.css"))
+	(css-includes "wuwei.css"))
        (:html 
 	((:body :id "body")
 	 :newline

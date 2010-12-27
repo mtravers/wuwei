@@ -30,7 +30,7 @@
 
 (export '(*public-directory* public-url image-url
 	  
-	  javascript-include javascript-includes css-include
+	  javascript-include javascript-includes css-include css-includes
 	  
 	  render-update render-scripts
 	  
@@ -64,7 +64,7 @@
 ;;; Define a directory and path for public files
 
 (defparameter *public-directory* (make-pathname
-				  :directory '#.(append (pathname-directory (or *load-pathname* *compile-file-pathname*)) '("public"))))
+				  :directory '#.(append (pathname-directory (this-pathname)) '("public"))))
 
 (publish-directory :destination (namestring *public-directory*)
                    :prefix "/wupub/"
@@ -82,18 +82,18 @@
       (public-url file-or-url)))
 
 (defun javascript-include (file-or-url)
-    (html
-     ((:script :type "text/javascript" :src (coerce-url file-or-url))) :newline ))
+  (html
+   ((:script :type "text/javascript" :src (coerce-url file-or-url))) :newline ))
 
 (defun javascript-includes (&rest files)
-  (dolist (file files)
-    (javascript-include file)))
+  (mapc #'javascript-include files))
 
 (defun css-include (file-or-url)
   (html
    ((:link :rel "stylesheet" :type "text/css" :href (coerce-url file-or-url)))))
 
-
+(defun css-includes (&rest files)
+  (mapc #'css-include files))
 #|
 Philosophy of this library: Things work via side effect (by using the HTML macro and associated machinery).
 

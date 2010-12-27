@@ -20,26 +20,33 @@
 	 :function #'(lambda (req ent)
 		       (with-http-response-and-body (req ent)
 			 (html
+			  (:head
+			   (:title "Welcome to WWuWei")
+			   (css-includes "wuwei.css"))
 			  (:body
 			   (:h3 "Welcome to WuWei")
-			   ((:img :src (image-url "wuwei.jpg")))
-			   (:p
-			    ((:a :href "http://en.wikipedia.org/wiki/Wu_wei")
-			     (:princ-safe "\"Wu wei wu\""))
-			    (:princ-safe " means \"effortless doing\" or \"action without action\".") :br
-			    (:princ "Wuwei the software toolkit aims to make making Ajaxified web sites in Lisp as close to effortless as possible."))
+			   (:table
+			    (:tr
+			     (:td
+			      ((:img :src (image-url "wuwei.jpg"))))
+			     (:td
+			      (:p
+			       ((:a :href "http://en.wikipedia.org/wiki/Wu_wei")
+				(:princ-safe "\"Wu wei\""))
+			       (:princ-safe " means \"effortless doing\" or \"action without action\".") :p
+			       (:princ "Wuwei the software toolkit aims to make building Ajaxified web sites in Lisp as close to effortless as possible.")))))
 			   (:h4 "Features")
 			   (:ul
 			    (:li "Continuation-based AJAX user interfaces")
-			    (:li "Extensions and fixes to Portable Allegroserve")
-			    (:li "Functions for HTML widget generation")
 			    (:li "Server-side high-level DOM operations (add/remove elements, visual fades, drag and drop")
+			    (:li "Extensions and fixes to Portable Allegroserve")
+			    (:li "High-level interfaces to in-place-editing and autocomplete widgets")
 			    (:li "Login and session management")
-
 			    )
-			   (:h4 "Examples")
+			   (:h4 "Examples and demos")
 			   (:ul
-			    (:li ((:a :href "/updated") "Demo/test Ajax machinery")))
+			    (:li ((:a :href "/updated") "Basic Ajax update machinery"))
+			    (:li ((:a :href "/color-demo") "Ajax forms and third party javascript libraries")))
 			   )))))
 
 ;;; Tests ajax-continuation mechanism via GET-URL

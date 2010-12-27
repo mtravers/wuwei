@@ -14,7 +14,7 @@ Illustrates:
 	   (let* ((cc1 (parse-integer c1 :start i :end (+ i 2) :radix 16))
 		  (cc2 (parse-integer c2 :start i :end (+ i 2) :radix 16))
 		  (ccn (+ (* cc1 (- 1 p)) (* cc2 p))))
-	     (format nil "~2x" (round ccn)))))
+	     (format nil "~2,'0x" (round ccn)))))
     (string+ (interpolate-1 0)
 	     (interpolate-1 2)
 	     (interpolate-1 4))))
@@ -23,7 +23,9 @@ Illustrates:
   (with-http-response-and-body (req ent)
     (html
      (:head 
-      (javascript-includes "prototype.js" "effects.js" "jscolor/jscolor.js"))
+      (:title "WuWei Color Demo")
+      (javascript-includes "prototype.js" "effects.js" "jscolor/jscolor.js")
+      (css-include "wuwei.css"))
      (:body
       (:h2 "WuWei Color Demo")
       "Shows off:"
@@ -31,22 +33,29 @@ Illustrates:
        (:li "Ajax forms and updating")
        (:li "Incorporating a 3rd-party Javascript Library"))
       (let ((continuation 
-	     (ajax-continuation (:keep t :args (color1 color2))
-	       (render-update
-		 (:update "result"
-			  (html
-			   (:table
-			    (:tr
-			     (dotimes (i 10)
-			       (html 
-				(:td
-				 ((:div :style (format nil "width:100px;height:100px;background-color:#~A;" (interpolate-colors color1 color2 (/ i 10))))))))))))))))
+	     (ajax-continuation (:keep t :args (color1 color2 n))
+	       (let ((n (or (ignore-errors (parse-integer n)) 24)))
+		 (render-update
+		   (:update "result"
+			    (html
+			     (:table
+			      (dotimes (row (ceiling n 8))
+				(html
+				 (:tr
+				  (dotimes (col 8)
+				    (let ((i (+ col (* row 8) )))
+				      (when (< i n)
+					(html 
+					 (:td
+					  ((:div :style (format nil "width:50px;height:50px;background-color:#~A;" (interpolate-colors color1 color2 (/ i (- n 1))))))))))))))))))))))
 	(html
 	 ((:form :method :post :onsubmit (remote-function continuation :form t))
 	  "From this color:"
 	  ((:input :name "color1" :class "color" :value "4A6EFF")) :br
 	  "To this color:"
 	  ((:input :name "color2" :class "color" :value "FFAA54")) :br
+	  "# swatches:"
+	  ((:input :name "n" :value 24))
 	  ((:input :type :submit :value "Interpolate")))
 	 ((:div :id "result") "Result goes here")
 	 (render-scripts
