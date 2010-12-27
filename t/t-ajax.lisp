@@ -1,6 +1,6 @@
 (in-package :wu)
 
-(defparameter *test-port* 8002)
+(defparameter *test-port* 8003)
 ;;; aserve started acting hincky in ccl, so this stops working if it is called >1 time...or something like that.
 (net.aserve:start :port *test-port*)
 

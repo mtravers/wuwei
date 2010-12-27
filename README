@@ -21,13 +21,9 @@ to Aserve aren't loaded.
 - Requires the prototype and scriptaculous JavaScript libraries (included in the source).
 
 TODO BEFORE RELEASE
+- uploader
 - config
-
 - doc
-
 - examples
   - demo page
-  - color page (in progress)
-  - Ajax expando frame browser (from SRI)
-    use with freebase or something
 

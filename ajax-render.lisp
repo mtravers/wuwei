@@ -240,8 +240,8 @@ Not yet:
 		      (cadr it)
 		      t))		;defaults to t
 	(login-handler (aif (and (listp path-or-options) (member :login-handler path-or-options))
-			    (cadr it))))
-    `(publish :path ,path
+		    (cadr it))))
+    `(publish-temporarily ,path
               :function (named-lambda ,path (req ent)
 			  (let* ((*multipart-request* (multipart? req))
 				 (*ajax-request* req)
@@ -266,7 +266,6 @@ Not yet:
 
 (defvar *ajax-counter* 0)
 
-
 (defmacro ajax-continuation ((&key args keep content-type session name login-handler) &body body)
   `(let ((fname (string+ "/ajax/" ,(or name "g") "/" (fast-string (incf *ajax-counter*)))))
      (publish-ajax-func (:path fname :content-type ,content-type
@@ -283,10 +282,15 @@ Not yet:
 (defun unpublish (path)
   (net.aserve::unpublish-entity (net.aserve::find-locator :exact *wserver*) path nil nil))
 
+(defun publish-temporarily (path &rest args)
+  (apply 'publish :path path args)
+  (set-responder-timeout path))
+
 ;; could keep this sorted I supposed
+(defparameter *default-responder-timeout* (* 10 60))
 (defvar *responder-timeout* nil)
 
-(defun set-responder-timeout (path &optional (time (+ (now) (* 5 60))))
+(defun set-responder-timeout (path &optional (time (+ (now) *default-responder-timeout*)))
   (push (list time path) *responder-timeout*))
 
 (defun do-responder-timeouts ()
