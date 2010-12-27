@@ -16,6 +16,7 @@
 
 (defparameter *ajax-test-url* (format nil "http://localhost:~A" *test-port*))
 
+;;; +++ move to examples or somewhere
 (publish :path "/"
 	 :function #'(lambda (req ent)
 		       (with-http-response-and-body (req ent)
@@ -46,7 +47,8 @@
 			   (:h4 "Examples and demos")
 			   (:ul
 			    (:li ((:a :href "/updated") "Basic Ajax update machinery"))
-			    (:li ((:a :href "/color-demo") "Ajax forms and third party javascript libraries")))
+			    (:li ((:a :href "/color-demo") "Ajax forms and third party javascript libraries"))
+			    (:li ((:a :href "/mql-autocomplete-simple-demo") "Autocomplete field (and Freebase API)")))
 			   )))))
 
 ;;; Tests ajax-continuation mechanism via GET-URL

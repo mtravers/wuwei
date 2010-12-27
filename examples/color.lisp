@@ -50,13 +50,18 @@ Illustrates:
 					  ((:div :style (format nil "width:50px;height:50px;background-color:#~A;" (interpolate-colors color1 color2 (/ i (- n 1))))))))))))))))))))))
 	(html
 	 ((:form :method :post :onsubmit (remote-function continuation :form t))
-	  "From this color:"
-	  ((:input :name "color1" :class "color" :value "4A6EFF")) :br
-	  "To this color:"
-	  ((:input :name "color2" :class "color" :value "FFAA54")) :br
-	  "# swatches:"
-	  ((:input :name "n" :value 24))
-	  ((:input :type :submit :value "Interpolate")))
+	  (:table
+	   (:tr
+	    ((:td :align :right) "From this color:")
+	    (:td ((:input :name "color1" :class "color" :value "4A6EFF")) :br))
+	   (:tr
+	    ((:td :align :right) "To this color:")
+	    (:td ((:input :name "color2" :class "color" :value "FFAA54")) :br))
+	   (:tr
+	    ((:td :align :right) "# swatches:")
+	    (:td ((:input :name "n" :value 24))))
+	   (:tr 
+	    (:td ((:input :type :submit :value "Interpolate"))))))
 	 ((:div :id "result") "Result goes here")
 	 (render-scripts
 	   (:js "jscolor.init();"))))))))

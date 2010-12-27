@@ -1,66 +1,85 @@
 (in-package :wu)
 
-(publish :path "/mql-autocomplete-demo"
-	 :function 'mql-autocomplete-demo)
+
+(publish :path "/mql-autocomplete-simple-demo"
+	 :function 'mql-autocomplete-simple-demo)
+
+(defun freebase-url (id)
+  (string+ "http://www.freebase.com/view" id))
 
 ;;; the page
-(defun mql-autocomplete-demo (req ent)
+(defun mql-autocomplete-simple-demo (req ent)
   (with-http-response-and-body (req ent)
-    (flet ((render-instance-chooser (type human-name)
-	     (html ((:div :id "instance_c")
-		    (autocomplete-mql-field :type type
-					    :on-selected
-					    #'(lambda (value string id)
-						(render-update 
-						  (:update "result"
+    (html
+     (:head
+      (:title "Auocomplete simple demo")
+      (javascript-includes "prototype.js" "effects.js" "controls.js" "wuwei.js")
+      (css-includes "wuwei.css"))
+     (:html 
+      ((:body :id "body")
+       (:princ "This example shows the use of an autocomplete field that uses Freebase as the backend") :p
+       :newline
+       "Enter an author: "
+       (autocomplete-mql-field :type "/book/author"
+			       :anchor-start? nil
+			       :show-ids? nil
+			       :input-options '(:size 100)
+			       :on-selected
+			       #'(lambda (value string id)
+				   (print `(autocomplete-finish ,value ,string ,id))
+				   (render-update 
+				     (:update "result" 
+					      (html
+					       ((:a :href (freebase-url value) :target "freebase")
+						(:princ-safe string))
+					       "  " (:princ-safe value)
+					       :p
+					       ((:table :border 1)
+						(:tr
+						 (:th "Book")
+						 (:th "Pub Date")
+						 (:th "Subjects"))
+						(dolist (book-mql 
+							  (cdr (assoc :works_written 
+								      (car
+								       (mql-read
+									`((:id . ,value)
+									  (:type . "/book/author")
+									  ("works_written" . (((:id . nil) 
+											       ("a:name" . nil)
+											       ("/book/written_work/date_of_first_publication" . nil)
+											       ("/book/written_work/subjects" .
+															      (((:id . nil) 
+																("a:name" . nil)
+																("optional" . t))))
+											       )))
+									  
+									  ))))))
+						  (html
+						   (:tr
+						    (:td ((:a href (freebase-url (cdr (assoc :id book-mql)))  :target "freebase")
+							  (:princ-safe (cdr (assoc :|A:NAME| book-mql)))))
+						    (:td (awhen (cdr (assoc :/BOOK/WRITTEN_WORK/DATE_OF_FIRST_PUBLICATION book-mql))
+							   (html (:princ it))))
+						    (:td (dolist (subject-mql (cdr (assoc :/BOOK/WRITTEN_WORK/SUBJECTS book-mql)))
 							   (html
-							    (:princ-safe value)))))
-					    )))))
+							    ((:a href (freebase-url (cdr (assoc :id subject-mql)))  :target "freebase")
+							     (:princ-safe (cdr (assoc :|A:NAME| subject-mql)))) 
+							    :br)))
+						    ))))
+					       
+					       
+					       ))
+				     )))
+       ((:div :id "result") "result goes here")
+       )))))
 
-      (html
-       (:head
-	(javascript-includes "prototype.js" "effects.js" "controls.js" "wuwei.js")
-	(css-includes "wuwei.css"))
-       (:html 
-	((:body :id "body")
-	 :newline
-	 (:table
-	  (:tr
-	   ((:td :align :right) "Type")
-	   (:td
-	    (autocomplete-mql-field :type "/type/type"
-				    :anchor-start? t
-				    :show-ids? t
-				    :on-selected
-				 #'(lambda (value string id)
-				     (print `(autocomplete-finish ,value ,string ,id))
-				     (render-update 
-				       (:update "typeid" (html (:princ-safe value)))
-				       (:replace "instance_c"
-						 (render-instance-chooser value string))))))
-	   (:td ((:span :id "typeid"))))
-	  (:tr
-	   (:td "Choose an instance")
-	   (:td (render-instance-chooser "/people/person" "Person"))
-	   (:td ((:span :id "result")))
-	 ))))))))			     
-
-
-#|	   (:td "or " (link-to-remote "click to see all" (ajax-continuation ()
-							   (render-update
-							     (:update :instances
-								      (html 
-								       
-								       
-							   "(up to 100)"
-	   )
-
-|#
 
 ;;; the field
 (defun autocomplete-mql-field (&rest other &key anchor-start? type show-ids? &allow-other-keys)
   (apply 'auto-complete-field 
-	 :completions-url (ajax-continuation (:args (prefix) :keep t :name "mql_completions")
+	 :completions-url (ajax-continuation (:args (prefix) :keep t :name "mql_completions" :content-type "text/html")
+			    (print `(autocomplete ,prefix))
 			    (html
 			     (:ul
 			      (dolist (item (mql-autocomplete prefix type :anchor-start? anchor-start?))
@@ -68,7 +87,7 @@
 				 ((:li :id (cdr (assoc :id item)))
 				  (:princ (cdr (assoc :|A:NAME| item)))
 				  (if show-ids?
-				      (html (format nil " (~A)" id)))))))))
+				      (html (:princ (format nil " (~A)" (cdr (assoc :id item))))))))))))
 	 (delete-keyword-args '(:anchor-start? :type :show-ids?) other)))
 	 
 
@@ -110,61 +129,7 @@
      (:sort . "a:name")
      )))
 
-;;; Gets way way too much stuff
-(defun mql-all-properties (id &key get-frames?)
-  (let ((types
-	 (assocdr 
-	  :type 
-	  (car (mql-read `((:id . ,id)
-			   (:type . :empty-list))))))
-	(result nil))
-    (dolist (type types)
-      (setf result 
-	    (append result
-		    (car 
-		     (ignore-errors 	;+++ some types give errors, just ignore
-		       (mql-read `((:id . ,id)
-				   (:type . ,type)
-				   ("*" . ,(if get-frames? '(:empty-dict) :empty-list))))))) ))
-    result))
 
-(defun mql-all-properties (id &key get-frames?)
-  (let ((types
-	 (assocdr 
-	  :type 
-	  (car (mql-read `((:id . ,id)
-			   (:type . :empty-list))))))
-	(result nil))
-    (dolist (type types)
-      (setf result 
-	    (append result
-		    (car 
-		     (ignore-errors 	;+++ some types give errors, just ignore
-		       (mql-read `((:id . ,id)
-				   (:type . ,type)
-				   ("*" . ,(if get-frames? '(:empty-dict) :empty-list))))))) ))
-    result))
-
-(defun mql-all-properties (id &key get-frames?)
-  (let ((types
-	 (assocdr 
-	  :type 
-	  (car (mql-read `((:id . ,id)
-			   (:type . :empty-list))))))
-	(result nil))
-    (dolist (type types)
-      (dolist (prop (car 
-		     (ignore-errors 	;+++ some types give errors, just ignore
-		       (mql-read `((:id . ,id)
-				   (:type . ,type)
-				   ("*" . ,(if get-frames? '(:empty-dict) :empty-list)))))))
-	;; merge results
-	(aif (find (car prop) result :key #'car)
-	     (if (listp (cdr it))
-		 (setf (cdr it) (nunion (cdr it) (if (listp (cdr prop)) (cdr prop) (list (cdr prop))) :test #'equal))
-		 (setf (cdr it) (list (cdr it) (cdr prop))))
-	     (push prop result))))
-    result))
 
 
 
