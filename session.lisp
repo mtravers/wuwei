@@ -38,8 +38,6 @@
 
 (defvar *sessions* (make-hash-table :test #'eq))
 
-(defparameter *cookie-name* "Wuwei-session") ;feel free to change this for your application
-
 (defun cookie-value (req name)
   (assocdr name (get-cookie-values req) :test #'equal))
 
@@ -116,30 +114,35 @@
 (defun set-session-variable-value (session var val)
   (setf (gethash var (session-named session)) val))
       
-;;; +++ put this under development flag
+;;; Developer tools
+
 (publish :path "/session-debug"
 	 :function 'session-debug-page)
 
-;;; This would be easier if we could pull out the continuation machinery from the ajax machinery...next lifetime
-(publish :path "/session-reset"
-	 :function #'(lambda (req ent)
-		       (make-new-session req ent)
-		       (with-http-response-and-body (req ent)
-			 (html "session cleared"
-			       (render-scripts 
-				 (:redirect "/session-debug")))
-			       )))
-
 (defun session-debug-page (req ent)
-  (with-session (req ent)
-    (with-http-response-and-body (req ent)
-      (html
-       (link-to "Clear session" "/session-reset")
-       (:h1 "Session State")
-       (:p "Session name: " (:princ *session*))
-       (:table
-	(dolist (elt (ht-contents (session-named *session*)))
-	  (html
-	   (:tr
-	    (:td (:princ-safe (car elt)))
-	    (:td (:princ-safe (cadr elt)))))))))))  
+  (when *developer-mode*
+    (with-session (req ent)
+      (with-http-response-and-body (req ent)
+	(html
+	 (link-to "Clear session" "/session-reset")
+	 (:h1 "Session State")
+	 (:p "Session name: " (:princ *session*))
+	 (:table
+	  (dolist (elt (ht-contents (session-named *session*)))
+	    (html
+	     (:tr
+	      (:td (:princ-safe (car elt)))
+	      (:td (:princ-safe (cadr elt))))))))))))
+
+(publish :path "/session-reset"
+	 :function 
+	 #'(lambda (req ent)
+	     (when *developer-mode*
+	       (make-new-session req ent)
+	       (with-http-response-and-body (req ent)
+		 (html "session cleared"
+		       (render-scripts 
+			 (:redirect "/session-debug")))
+		 ))))
+
+  

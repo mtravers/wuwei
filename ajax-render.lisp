@@ -288,18 +288,25 @@ Here's an example of combining render-update operations:
   (set-responder-timeout path))
 
 ;; could keep this sorted I supposed
-(defparameter *default-responder-timeout* (* 10 60))
 (defvar *responder-timeout* nil)
 
 (defun set-responder-timeout (path &optional (time (+ (now) *default-responder-timeout*)))
   (push (list time path) *responder-timeout*))
+
+(publish-prefix :prefix "/ajax/"
+		:function 'ajax-timeout)
+
+(defun ajax-timeout (req ent)
+  (with-http-response-and-body (req ent :content-type "text/javascript")
+    (render-update
+      (:alert "Ajax command timed out.  Try reloading the page"))))
 
 (defun do-responder-timeouts ()
   (let* ((now (get-universal-time))
          (expired
           (mt:collecting
            (dolist (item *responder-timeout*)
-             (when (> (car item) now)
+             (when (< (car item) now)
                (unpublish (cadr item))
                (mt:collect item))))))
     (setf *responder-timeout* (nset-difference *responder-timeout* expired))))
@@ -307,7 +314,7 @@ Here's an example of combining render-update operations:
 (eval-when (:load-toplevel)
   (in-background "Responder timeout"
                  (loop
-                    (sleep 60)
+                    (sleep (floor *responder-timeout* 2))
                     (do-responder-timeouts))))
 
 

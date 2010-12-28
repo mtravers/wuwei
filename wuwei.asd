@@ -16,11 +16,12 @@
     :components 
     (
      (:file "package")
+
      ;; Patches to existing systems
      #-ALLEGRO (:file "aserve-patch")
      (:file "htmlgen-patch")
      (:file "cl-json-patches")
-     ;; Config
+     
      (:file "config")
      (:file "net-utils")
      (:file "web")
@@ -32,3 +33,5 @@
      (:file "autocomplete")
      (:file "dom-objects")
      ))
+
+

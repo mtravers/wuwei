@@ -35,8 +35,6 @@
 	  with-ajax-error-handler
 	  ))
 
-(defparameter *bug-report-url* "http://wuwei.org/trac")
-
 (defun system-info ()
   "Replace with commands to get your system version info, eg by running 'hg log -l 1' in a shell")
 

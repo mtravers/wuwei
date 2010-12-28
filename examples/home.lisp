@@ -1,5 +1,7 @@
 (in-package :wu)
 
+(start :port 8002)
+
 (publish :path "/"
 	 :function
 	 #'(lambda (req ent)
@@ -48,9 +50,11 @@
 	  (:body
 	   (:h1 "WuWei basic tests")
 	   ((:div :id "FOO")
-	    (link-to-remote "Click me and I will be replaced" (ajax-continuation () 
-								(render-update
-								  (:update "FOO" (html (:i (:princ "I have been replaced"))))))))
+	    (link-to-remote
+	     "Click me and I will be replaced"
+	     (ajax-continuation () 
+	       (render-update
+		 (:update "FOO" (html (:i (:princ "I have been replaced"))))))))
 
 	   :hr
 	   ((:div :id "notdragme" :style "background:#FFBBAD; border: 1px solid; margin: 5px; padding: 5x; width: 50px; height: 50px;"))

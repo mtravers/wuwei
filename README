@@ -22,8 +22,5 @@ to Aserve aren't loaded.
 
 TODO BEFORE RELEASE
 - uploader
-- config
 - doc
-- examples
-  - demo page
-
+- example .asdf file
