@@ -187,6 +187,19 @@ If you want a string, wrap the call with html-string.  For example:
              (:princ-safe name) :newline)))
      )))
 
+(defmacro with-http-response-and-body ((req ent &key  (content-type "text/html")) &body body)
+  #.(doc
+     "Combines WITH-HTTP-RESPONSE and WITH-HTTP-BODY, which is the"
+     "normal way we use those macros.  In doing this we also gain in that"
+     "Lispworks will now indent this new macro properly, whereas for some"
+     "reason it won't indent WITH-HTTP-RESPONSE or WITH-HTTP-BODY sanely.")
+  `(with-http-response (,req ,ent :content-type ,content-type)
+     (with-http-body (,req ,ent)
+       ,@body)
+     ))
+
+
+
 
 
 

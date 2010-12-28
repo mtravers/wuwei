@@ -6,17 +6,21 @@ Wu wei is Chinese for "effortless doing".
 WuWei is a toolkit for building Ajax web pages and web sites from Common Lisp. It's designed to be
 light-weight, a toolkit rather than a platform.  
 
+Credits:
+
+WuWei was written primarily by Mike Travers under the sponsorship of CollabRx, Inc.
+Some bits of it are derived from BioBike (http://biobike.org).
+
 Dependencies:
 
 - Runs on top of portable aserve, which it patches.  
-
   http://sourceforge.net/projects/portableaserve/
 
 In Franz's Allegro Lisp, it will use the built-in version of AllegroServe, but some things won't work, since the local extensions
 to Aserve aren't loaded.  
 
-- Uses the CL-JSON and MTLISP Lisp libraries, available in the standard places.
-    MTLISP can be obtained here: https://github.com/mtravers/mtlisp
+- Uses the cl-json and mtlisp Lisp libraries, available in the standard places.
+    mtlisp can be obtained here: https://github.com/mtravers/mtlisp
 
 - Requires the prototype and scriptaculous JavaScript libraries (included in the source).
 

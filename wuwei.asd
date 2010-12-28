@@ -7,7 +7,7 @@
   (pushnew :cl-json *features*))
 
 (defsystem :wuwei
-    :name "Ajax and other tools for web development."
+    :name "Ajax and other tools for developing web applications"
     :version "0.1"
     :author "Mike Travers <mt@hyperphor.com>"
     :license "MIT"
@@ -33,5 +33,22 @@
      (:file "autocomplete")
      (:file "dom-objects")
      ))
+
+(defsystem :wuwei-examples
+    :name "WuWei Examples"
+    :version "0.1"
+    :author "Mike Travers <mt@hyperphor.com>"
+    :license "MIT"
+    :serial t
+    :depends-on (:wuwei)
+    :components 
+    ((:module "examples"
+	     :serial t
+	     :components
+	     ((:file "home")
+	      (:file "render-update")
+	      (:file "color")
+	      (:file "autocomplete-freebase")
+	      ))))
 
 
