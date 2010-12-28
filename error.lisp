@@ -28,8 +28,6 @@
 
 ;;; Author:  Mike Travers and David Sobeck
 
-;;; This stuff needs some rethinking. For now, it just gets its own file +++
-
 (export '(error-box render-error clear-error
 	  with-html-error-handling
 	  with-json-error-handling
@@ -47,7 +45,7 @@
    ((:a :href (format nil "~a?description=~A" *bug-report-url* (uriencode-string (format nil "In ~A:~%~%~a" (system-info) info)))
 	:target "error") "Report a bug")))
 
-;;; Insert an error box for use by the error handler (+++ should have a clear button)
+;;; Insert an error box for use by the error handler (++ should have a clear button)
 (defun error-box ()
   (html ((:div :id "error_box" :style "display:none;")))) ;invisible until replaced
 

@@ -29,10 +29,12 @@
 ;;; Author:  Mike Travers
 
 #|
-Notes: this is sort of half-baked
+Facility for defining UI objects that get rendered in HTML
+
+Notes: 
+- this is sort of half-baked, but usable
 - elements are responsible for rendering their dom-id themselves (in a <div> typically)
 |#
-
 
 (export '(html-element 
 	  element-named element-render element-update
@@ -64,7 +66,7 @@ Notes: this is sort of half-baked
 
 (defun element-named (dom-id)
   (or (gethash dom-id *dom-ht*)
-      (error "No element named ~A" dom-id))) ;+++ may want to make error checking optional
+      (error "No element named ~A" dom-id))) 
 
 (defgeneric element-render (dom-object)
   (:documentation "This method should do the actual HTML rendering of the object"))

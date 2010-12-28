@@ -28,12 +28,13 @@
 
 ;;; Author:  Mike Travers
 
+;;; Session management
+
 
 (export '(with-session def-session-variable *default-session*
 	  with-http-response-and-body))
 
-
-;;; Session management, originally based on BioBike but decoupled from its package-based mechanisms
+;;; +++ these need to get timed out, otherwise they will accumulate ad infinitum
 
 (defvar *sessions* (make-hash-table :test #'eq))
 
@@ -49,7 +50,7 @@
   (defparameter *default-login-handler* nil))
 
 ;;; Note: has to be OUTSIDE with-http-response-and-body or equiv
-;;; +++ this expand body multiple times, bad.
+;;; +++ this expands body multiple times, bad.
 (defmacro with-session ((req ent &key (login-handler *default-login-handler*)) &body body)
   `(let ((*session* (keywordize (cookie-value ,req *cookie-name*))))
      (cond ((session-named *session* t)

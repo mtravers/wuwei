@@ -32,41 +32,42 @@
 Tools for rendering Ajax updates, based on the similar functionality found in Rails see:
   http://api.rubyonrails.org/classes/ActionView/Helpers/PrototypeHelper/JavaScriptGenerator/GeneratorMethods.html
 
-See here for some of the magic:
-  /Library/Ruby/Gems/1.8/gems/actionpack-2.3.2/lib/action_view/helpers/prototype_helper.rb
-
 Note: to use these, you need to have prototype and (for some operations) scriptaculous.
 Here's an easy way to do include them:
     (javascript-includes "prototype.js" "effects.js" "dragdrop.js")
 
-For examples, see the test file.
+For examples, see the test and examples directories.
 
-Here's the list of operations from Rails.
+Available render-update operations, hopefully mostly self-explanatory.  See the Rails and Prototype documentation for details.
 
-Done:
-# insert_html    :insert
-# replace_html   :update     Element.update
-# replace        :replace    Element.replace
-# draggable      :draggable
-# drop_receiving :drop-target (not fully working)
-<< (raw js)      :js
-# remove         :remove
-# redirect_to    :redirect
-# reload
-# delay
-# alert
-# hide
-# show
-# toggle
-# visual_effect :visual-effect
+(:insert <position> <html>)
+(:update <id> <html>)
+(:replace <id> <html>)
+(:remove <id>)
+(:hide <id>)
+(:show <id>)
+(:toggle <id>)
 
-Not yet:
+(:draggable <id> <options>)
+(:drop-target <id> <options>)
 
-# assign
-# call
-# literal
-# select
-# sortable
+(:js <javascript>)
+
+(:redirect <url>)
+(:reload)
+(:delay <seconds> <other-forms>)
+(:alert <msg>)
+
+(:visual_effect <effect-name> <id> <options>)
+
+Here's an example of combining render-update operations:
+
+(defun render-animated-delete (id &optional (factor 1))
+  (render-update
+    (:visual-effect :blind-up id :duration (* factor 0.25))
+    (:visual-effect :fade id :duration (* factor 0.5))
+    (:delay (* factor .5)
+	    (:remove id))))
 
 |#
 
@@ -119,7 +120,7 @@ Not yet:
   `(progn (terpri *html-stream*)
 	  (write-string ,string *html-stream*)))
 
-;;; A script that gets inserted after the normal updates (+++ experimental, not used yet)
+;;; A script that gets inserted after the normal updates
 (define-render-update :post-js (string)
   (render-script-later string))
 

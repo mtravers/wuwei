@@ -83,7 +83,7 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
 	     (html ((:div :id update :class "auto_complete"))))
     ;; this complex tangle enables an action to be taken when a completion is selected.
     (:js (if on-selected (format nil "setupAutocomplete('~A', '~A');" id 
-			      (ajax-continuation (:args (value value_string id) :name "ac_finish" :keep t) ;+++ :keep t should be unnecessary, but for some reason this gets called multiple times under some conditions
+			      (ajax-continuation (:args (value value_string id) :name "ac_finish" :keep t) 
 						 (funcall on-selected value value_string id)
 						 ))))
 
