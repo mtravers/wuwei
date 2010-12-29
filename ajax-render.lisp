@@ -275,12 +275,14 @@ Here's an example of combining render-update operations:
 			,args
                         ,@body
                         ,(unless keep
-                               '(unpublish fname)))
+                               '(unpublish-path fname)))
      fname))
 
 
-;;; Inexplicably not in aserve.
-(defun unpublish (path)
+
+;;; Inexplicably not in aserve 
+;;; Later versions of aserve have a non-functional function called unpublish, so we give this a different name
+(defun unpublish-path (path)
   (net.aserve::unpublish-entity (net.aserve::find-locator :exact *wserver*) path nil nil))
 
 (defun publish-temporarily (path &rest args)
@@ -307,7 +309,7 @@ Here's an example of combining render-update operations:
 			      (< (car item) now))
 			  *responder-timeouts*)))
     (dolist (item expired)
-      (unpublish (cadr item)))
+      (unpublish-path (cadr item)))
     (setf *responder-timeouts* (nset-difference *responder-timeouts* expired))))
 
 (eval-when (:load-toplevel)

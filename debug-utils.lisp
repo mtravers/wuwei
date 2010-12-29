@@ -45,17 +45,15 @@ Borrowed from BioBike
       )
     (nreverse lis)))
 
-#+ccl
+
 (defun get-frames-list ()
   ;; discard uninteresting get-frames-list frame
-  (cdr (ccl::backtrace-as-list)))
-
-#+(or :lispworks :lispworks :sbcl)
-(defun get-frames-list ()
+  #+:ccl
+  (cdr (ccl::backtrace-as-list))
+  #+:sbcl
+  (sb-debug::backtrace-as-list)
+  #-(or :ccl :sbcl)
   nil)
-
-#-(or :allegro :lispworks :sbcl :ccl)
-(cformatt "*** get-frames-list not implemented ***")
 
 (defun dump-stack (&optional (stream *standard-output*))
   (loop for frame in (get-frames-list) do

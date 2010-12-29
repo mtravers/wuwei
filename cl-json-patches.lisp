@@ -1,7 +1,7 @@
 (in-package :json)
 
 #|
-Extensions to lib/cl-json/src/encoder.lisp
+Extensions to cl-json/src/encoder.lisp
 
 New features, for encoding functions:
 :empty-list ==> "[]"
@@ -12,13 +12,14 @@ New features, for encoding functions:
 TODO:  make these work in the decoding direction
 |#
 
-(defmethod encode-json ((s (eql :empty-dict)) stream)
+;;; changed to compatible with cl-json 0.4 -- will break in earlier versions
+(defmethod encode-json ((s (eql :empty-dict)) &optional (stream *json-output*))
   (write-string "{}" stream))
 
-(defmethod encode-json ((s (eql :empty-list)) stream)
+(defmethod encode-json ((s (eql :empty-list)) &optional (stream *json-output*))
   (write-string "[]" stream))
 
-(defmethod encode-json ((s list) stream)
+(defmethod encode-json ((s list) &optional (stream *json-output*))
   (cond ((eq (car s) :raw)			
 	 (write-string (cadr s) stream))
 	((alistp s)

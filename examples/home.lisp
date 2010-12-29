@@ -1,6 +1,6 @@
 (in-package :wu)
 
-(defparameter *demo-port* 8003)
+(defparameter *demo-port* 8004)
 (start :port *demo-port*)
 
 (publish :path "/"
@@ -22,7 +22,9 @@
 		     ((:a :href "http://en.wikipedia.org/wiki/Wu_wei")
 		      (:princ-safe "\"Wu wei\""))
 		     (:princ-safe " means \"effortless doing\" or \"action without action\".") :p
-		     (:princ "Wuwei the software toolkit aims to make building Ajaxified web sites in Lisp as close to effortless as possible.")))))
+		     (:princ "Wuwei the software toolkit aims to make building Ajaxified web sites in Lisp as close to effortless as possible.") :p
+		     (:princ "The source is hosted at ") ((:a href "https://github.com/mtravers/wuwei/") "GitHub") ".")
+		    )))
 		 (:h4 "Features")
 		 (:ul
 		  (:li "Continuation-based AJAX user interfaces")

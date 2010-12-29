@@ -40,8 +40,6 @@
 	  publish-ajax-update publish-ajax-func ajax-continuation 
 	  *ajax-request* *within-render-update*
 
-	  unpublish
-	  
 	  image-tag 
 	  html-list
 	  select-field
