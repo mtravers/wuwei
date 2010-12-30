@@ -13,18 +13,31 @@ Some bits of it are derived from BioBike (http://biobike.org).
 
 Dependencies:
 
-- Runs on top of portable aserve, which it patches.  
-  http://sourceforge.net/projects/portableaserve/
+- A Common Lisp implementation.  WuWei has been run in Allegro, Clozure (aka OpenMCL), and SBCL, and ought to run in other implementations.
+- AllegroServe or PortableAserve, cl-json, mtlisp.  QuickLisp will get everything except mtlisp, which can be obtained here: 
+  https://github.com/mtravers/mtlisp
 
-In Franz's Allegro Lisp, it will use the built-in version of AllegroServe, but some things won't work, since the local extensions
-to Aserve aren't loaded.  
+- Uses the prototype and scriptaculous JavaScript libraries 
+  (included in the source).
 
-- Uses the cl-json and mtlisp Lisp libraries, available in the standard places.
-    mtlisp can be obtained here: https://github.com/mtravers/mtlisp
+Examples:
+  May be viewed at http://wuwei.name/
 
-- Requires the prototype and scriptaculous JavaScript libraries (included in the source).
+INSTALL:
 
-TODO BEFORE RELEASE
-- uploader
-- doc
-- example .asdf file
+Easiest using QuickLisp:
+
+1) install QuickLisp from http://www.quicklisp.org/
+2) install some packages via QuickLisp:
+   (ql:quickload "acl-compat") [** note for OpenMCL]
+   (ql:quickload "cl-json")
+2.5) In Clozure, you need to manually patch 
+3) (load "/misc/repos/wuwei/wuwei.asd")
+   (load "/misc/repos/mtlisp/mtlisp.asd")
+4) (asdf:operate 'asdf:load-op :wuwei)
+   (asdf:operate 'asdf:load-op :wuwei-examples)
+
+[** Note: in OpenMCL, you will need to manually patch a file in acl-compat:
+   ~/quicklisp/dists/quicklisp/software/portableaserve-20101006-cvs/acl-compat/mcl/acl-socket-openmcl.lisp
+   Add the keyword argument stream-args to the accept-connection method]
+   

@@ -26,7 +26,6 @@
 			       :input-options '(:size 100)
 			       :on-selected
 			       #'(lambda (value string id)
-				   (print `(autocomplete-finish ,value ,string ,id))
 				   (render-update 
 				     (:update "result" 
 					      (html
@@ -79,7 +78,6 @@
 (defun autocomplete-mql-field (&rest other &key anchor-start? type show-ids? &allow-other-keys)
   (apply 'auto-complete-field 
 	 :completions-url (ajax-continuation (:args (prefix) :keep t :name "mql_completions" :content-type "text/html")
-			    (print `(autocomplete ,prefix))
 			    (html
 			     (:ul
 			      (dolist (item (mql-autocomplete prefix type :anchor-start? anchor-start?))
@@ -108,9 +106,11 @@
       (terpri)
       (princ json))
     (setq response
-	  (json:decode-json-from-string 
-	   (get-url url)
-	   ))
+	  ;; Behavior changed in cl-json 0.4.0, this changes it back.
+	  (let ((json:*json-identifier-name-to-lisp* #'json:simplified-camel-case-to-lisp)) 
+	    (json:decode-json-from-string 
+	     (get-url url)
+	     )))
     (unless (equal "/api/status/ok" (assocdr :code response))
       (error "MQL error ~A" response))
     (when *mql-debug*

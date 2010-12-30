@@ -1,15 +1,12 @@
 (in-package :wu)
 
-;;; previously in 3utils
-
 ;; The :protocol :http/1.0 is to get around what looks like a bug in the client code that causes random
 ;; interpolated characters. We think this is because of chunking, and using the older http protocol forces that off.
 
 (defun get-url (url &rest keys)
   (apply #'net.aserve.client::do-http-request url :protocol :http/1.0 keys))
 
-;;; Alternate get-url that doesn't use net.aserve.client::do-http-request, which seems borked 
-;;; (++ curl would be better, wget is not installed everywhere -- on mac, do "sudo port install wget"
+;;; Alternate get-url that doesn't use net.aserve.client::do-http-request, which will sometimes get borked for no apparent reason.
 
 (defun wget-url (url &key query)
   (let ((temp-file (make-pathname :name (string (gensym)) :directory "/tmp"))
