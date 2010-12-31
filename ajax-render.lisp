@@ -408,7 +408,7 @@ Here's an example of combining render-update operations:
    text 
    (apply #'remote-function url :in-function? nil :params `(:checked (:raw ,(format nil "$('~A').checked" id))) (delete-keyword-args '(:html-options :id) remote-function-options))
    :html-options 
-   `(:id ,id :type :checkbox :checked ,(if checked? "true" ""))))
+   `(:id ,id :type :checkbox ,@(if checked? '(:checked "true")))))
 
 (defun radio-to-remote (text url &optional checked? &rest remote-function-options &key html-options &allow-other-keys)
   (html

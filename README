@@ -6,17 +6,24 @@ Wu wei is Chinese for "effortless doing".
 WuWei is a toolkit for building Ajax web pages and web sites from Common Lisp. It's designed to be
 light-weight, a toolkit rather than a platform.  
 
+Features:
+- Continuation-based AJAX user interfaces
+- Server-side high-level DOM operations (add/remove elements, visual fades, drag and drop")
+- High-level interfaces to in-place-editing and autocomplete widgets
+- Login and session management
+
 Credits:
 
 WuWei was written primarily by Mike Travers under the sponsorship of CollabRx, Inc.
 Some bits of it are derived from BioBike (http://biobike.org).
 
-Dependencies:
+Requirements/dependencies:
 
 - A Common Lisp implementation.  WuWei has been run in Allegro, Clozure (aka OpenMCL), and SBCL, and ought to run in other implementations.
-- AllegroServe or PortableAserve, cl-json, mtlisp.  QuickLisp will get everything except mtlisp, which can be obtained here: 
+- mtlisp, a utility package available here.
   https://github.com/mtravers/mtlisp
-
+- Other libraries (aserve or portable aserve, cl-json, and their dependcies)
+  (These may be obtained via QuickLisp)
 - Uses the prototype and scriptaculous JavaScript libraries 
   (included in the source).
 
@@ -31,7 +38,6 @@ Easiest using QuickLisp:
 2) install some packages via QuickLisp:
    (ql:quickload "acl-compat") [** note for OpenMCL]
    (ql:quickload "cl-json")
-2.5) In Clozure, you need to manually patch 
 3) (load "/misc/repos/wuwei/wuwei.asd")
    (load "/misc/repos/mtlisp/mtlisp.asd")
 4) (asdf:operate 'asdf:load-op :wuwei)

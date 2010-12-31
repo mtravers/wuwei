@@ -9,6 +9,8 @@ Illustrates:
 (publish :path "/color-demo"
 	 :function 'color-demo)
 
+(publish-code)
+
 (defun interpolate-colors (c1 c2 p)
   (flet ((interpolate-1 (i)
 	   (let* ((cc1 (parse-integer c1 :start i :end (+ i 2) :radix 16))
@@ -27,6 +29,7 @@ Illustrates:
       (javascript-includes "prototype.js" "effects.js" "jscolor/jscolor.js")
       (css-include "wuwei.css"))
      (:body
+      (example-header #.(this-pathname))
       (:h2 "WuWei Color Demo")
       "Shows off:"
       (:ul

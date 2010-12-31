@@ -48,6 +48,7 @@
 	     ((:file "home")
 	      (:file "render-update")
 	      (:file "async")
+	      (:file "state")
 	      (:file "color")
 	      (:file "autocomplete-freebase")
 	      ))))

@@ -1,5 +1,7 @@
 (in-package :wu)
 
+(publish-code)
+
 (publish :path "/render-update-demo" 
 	 :function 'render-update-demo)
 
@@ -7,8 +9,9 @@
   (with-http-response-and-body (req ent)
     (html (:head
 	   (javascript-includes "prototype.js" "effects.js" "dragdrop.js")
-	   )
+	   (css-includes "wuwei.css"))
 	  (:body
+	   (example-header #.(this-pathname))
 	   (:h1 "WuWei render-update demo")
 	   ((:div :id "FOO")
 	    (link-to-remote

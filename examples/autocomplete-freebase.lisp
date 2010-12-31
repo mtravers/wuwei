@@ -1,13 +1,10 @@
 (in-package :wu)
 
-
 (publish :path "/mql-autocomplete-simple-demo"
 	 :function 'mql-autocomplete-simple-demo)
 
-(defun freebase-url (id)
-  (string+ "http://www.freebase.com/view" id))
+(publish-code)
 
-;;; the page
 (defun mql-autocomplete-simple-demo (req ent)
   (with-http-response-and-body (req ent)
     (html
@@ -17,6 +14,7 @@
       (css-includes "wuwei.css"))
      (:html 
       ((:body :id "body")
+       (example-header #.(this-pathname))
        (:princ "This example shows the use of an autocomplete field that uses Freebase as the backend") :p
        :newline
        "Enter an author: "
@@ -73,6 +71,8 @@
        ((:div :id "result") "result goes here")
        )))))
 
+(defun freebase-url (id)
+  (string+ "http://www.freebase.com/view" id))
 
 ;;; the field
 (defun autocomplete-mql-field (&rest other &key anchor-start? type show-ids? &allow-other-keys)
