@@ -31,7 +31,8 @@
 (export '(*public-directory* public-url image-url
 	  
 	  javascript-include javascript-includes css-include css-includes
-	  
+	  with-http-response-and-body	  
+
 	  render-update render-scripts
 	  
 	  html-string 

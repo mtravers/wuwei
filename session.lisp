@@ -30,9 +30,7 @@
 
 ;;; Session management
 
-
-(export '(with-session def-session-variable *default-session*
-	  with-http-response-and-body))
+(export '(with-session def-session-variable *default-session* delete-session))
 
 ;;; +++ these need to get timed out, otherwise they will accumulate ad infinitum
 
@@ -68,6 +66,10 @@
     (when req (set-cookie-header req :name *cookie-name* :value (string *session*)))
     (setf (gethash *session* *sessions*) (make-hash-table :test #'eq))
     *session*))
+
+;;; +++ Should be called from a logout or other state-flushing operation
+(defun delete-session (key)
+  (remhash key *sessions*))
     
 ;;; Session management
 
@@ -77,7 +79,8 @@
 
 (defmacro def-session-variable (name &optional initform)
   `(progn
-    (defparameter ,name ,initform)
+    (defvar ,name)
+    (setf (get ',name :initform) ',initform)
     (pushnew ',name *session-variables*)
     ))
 
@@ -97,7 +100,8 @@
 	(t (error "Session ~A not found" session-key))))
 
 (defun session-variable-value (session var)
-  (gethash var (session-named session) (symbol-value var)))
+  (gethash var (session-named session) 
+	   (eval (get var :initform))))
 
 (defun set-session-variable-value (session var val)
   (setf (gethash var (session-named session)) val))
@@ -112,15 +116,15 @@
     (with-session (req ent)
       (with-http-response-and-body (req ent)
 	(html
-	 (link-to "Clear session" "/session-reset")
+	 (link-to "Reset session" "/session-reset")
 	 (:h1 "Session State")
 	 (:p "Session name: " (:princ *session*))
 	 (:table
-	  (dolist (elt (ht-contents (session-named *session*)))
+	  (dolist (v *session-variables*)
 	    (html
 	     (:tr
-	      (:td (:princ-safe (car elt)))
-	      (:td (:princ-safe (cadr elt))))))))))))
+	      (:td (:princ-safe v))
+	      (:td (:princ-safe (eval v))))))))))))
 
 (publish :path "/session-reset"
 	 :function 

@@ -47,6 +47,7 @@
 	     :components
 	     ((:file "home")
 	      (:file "render-update")
+	      (:file "async")
 	      (:file "color")
 	      (:file "autocomplete-freebase")
 	      ))))

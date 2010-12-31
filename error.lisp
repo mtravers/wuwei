@@ -70,7 +70,7 @@
 
 
 ;;; Set to T to use the error box rather than alert method.  
-(defvar *ajax-error-box?* nil)
+(def-session-variable *ajax-error-box?* nil)
 
 ;;; ++ needs better name: this composes, logs, and sends it back to client
 (defun compose-error-message (path &key error stack-trace extra-js)
@@ -83,14 +83,14 @@
           (:princ (json:encode-json-to-string `((failure . true)
                                                 ;;(success . false)
                                                 (records ((data . ,(clean-upload-js-string message))))))))
-	(let ((estring (clean-js-string (princ-to-string error))))
+	(let ((estring (princ-to-string error)))
 	  (if *ajax-error-box?*
 	      (render-update
 		(:update "error_box" (:princ-safe estring))
 		(:show "error_box"))
 	      ;; alertbox method
 	      (render-update
-		(:alert estring)))
+		(:alert (clean-js-string estring))))
 	  (when extra-js
 	    (render-update
 	      (:js extra-js)))

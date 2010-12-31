@@ -396,15 +396,21 @@ Here's an example of combining render-update operations:
   (button-to-function text (apply #'remote-function url (delete-keyword-args '(:html-options) remote-function-options))
 		      :html-options html-options))
 
-;;; +++ catch up to radio-to-remote.  Also, these should have -to-function version I suppose
-(defun checkbox-to-remote (text url checked? &rest options)
+(defun checkbox-to-function (text js &key html-options)
   (html
-   ((:input :type :checkbox :if* checked? :checked "true" :onclick (apply #'remote-function url options))
+   ((:input :type "checkbox" :onclick js :do* html-options))
     (:princ "&nbsp;")
     (:princ-safe (or text ""))
-    )))
+   ))
+    
+(defun checkbox-to-remote (text url &optional checked? &rest remote-function-options &key (id (string (gensym "check"))) html-options &allow-other-keys)
+  (checkbox-to-function
+   text 
+   (apply #'remote-function url :in-function? nil :params `(:checked (:raw ,(format nil "$('~A').checked" id))) (delete-keyword-args '(:html-options :id) remote-function-options))
+   :html-options 
+   `(:id ,id :type :checkbox :checked ,(if checked? "true" ""))))
 
-(defun radio-to-remote (text url checked? &rest remote-function-options &key html-options &allow-other-keys)
+(defun radio-to-remote (text url &optional checked? &rest remote-function-options &key html-options &allow-other-keys)
   (html
    ((:input :type :radio :if* checked? :checked "true" :onclick (apply #'remote-function url (delete-keyword-args '(:html-options) remote-function-options))
 	    :do* html-options)

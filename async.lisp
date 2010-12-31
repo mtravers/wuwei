@@ -34,11 +34,13 @@
 ;;; Render a DIV with PRE-TEXT now, and replace it with the results of BODY when that completes.
 ;;; Note that theuse of continuations replaces a ton of special-purpose machinery.
 
-(defmacro async ((&key (pre-text "waiting...")) &body body)
+(defmacro async ((&key (pre-text "waiting...") spinner) &body body)
   `(let ((%id (gensym "async")))
      (html
       ((:div :id %id)
-       (:princ ,pre-text))
+       (:princ ,pre-text)
+       (when ,spinner
+	 (html (image-tag "spinner.gif"))))
       ((:script :type "text/javascript")
        (:princ
 	(remote-function 

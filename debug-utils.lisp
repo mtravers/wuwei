@@ -46,12 +46,14 @@ Borrowed from BioBike
     (nreverse lis)))
 
 
+(defparameter *stack-frame-limit* 30)
+
 (defun get-frames-list ()
   ;; discard uninteresting get-frames-list frame
   #+:ccl
-  (cdr (ccl::backtrace-as-list))
+  (cdr (ccl::backtrace-as-list :count *stack-frame-limit*))
   #+:sbcl
-  (sb-debug::backtrace-as-list)
+  (sb-debug::backtrace-as-list :count *stack-frame-limit*)
   #-(or :ccl :sbcl)
   nil)
 
@@ -76,13 +78,15 @@ Borrowed from BioBike
      )
   )
 
+;;; Do you ever want to do this?  This continues from the error
 (defmacro without-unwinding-restart ((restart &rest args) &body body)
   `(restart-case
        (handler-bind
-           ((error #'(lambda (c)
-                       (ignore-errors (format t "~a ~a~%" (net.aserve::universal-time-to-date (get-universal-time)) c))
-                       (dump-stack)
-                       (invoke-restart 'total-lossage c (stack-trace)))))
+           ((serious-condition
+	     #'(lambda (c)
+		 (ignore-errors (format t "~a ~a~%" (net.aserve::universal-time-to-date (get-universal-time)) c))
+		 (dump-stack)
+		 (invoke-restart 'total-lossage c (stack-trace)))))
          ,@body
          )
      (total-lossage (c stack-trace)
@@ -90,3 +94,4 @@ Borrowed from BioBike
        )
      )
   )
+
