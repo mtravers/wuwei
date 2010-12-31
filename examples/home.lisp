@@ -1,6 +1,6 @@
 (in-package :wu)
 
-(defparameter *demo-port* 8004)
+(defparameter *demo-port* 8001)
 (start :port *demo-port*)
 (setq *developer-mode* t)		;necessary for the state demo
 
@@ -17,6 +17,10 @@
      ((:a :href "/") "WuWei Home") (nbsp)
      (when pathname 
        (html ((:a :href (string+ "/code/" (pathname-name pathname) ".lisp") :target "code") "Code"))))))
+
+;;; overwritten on demo site
+(defun tracker ()
+  )
 
 (publish :path "/"
 	 :function
@@ -47,6 +51,8 @@
 		   (:li "Extensions and fixes to Portable Allegroserve")
 		   (:li "High-level interfaces to in-place-editing and autocomplete widgets")
 		   (:li "Login and session management")
+		   (:li "Runs in multiple Common Lisp implementations")
+		   (:li "Freely available under the MIT Open Source License")
 		   )
 		  (:h4 "Examples and demos")
 		  (:ul
@@ -55,6 +61,7 @@
 		   (:li ((:a :href "/color-demo") "Ajax forms and third party javascript libraries"))
 		   (:li ((:a :href "/mql-autocomplete-simple-demo") "Autocomplete field"))
 		   (:li ((:a :href "/state-demo") "Session variables and state maintenance")))
+		  (tracker)
 		  )))))
 
 

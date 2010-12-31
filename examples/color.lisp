@@ -65,8 +65,10 @@ Illustrates:
 	    (:td ((:input :name "n" :value 24))))
 	   (:tr 
 	    (:td ((:input :type :submit :value "Interpolate"))))))
-	 ((:div :id "result") "Result goes here")
+	 ((:div :id "result") (:i "Result goes here"))
 	 (render-scripts
-	   (:js "jscolor.init();"))))))))
+	   (:js "jscolor.init();"))))
+      (tracker)
+      ))))
 
 	 

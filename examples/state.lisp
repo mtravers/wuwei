@@ -39,7 +39,9 @@
 		  "Increment"
 		  (ajax-continuation (:keep t) 
 		    (render-update
-		      (:update "s_c" (html (:princ (incf *demo-counter*))))))))))))))
+		      (:update "s_c" (html (:princ (incf *demo-counter*)))))))))
+	     (tracker)
+	     )))))
 
 	   
 

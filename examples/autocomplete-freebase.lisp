@@ -15,13 +15,14 @@
      (:html 
       ((:body :id "body")
        (example-header #.(this-pathname))
-       (:princ "This example shows the use of an autocomplete field that uses Freebase as the backend") :p
+       (:h3 "Autocomplete Demo")
+       (:princ "This example shows the use of an autocomplete field, using Freebase as the backend.") :p
        :newline
-       "Enter an author: "
+       "Enter an author (eg \"Minsky\"): " :br
        (autocomplete-mql-field :type "/book/author"
 			       :anchor-start? nil
 			       :show-ids? nil
-			       :input-options '(:size 100)
+			       :input-options '(:size 60)
 			       :on-selected
 			       #'(lambda (value string id)
 				   (render-update 
@@ -68,7 +69,8 @@
 					       
 					       ))
 				     )))
-       ((:div :id "result") "result goes here")
+       ((:div :id "result") (:i "result goes here"))
+       (tracker)
        )))))
 
 (defun freebase-url (id)

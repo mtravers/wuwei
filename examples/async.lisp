@@ -34,19 +34,19 @@
 	    (:body
 	     (example-header #.(this-pathname))
 
-	     (:princ "Async and error handling demo")
-	     :p
-	     (:princ "Try a negative number or gibberish")
+	     (:h3 "Async and error handling demo")
+	     (:princ "This demo shows off asynchronous results (with the async macro), error handling, and a few assorted other features.  The checkbox selects between tow different error handling styles.")
 	     :p
 	     (checkbox-to-remote "Show errors on page?" 
 				 (ajax-continuation (:args (checked) :keep t)
 				   (setf *ajax-error-box?* (equal checked "true")))
 				 *ajax-error-box?*)
 	     :p
-	     (:princ (format nil "Compute log(n!):"))
+	     (:princ (format nil "Compute log(n!):  (try an non-integer argument)"))
 	     ((:form :method :post :onsubmit (remote-function continuation :form t))
-	      ((:input :name "n" :value "1000"))
+	      ((:input :name "n" :value "5000"))
 	      ((:input :type :submit)))
 	     ((:div :id "answer"))
 	     ((:div :id "error_box" :style "display:none;"))
+	     (tracker)
 	     )))))))
