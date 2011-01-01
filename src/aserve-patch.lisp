@@ -62,3 +62,7 @@ HAS BEEN FIXED in more recent versions of aserve (+++ conditionalize properly)
 	signature)
       (setf (request-query-alist req) res))))
 
+
+;;; The default value for this doesn't actually seem to work.
+;;;;  This doesn't effect anything in WuWei except unit tests.
+(setq net.aserve.client::cookie-separator "; ")

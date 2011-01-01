@@ -4,6 +4,12 @@
 ;;; aserve started acting hincky in ccl, so this stops working if it is called >1 time...or something like that.
 (net.aserve:start :port *test-port*)
 
+(defun test-url (s)
+  (format nil "http://localhost:~A/tests/~A" *test-port* s))
+
+(defun test-path (s)
+  (string+ "/tests/" s))
+
 ;;; Tests for basic Ajax machinery and update generation
 
 ;;; Test that the generation machinery is sane
