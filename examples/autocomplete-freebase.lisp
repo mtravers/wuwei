@@ -25,6 +25,7 @@
 			       :input-options '(:size 60)
 			       :on-selected
 			       #'(lambda (value string id)
+				   (declare (ignore id))
 				   (render-update 
 				     (:update "result" 
 					      (html

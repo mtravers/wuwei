@@ -57,7 +57,7 @@
 		  (:h4 "Examples and demos")
 		  (:ul
 		   (:li ((:a :href "/render-update-demo") "Basic Ajax update machinery"))
-		   (:li ((:a :href "/async-demo") "Asynchronus results, error handling"))
+		   (:li ((:a :href "/async-demo") "Asynchronus results and error handling"))
 		   (:li ((:a :href "/color-demo") "Ajax forms and third party javascript libraries"))
 		   (:li ((:a :href "/mql-autocomplete-simple-demo") "Autocomplete field"))
 		   (:li ((:a :href "/state-demo") "Session variables and state maintenance")))

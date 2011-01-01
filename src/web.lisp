@@ -63,7 +63,7 @@
 ;;; Define a directory and path for public files
 
 (defparameter *public-directory* (make-pathname
-				  :directory '#.(append (pathname-directory (this-pathname)) '("public"))))
+				  :directory '#.(append (butlast (pathname-directory (this-pathname))) '("public"))))
 
 (publish-directory :destination (namestring *public-directory*)
                    :prefix "/wupub/"
