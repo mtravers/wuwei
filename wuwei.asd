@@ -14,8 +14,11 @@
     :serial t
     :depends-on (#-ALLEGRO :aserve #-:CL-JSON :cl-json :mtlisp)
     :components 
-    (
-     (:file "package")
+    ((:static-file "wuwei.asd")
+     (:module :src
+      :serial t      
+      :components
+      ((:file "package")
 
      ;; Patches to existing systems
      #-ALLEGRO (:file "aserve-patch")
@@ -32,7 +35,7 @@
      (:file "async")
      (:file "autocomplete")
      (:file "dom-objects")
-     ))
+     ))))
 
 (defsystem :wuwei-examples
     :name "WuWei Examples"

@@ -1,19 +1,19 @@
-Ajaxy web toolkit for Common Lisp
-
-Wu wei is Chinese for "effortless doing".  
-  http://en.wikipedia.org/wiki/Wu_wei
+WuWei -- an Ajaxy web toolkit for Common Lisp
 
 WuWei is a toolkit for building Ajax web pages and web sites in Common Lisp. It's designed to be
 light-weight, a toolkit rather than a platform.  
 
+Wu wei is Chinese for "effortless doing".  
+  http://en.wikipedia.org/wiki/Wu_wei
+
 Features:
 - Continuation-based AJAX user interfaces
-- Server-side high-level DOM operations (add/remove elements, visual fades, drag and drop)
+- Server-side DOM operations (add/remove elements, visual fades, drag and drop)
 - High-level interfaces to in-place-editing and autocomplete widgets
 - Login and session management
 
 Examples:
-  May be viewed at http://wuwei.name:8001/
+  Are at http://wuwei.name
 
 Credits:
 
@@ -27,7 +27,7 @@ Requirements/dependencies:
   https://github.com/mtravers/mtlisp
 - Other libraries (aserve or portable aserve, cl-json, and their dependcies)
   (These may be obtained via QuickLisp)
-- Uses the prototype and scriptaculous JavaScript libraries 
+- Uses the Prototype and Scriptaculous JavaScript libraries 
   (included in the source).
 
 INSTALL:
