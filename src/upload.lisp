@@ -10,7 +10,7 @@
 (defun parse-upload-form (req &key (pathname-maker
 				    #'(lambda (name) (make-pathname :defaults (pathname "/tmp/") :name (string+ (string *session*) "_" name)))
 				    ))
-  (do (len (result nil))
+  (do ((result nil))
       (())
     (multiple-value-bind (part-type field filename content-type)
 	(parse-multipart-header (get-multipart-header req))
@@ -22,14 +22,12 @@
 	 (let ((pathname (funcall pathname-maker filename))
 	       (element-type '(unsigned-byte 8)))
 	   (with-open-file (s pathname :direction :output :if-exists :supersede :element-type element-type)
-	     (setq len (slurp-part req s :element-type element-type)))
+	     (slurp-part req s :element-type element-type))
 	   (push (list field pathname) result)))
 	(:nofile
 	 (push (list field nil) result))
 	(:data
-	 (push (list field 
-		     (with-output-to-string (s)
-		       (slurp-part req s))) 
+	 (push (list field (slurp-part req)) 
 	       result))
 	(t (warn "Unknown par ttype ~A" part-type)
 	   (slurp-part req))))))		
@@ -40,7 +38,8 @@
   (loop with buffer = (make-array *buffer-size* :element-type element-type)
      for n = (get-multipart-sequence req buffer)
      with len = 0
-     finally (return len)
+       ;; +++ will be wrong if there are multiple buffers, but that's unlikely for a non-file
+     finally (return (values (unless stream (vector->string buffer len)) len))
      while n do
        (incf len n)
        (if stream
