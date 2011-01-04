@@ -32,6 +32,7 @@
      (:file "session")
      (:file "debug-utils")
      (:file "error")
+     (:file "upload")
      (:file "async")
      (:file "autocomplete")
      (:file "dom-objects")

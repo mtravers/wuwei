@@ -222,6 +222,7 @@ Here's an example of combining render-update operations:
 (defvar *ajax-request* nil)
 
 ;; If the client performs a file upload, an HTML form is used and a page of type text/html must be returned
+;;; +++ why is this a macro?
 (defmacro multipart? (req)
   `(let ((header (header-slot-value ,req :content-type)))
      (and header
