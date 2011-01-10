@@ -126,10 +126,13 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
 		    (json:encode-json-to-string options)))))))
 
 ;;; A convenience for the simple case of a 
-(defmacro in-place-setf-field (object accessor &key options)
+(defmacro in-place-setf-field (object accessor &key options on-change)
   `(in-place-field :value (,accessor ,object)
 		   :options ,options
-		   :on-change #'(lambda (v) (setf (,accessor ,object) v))))
+		   :on-change #'(lambda (v) 
+				  (setf (,accessor ,object) v)
+				  ,on-change
+				  )))
 
 	 
 
