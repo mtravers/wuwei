@@ -302,7 +302,7 @@ Here's an example of combining render-update operations:
 (defun ajax-timeout (req ent)
   (with-http-response-and-body (req ent :content-type "text/javascript")
     (render-update
-      (:alert "Ajax command timed out.  Try reloading the page"))))
+      (:alert "Ajax command expired.  Try reloading the page"))))
 
 (defun do-responder-timeouts ()
   (let* ((now (get-universal-time))
@@ -451,6 +451,7 @@ Here's an example of combining render-update operations:
      ":after     Javascript to run after the Ajax request"
      ":spinner   The ID of an elt, a spinner will be inserted after the elt before the Ajax request and removed when completed"
      ":in-function?  "
+     ":eval-scripts?  "
      )
   (when spinner
     (let ((spin-js (format nil "add_spinner('~A');" spinner))
