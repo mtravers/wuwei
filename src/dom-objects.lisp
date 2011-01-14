@@ -43,7 +43,8 @@ Notes:
 	)
 
 (defclass* html-element ()
-  ((dom-id nil))
+  ((dom-id nil)
+   (parent))
   :initable-instance-variables
   :readable-instance-variables)
 

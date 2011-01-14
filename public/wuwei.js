@@ -2,7 +2,7 @@
 
 function add_spinner(after) {
     var s_id = after + '_spin';
-    Element.insert($(after), {after: "<img src='/wuub/images/spinner.gif', id='" + s_id + "'>"});
+    Element.insert($(after), {after: "<img src='/wupub/images/spinner.gif', id='" + s_id + "'>"});
 }
 
 function remove_spinner (after) {
