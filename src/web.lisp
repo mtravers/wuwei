@@ -50,7 +50,7 @@
 	  remote-function link-to
 	  link-to-remote link-to-function
 	  button-to-remote button-to-function
-	  checkbox-to-remote radio-to-remote
+	  checkbox-to-remote radio-to-remote radio-buttons
 
 	  uploader *file-field-name*
 
@@ -186,6 +186,15 @@ If you want a string, wrap the call with html-string.  For example:
              (:princ-safe name) :newline)))
      )))
 
+;;; Options is list of (value label) pairs.  Separator is html to stick in-between options (ie, :br).
+;;; +++ hm, wrapping something AROUND options would make more sense.
+(defmacro radio-buttons (name options &key separator)
+  `(dolist (option ,options)
+     (html 
+      ((:input :type :radio :name ,name :value (car option) :if* (third option) :checked "true") (:princ (cadr option)))
+      ,separator)))
+     
+      
 (defmacro with-http-response-and-body ((req ent &key  (content-type "text/html")) &body body)
   #.(doc
      "Combines WITH-HTTP-RESPONSE and WITH-HTTP-BODY, which is the"
