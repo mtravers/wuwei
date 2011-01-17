@@ -38,7 +38,7 @@ Notes:
 
 (export '(html-element 
 	  element-named element-render element-update
-	  dom-id
+	  dom-id parent			;+++ exporting slot names so they can be used in with-slots.  Probably nad, use methods instead.
 	  html-element-dom-id)
 	)
 
