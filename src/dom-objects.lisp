@@ -38,9 +38,11 @@ Notes:
 
 (export '(html-element 
 	  element-named element-render element-update
-	  dom-id parent			;+++ exporting slot names so they can be used in with-slots.  Probably nad, use methods instead.
-	  html-element-dom-id)
-	)
+	  dom-id parent			;+++ exporting slot names so they can be used in with-slots.  Probably no good, use methods instead.
+	  html-element-dom-id
+	  
+	  paging-mixin base-list display-base display-list render-paging-controls
+	  ))
 
 (defclass* html-element ()
   ((dom-id nil)
@@ -72,4 +74,46 @@ Notes:
 (defgeneric element-render (dom-object)
   (:documentation "This method should do the actual HTML rendering of the object"))
   
+;;; Paging
 
+(defclass paging-mixin (html-element)
+  ((page-size :initarg :page-size :initform 25)
+   (current-page :initform 0)))
+ 
+(defmethod total-size ((elt paging-mixin))
+  (length (base-list elt)))
+
+;;; Kind of wasteful to make a separate continuation for each page? ++
+;;; Also needs to trim list down 
+;;; should be customizable or use css classes +++
+(defmethod render-paging-controls ((object paging-mixin))
+  (with-slots (page-size current-page) object
+    (let ((total-pages (ceiling (total-size object) page-size)))
+      (when (> total-pages 1)
+	(flet ((page-link (i &optional (label (princ-to-string (1+ i))))
+		 (link-to-remote label
+				 (ajax-continuation ()
+				   (setf current-page i)
+				   (element-update object)))))
+	  (unless (zerop current-page)
+	    (page-link (- current-page 1) "Prev"))
+	  (nbsp)
+	  (dotimes (i total-pages)
+	    (let ((i i))		;i i i!
+	      (html
+	       (if (= i current-page)
+		   (html (:b (:princ (1+ i))))
+		   (page-link i))
+	       (nbsp))))
+	  (unless (= current-page (1- total-pages))
+	    (page-link (+ current-page 1) "Next"))
+	  )))))
+
+(defgeneric base-list (paging-mixin))
+(defmethod display-list ((object paging-mixin))
+  (with-slots (page-size current-page) object
+    (mt::subseq-safe (base-list object) (* page-size current-page) (* page-size (1+ current-page)))))
+
+(defmethod display-base ((object paging-mixin))
+  (with-slots (page-size current-page) object
+    (* page-size current-page)))
