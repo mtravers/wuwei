@@ -30,7 +30,7 @@
 
 ;;; Session management
 
-(export '(with-session def-session-variable *default-session* delete-session))
+(export '(with-session def-session-variable delete-session))
 
 ;;; +++ these need to get timed out, otherwise they will accumulate ad infinitum
 
