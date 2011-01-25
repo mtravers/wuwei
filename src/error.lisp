@@ -143,6 +143,7 @@
   `(without-unwinding-restart (json-report-error)
      ,@body))
 
+;;; Note: has to be inside of with-http-response-and-body or equivalent
 ;;; If you want to close off html elements in case of an error, I think you need to add unwind-protects to  html-body-key-form
 ;;;  in /misc/downloads/cl-portable-aserve-1.2.42/aserve/htmlgen/htmlgen.cl
 ;;;  get-frames-list for a backtrace (but probably need a different kind of handler in that case)

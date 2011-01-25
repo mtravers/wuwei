@@ -86,7 +86,7 @@
 
 (defmacro def-session-variable (name &optional initform)
   `(progn
-    (defvar ,name)
+    (defvar ,name ,initform)
     (setf (get ',name :initform) ',initform)
     (pushnew ',name *session-variables*)
     ))

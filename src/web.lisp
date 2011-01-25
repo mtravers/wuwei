@@ -50,7 +50,8 @@
 	  remote-function link-to
 	  link-to-remote link-to-function
 	  button-to-remote button-to-function
-	  checkbox-to-remote radio-to-remote radio-buttons
+	  checkbox-to-function checkbox-to-remote
+	  radio-buttons radio-to-remote
 
 	  uploader *file-field-name*
 
@@ -80,6 +81,7 @@
       file-or-url
       (public-url file-or-url)))
 
+;;; +++ this needs a more flexible API...
 (defun javascript-include (file-or-url)
   (html
    ((:script :type "text/javascript" :src (coerce-url file-or-url))) :newline ))
