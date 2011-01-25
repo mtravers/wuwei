@@ -30,7 +30,8 @@
 
 ;;; Session management
 
-(export '(with-session def-session-variable delete-session))
+(export '(cookie-value
+	  with-session def-session-variable delete-session new-session-hook))
 
 ;;; +++ these need to get timed out, otherwise they will accumulate ad infinitum
 
@@ -72,7 +73,14 @@
       (set-cookie-header req :name *cookie-name* :value (string *session*))
       (set-cookie-header req :name (string+ *cookie-name* "-time") :value (fast-string *system-start-time*)))
     (setf (gethash *session* *sessions*) (make-hash-table :test #'eq))
+    (with-session-variables
+      (new-session-hook req ent))
     *session*))
+
+;;; applications can redefine this to do special actions to initialize a session
+(defun new-session-hook (req ent)
+  (declare (ignore req ent))
+  )
 
 ;;; +++ Should be called from a logout or other state-flushing operation
 (defun delete-session (key)
