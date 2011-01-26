@@ -65,26 +65,7 @@
 
 (defvar *session-counter* 0)
 
-(defun make-new-session (req ent)
-  (declare (ignore ent))
-  ;; this did use gensym but OpenMCL's implementation is broken.
-  (let ((*session* (keywordize (format nil "S~A" (incf *session-counter*)))))
-    (when req
-      (set-cookie-header req :name *cookie-name* :value (string *session*))
-      (set-cookie-header req :name (string+ *cookie-name* "-time") :value (fast-string *system-start-time*)))
-    (setf (gethash *session* *sessions*) (make-hash-table :test #'eq))
-    (with-session-variables
-      (new-session-hook req ent))
-    *session*))
 
-;;; applications can redefine this to do special actions to initialize a session
-(defun new-session-hook (req ent)
-  (declare (ignore req ent))
-  )
-
-;;; +++ Should be called from a logout or other state-flushing operation
-(defun delete-session (key)
-  (remhash key *sessions*))
     
 ;;; Session management
 
@@ -123,6 +104,27 @@
 (defun set-session-variable-value (session var val)
   (setf (gethash var (session-named session)) val))
       
+(defun make-new-session (req ent)
+  (declare (ignore ent))
+  ;; this did use gensym but OpenMCL's implementation is broken.
+  (let ((*session* (keywordize (format nil "S~A" (incf *session-counter*)))))
+    (when req
+      (set-cookie-header req :name *cookie-name* :value (string *session*))
+      (set-cookie-header req :name (string+ *cookie-name* "-time") :value (fast-string *system-start-time*)))
+    (setf (gethash *session* *sessions*) (make-hash-table :test #'eq))
+    (with-session-variables
+      (new-session-hook req ent))
+    *session*))
+
+;;; applications can redefine this to do special actions to initialize a session
+(defun new-session-hook (req ent)
+  (declare (ignore req ent))
+  )
+
+;;; +++ Should be called from a logout or other state-flushing operation
+(defun delete-session (key)
+  (remhash key *sessions*))
+
 ;;; Developer tools
 
 (publish :path "/session-debug"

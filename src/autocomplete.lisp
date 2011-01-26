@@ -96,7 +96,9 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
    ))
 
 ;;; In-place editor (see http://wiki.github.com/madrobby/scriptaculous/ajax-inplaceeditor )
-;;; :on-change function called with new value
+;;; :options   alist of options as defined by the underlying widget
+;;; :on-change function called with new value.
+;;; :editable? nil to turn off editing. 
 (defun in-place-field (&key (id (string (gensym "id")))
 		       name
 		       options
@@ -105,6 +107,7 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
 		       value
 		       class
 		       submit-on-blur?
+		       (editable? t)
 		       )
   (when prompt
     (push `("emptyText" . ,prompt) options))
@@ -115,24 +118,26 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
      ((:span :id id :name name :if* class :class class); :style "border:1px solid gray"
       (if current-value
 	  (html (:princ current-value)))) ;was :princ-safe, but this lets you use html markup
-     (render-scripts
-      (:js (format nil "new Ajax.InPlaceEditorWithEmptyText('~A', '~A', ~A);"
-		    id
-		    ;; :keep t permits multiple editings.
-		    (ajax-continuation (:args (value) :content-type "text/text" :name "inplace" :keep t)
-		      (when on-change (funcall on-change value))
-		      ;; you are supposed to send the value back as the body
-		      (write-string value *html-stream*))
-		    (json:encode-json-to-string options)))))))
+     (when editable?
+       (render-scripts
+	 (:js (format nil "new Ajax.InPlaceEditorWithEmptyText('~A', '~A', ~A);"
+		      id
+		      ;; :keep t permits multiple editings.
+		      (ajax-continuation (:args (value) :content-type "text/text" :name "inplace" :keep t)
+			(when on-change (funcall on-change value))
+			;; you are supposed to send the value back as the body
+			(write-string value *html-stream*))
+		      (json:encode-json-to-string options))))))))
 
-;;; A convenience for the simple case of a 
-(defmacro in-place-setf-field (object accessor &key options on-change)
+;;; A convenience for the simple case of a setfable field
+(defmacro in-place-setf-field (object accessor &rest all-keys &key on-change &allow-other-keys)
   `(in-place-field :value (,accessor ,object)
-		   :options ,options
 		   :on-change #'(lambda (v) 
 				  (setf (,accessor ,object) v)
 				  ,on-change
-				  )))
+				  )
+		   ,@(delete-keyword-args '(:value :on-change) all-keys)
+		   ))
 
 	 
 
