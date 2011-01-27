@@ -4,6 +4,8 @@
 Borrowed from BioBike 
 |#
 
+;;; This also works: (top-level.debug:zoom *standard-output*)
+
 ;;; Used to use functions in debug: package, appears to have changed
 #+:allegro
 (defun get-frames-list ()
@@ -48,13 +50,17 @@ Borrowed from BioBike
 
 (defparameter *stack-frame-limit* 30)
 
+#+:ccl
 (defun get-frames-list ()
   ;; discard uninteresting get-frames-list frame
-  #+:ccl
-  (cdr (ccl::backtrace-as-list :count *stack-frame-limit*))
-  #+:sbcl
-  (sb-debug::backtrace-as-list :count *stack-frame-limit*)
-  #-(or :ccl :sbcl)
+  (cdr (ccl::backtrace-as-list :count *stack-frame-limit*)))
+
+#+:sbcl
+(defun get-frames-list ()
+  (sb-debug::backtrace-as-list :count *stack-frame-limit*))
+
+#-(or :ccl :sbcl :allegro)
+(defun get-frames-list ()
   nil)
 
 (defun dump-stack (&optional (stream *standard-output*))
@@ -78,7 +84,6 @@ Borrowed from BioBike
      )
   )
 
-;;; Do you ever want to do this?  This continues from the error
 (defmacro without-unwinding-restart ((restart &rest args) &body body)
   `(restart-case
        (handler-bind

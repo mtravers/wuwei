@@ -95,7 +95,7 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
 		  (json:encode-json-to-string options))))
    ))
 
-;;; In-place editor (see http://wiki.github.com/madrobby/scriptaculous/ajax-inplaceeditor )
+;;; In-place editor (see http://madrobby.github.com/scriptaculous/ajax-inplaceeditor/ )
 ;;; :options   alist of options as defined by the underlying widget
 ;;; :on-change function called with new value.
 ;;; :editable? nil to turn off editing. 

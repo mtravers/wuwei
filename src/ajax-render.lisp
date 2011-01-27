@@ -302,7 +302,7 @@ Here's an example of combining render-update operations:
 (defun ajax-timeout (req ent)
   (with-http-response-and-body (req ent :content-type "text/javascript")
     (render-update
-      (:alert "Ajax command expired.  Try reloading the page"))))
+      (:alert "Command expired.  Try reloading the page"))))
 
 (defun do-responder-timeouts ()
   (let* ((now (get-universal-time))
