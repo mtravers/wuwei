@@ -118,7 +118,7 @@ Here's an example of combining render-update operations:
 ;;; pretty simple!
 (define-render-update :js (string)
   `(progn (terpri *html-stream*)
-	  (write-string ,string *html-stream*)))
+	  (awhen ,string (write-string it *html-stream*))))
 
 ;;; A script that gets inserted after the normal updates
 (define-render-update :post-js (string)
