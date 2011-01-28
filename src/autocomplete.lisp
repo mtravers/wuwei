@@ -55,6 +55,7 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
 			    value
 			    options
 			    completions-url
+			    completions-generator
 			    on-selected
 			    (update (string+ id "_auto_complete"))
 			    input-options
@@ -64,7 +65,8 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
 "NAME - the name of the field"
 "VALUE - the current value of the field"
 "OPTIONS - additional options to pass to the scriptaculous Ajax.Autocompleter object, in JSON form"
-"COMPLETIONS-URL - a URL that supplies the completions"
+"COMPLETIONS-GENERATOR - a procedure that takes a prefix and returns a list of (id . name) pairs"
+"COMPLETIONS-URL - a URL that supplies the completions.  Either this or COMPLETIONS-GENERATOR must be supplied, but not both"
 "ON-SELECTED - a function that is called with the value, value string, and id of the selected option"
 "UPDATE - the HTML ID of the autocompletion box")
   (flet ((default-option (optname value)
@@ -75,6 +77,16 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
       (default-option "afterUpdateElement" 
 	  `(:raw "postAutocomplete")))
     )
+  (unless completions-url
+    (assert completions-generator)
+    (setq completions-url
+	  (ajax-continuation (:args (prefix) :keep t :name "ac_completions") 
+	    (html
+	     (:ul
+	      (dolist (completion (funcall completions-generator prefix))
+		  (html
+		   ((:li :id (car completion))
+		    (:princ-safe (cdr completion))))))))))
   (html
    ((:input :id id :name name :if* value :value value :do* input-options))
    (render-scripts

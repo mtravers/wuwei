@@ -1,5 +1,7 @@
 (in-package :wu)
 
+;;; +++ this is having json version trouble, should replace all keywords with strings in MQL.
+
 (publish :path "/mql-autocomplete-simple-demo"
 	 :function 'mql-autocomplete-simple-demo)
 
@@ -90,6 +92,21 @@
 				  (if show-ids?
 				      (html (:princ (format nil " (~A)" (cdr (assoc :id item))))))))))))
 	 (delete-keyword-args '(:anchor-start? :type :show-ids?) other)))
+
+;;; new improved
+(defun autocomplete-mql-field (&rest other &key anchor-start? type show-ids? &allow-other-keys)
+  (apply 'auto-complete-field 
+	 :completions-generator
+	 #'(lambda (prefix)
+	     (mapcar #'(lambda (item)
+			 (cons (cdr (assoc :id item))
+			       (if show-ids?
+				   (string+ 
+				    (cdr (assoc :|A:NAME| item))
+				    (format nil " (~A)" (cdr (assoc :id item))))
+				   (cdr (assoc :|A:NAME| item)))))
+		     (mql-autocomplete prefix type :anchor-start? anchor-start?)))
+	 (delete-keyword-args '(:anchor-start? :type :show-ids?) other)))
 	 
 
 ;;; MQL machinery
@@ -100,7 +117,7 @@
 (defvar *mql-debug* nil)
 
 (defun mql-read (q)
-  (let* ((env2 `((:query . ,(list q)))) ; )   `((:query . ,q)) -- but this way we always do multiple, which is usually right
+  (let* ((env2 `(("query" . ,(list q)))) ; )   `((:query . ,q)) -- but this way we always do multiple, which is usually right
 	 (json (json:encode-json-to-string env2))
 	 (args (net.aserve:uriencode-string json))
 	 (url (format nil "http://~A~A?query=~A" *freebase-host* *freebase-readservice* args))
@@ -125,11 +142,11 @@
 (defun mql-autocomplete (prefix type &key (property "name") (anchor-start? nil) (limit 10))
   (mql-read
    `((,(string+ (string property) "~=") . ,(string+ (if anchor-start? "^" "") prefix "*"))
-     (:type . ,type)
-     (:id . nil)
+     ("type" . ,type)
+     ("id" . nil)
      ("a:name" . nil)
-     (:limit . ,limit)
-     (:sort . "a:name")
+     ("limit" . ,limit)
+     ("sort" . "a:name")
      )))
 
 
