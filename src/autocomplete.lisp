@@ -36,7 +36,7 @@
 #|
 Support for autocomplete and in-place-editor widgets
 
-See http://wiki.github.com/madrobby/scriptaculous/ajax-autocompleter
+See http://madrobby.github.com/scriptaculous/ajax-autocompleter/
 
 Requires a DOM element named "body" to control where the autocomplete box gets inserted.
 
@@ -57,18 +57,21 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
 			    completions-url
 			    completions-generator
 			    on-selected
+			    textarea
 			    (update (string+ id "_auto_complete"))
 			    input-options
 			    )
   #.(doc "Generate an HTML autocompletion field. Arguments below (all except completions-url are optional)"
-"ID - the HTML ID of the element"
-"NAME - the name of the field"
-"VALUE - the current value of the field"
-"OPTIONS - additional options to pass to the scriptaculous Ajax.Autocompleter object, in JSON form"
-"COMPLETIONS-GENERATOR - a procedure that takes a prefix and returns a list of (id . name) pairs"
-"COMPLETIONS-URL - a URL that supplies the completions.  Either this or COMPLETIONS-GENERATOR must be supplied, but not both"
-"ON-SELECTED - a function that is called with the value, value string, and id of the selected option"
-"UPDATE - the HTML ID of the autocompletion box")
+	 "ID - the HTML ID of the element"
+	 "NAME - the name of the field"
+	 "VALUE - the current value of the field"
+	 "TEXTAREA - T to use a multi-line textarea"
+	 "OPTIONS - additional options to pass to the scriptaculous Ajax.Autocompleter object."
+	 "INPUT-OPTIONS - options to pass to the input or textarea tag (eg '(("tokens" . ("," #\Newline))))"
+	 "COMPLETIONS-GENERATOR - a procedure that takes a prefix and returns a list of (id . name) pairs"
+	 "COMPLETIONS-URL - a URL that supplies the completions.  Either this or COMPLETIONS-GENERATOR must be supplied, but not both"
+	 "ON-SELECTED - a function that is called with the value, value string, and id of the selected option"
+	 "UPDATE - the HTML ID of the autocompletion box")
   (flet ((default-option (optname value)
 	   (unless (member optname options :key #'car :test #'equal)
 	     (push (cons optname value) options))))
@@ -84,22 +87,24 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
 	    (html
 	     (:ul
 	      (dolist (completion (funcall completions-generator prefix))
-		  (html
-		   ((:li :id (car completion))
-		    (:princ-safe (cdr completion))))))))))
-  (html
-   ((:input :id id :name name :if* value :value value :do* input-options))
+		(html
+		 ((:li :id (car completion))
+		  (:princ-safe (cdr completion))))))))))
+  (if textarea
+      (html ((:textarea :id id :name name :do* input-options) 
+	     (if value (html (:princ-safe value)))))
+      (html ((:input :id id :name name :if* value :value value :do* input-options))))
    (render-scripts
-    ;; put the autocomplete div somewhere where it won't get clipped
-    (:insert :bottom "body"		
-	     (html ((:div :id update :class "auto_complete"))))
-    ;; this complex tangle enables an action to be taken when a completion is selected.
-    (:js (if on-selected (format nil "setupAutocomplete('~A', '~A');" id 
-			      (ajax-continuation (:args (value value_string id) :name "ac_finish" :keep t) 
-						 (funcall on-selected value value_string id)
-						 ))))
+     ;; put the autocomplete div somewhere where it won't get clipped
+     (:insert :bottom "body"		
+	      (html ((:div :id update :class "auto_complete"))))
+     ;; this complex tangle enables an action to be taken when a completion is selected.
+     (:js (if on-selected (format nil "setupAutocomplete('~A', '~A');" id 
+				  (ajax-continuation (:args (value value_string id) :name "ac_finish" :keep t) 
+				    (funcall on-selected value value_string id)
+				    ))))
 
-    (:js (format nil "var ~A_auto_completer = new Ajax.Autocompleter('~A', '~A', '~A', ~A);"
+     (:js (format nil "var ~A_auto_completer = new Ajax.Autocompleter('~A', '~A', '~A', ~A);"
 		  id
 		  id
 		  update
