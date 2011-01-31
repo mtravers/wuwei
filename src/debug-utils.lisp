@@ -84,14 +84,18 @@ Borrowed from BioBike
      )
   )
 
+
 (defmacro without-unwinding-restart ((restart &rest args) &body body)
   `(restart-case
        (handler-bind
            ((serious-condition
 	     #'(lambda (c)
-		 (ignore-errors (format t "~a ~a~%" (net.aserve::universal-time-to-date (get-universal-time)) c))
-		 (dump-stack)
-		 (invoke-restart 'total-lossage c (stack-trace)))))
+		 (if *developer-mode*
+		     (signal c)		;rethrow if dev mode
+		     (progn
+		       (ignore-errors (format t "~a ~a~%" (net.aserve::universal-time-to-date (get-universal-time)) c))
+		       (dump-stack)
+		       (invoke-restart 'total-lossage c (stack-trace)))))))
          ,@body
          )
      (total-lossage (c stack-trace)
