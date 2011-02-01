@@ -67,7 +67,7 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
 	 "VALUE - the current value of the field"
 	 "TEXTAREA - T to use a multi-line textarea"
 	 "OPTIONS - additional options to pass to the scriptaculous Ajax.Autocompleter object."
-	 "INPUT-OPTIONS - options to pass to the input or textarea tag (eg '(("tokens" . ("," #\Newline))))"
+	 "INPUT-OPTIONS - options to pass to the input or textarea tag (eg '((\"tokens\" . (\",\" #\Newline))))"
 	 "COMPLETIONS-GENERATOR - a procedure that takes a prefix and returns a list of (id . name) pairs"
 	 "COMPLETIONS-URL - a URL that supplies the completions.  Either this or COMPLETIONS-GENERATOR must be supplied, but not both"
 	 "ON-SELECTED - a function that is called with the value, value string, and id of the selected option"
@@ -78,8 +78,7 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
     (default-option "paramName" "prefix")
     (when on-selected
       (default-option "afterUpdateElement" 
-	  `(:raw "postAutocomplete")))
-    )
+	  `(:raw "postAutocomplete"))))
   (unless completions-url
     (assert completions-generator)
     (setq completions-url
@@ -94,23 +93,23 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
       (html ((:textarea :id id :name name :do* input-options) 
 	     (if value (html (:princ-safe value)))))
       (html ((:input :id id :name name :if* value :value value :do* input-options))))
-   (render-scripts
-     ;; put the autocomplete div somewhere where it won't get clipped
-     (:insert :bottom "body"		
-	      (html ((:div :id update :class "auto_complete"))))
-     ;; this complex tangle enables an action to be taken when a completion is selected.
-     (:js (if on-selected (format nil "setupAutocomplete('~A', '~A');" id 
-				  (ajax-continuation (:args (value value_string id) :name "ac_finish" :keep t) 
-				    (funcall on-selected value value_string id)
-				    ))))
+  (render-scripts
+    ;; put the autocomplete div somewhere where it won't get clipped
+    (:insert :bottom "body"		
+	     (html ((:div :id update :class "auto_complete"))))
+    ;; this complex tangle enables an action to be taken when a completion is selected.
+    (:js (if on-selected (format nil "setupAutocomplete('~A', '~A');" id 
+				 (ajax-continuation (:args (value value_string id) :name "ac_finish" :keep t) 
+				   (funcall on-selected value value_string id)
+				   ))))
 
-     (:js (format nil "var ~A_auto_completer = new Ajax.Autocompleter('~A', '~A', '~A', ~A);"
-		  id
-		  id
-		  update
-		  completions-url
-		  (json:encode-json-to-string options))))
-   ))
+    (:js (format nil "var ~A_auto_completer = new Ajax.Autocompleter('~A', '~A', '~A', ~A);"
+		 id
+		 id
+		 update
+		 completions-url
+		 (json:encode-json-to-string options))))
+  )
 
 ;;; In-place editor (see http://madrobby.github.com/scriptaculous/ajax-inplaceeditor/ )
 ;;; :options   alist of options as defined by the underlying widget
