@@ -115,6 +115,9 @@ Here's an example of combining render-update operations:
 (define-render-element-operation :toggle)
 (define-render-element-operation :remove)
 
+(defun escape-single-quotes (string)
+  (mt:string-replace string "'" "\\'"))
+
 ;;; pretty simple!
 (define-render-update :js (string)
   `(progn (terpri *html-stream*)
@@ -205,18 +208,21 @@ Here's an example of combining render-update operations:
 ;; Amazingly, FireFox will generate close tags for lisp objects
 ;; printed in pointy brackets, but then we *are* lying about the
 ;; content type.
-;; This is not real JSON escaping....
+;; This is not real JSON escaping....also not very efficient
 (defun clean-upload-js-string (string)
   (string-replace 
    (string-replace string ">" "&gt;")
    "<" "&lt;")
   )
 
+;;; Not very efficient
 (defun clean-js-string (string)
   (string-replace
-   (string-replace string (string #\Newline) "\\n")
-   "\"" "\\\"")
-  )
+   (string-replace
+    (string-replace string (string #\Newline) "\\n")
+    "\"" "\\\"")
+   "'" "\\'"))
+
 
 (defvar *multipart-request*)
 (defvar *ajax-request* nil)

@@ -66,9 +66,12 @@
 (defparameter *public-directory* (make-pathname
 				  :directory '#.(append (butlast (pathname-directory (this-pathname))) '("public"))))
 
+;;; +++ the expiry isn't working, hard to say why
 (publish-directory :destination (namestring *public-directory*)
                    :prefix "/wupub/"
-                   :headers `((:expires . ,(net.aserve::universal-time-to-date (+ (get-universal-time) (* 20 60 60))))))
+                   :headers `(("Cache-control" . ,(format nil "max-age=~A, public" 36000))
+			      ("Expires" . ,(net.aserve::universal-time-to-date (+ (get-universal-time) (* 20 60 60)))))
+		   )
 
 (defun public-url (name)
   (string+ "/wupub/" name))
