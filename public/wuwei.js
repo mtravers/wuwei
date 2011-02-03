@@ -71,5 +71,15 @@ Ajax.InPlaceEditorWithEmptyText = Class.create(Ajax.InPlaceEditor, {
   onComplete : function($super, transport) {
     this.checkEmpty();
     return $super(transport);
+  },
+
+  wrapUp: function(transport) {
+      this.leaveEditMode();
+      this.checkEmpty();
+      // Can't use triggerCallback due to backward compatibility: requires
+      // binding + direct element
+      this._boundComplete(transport, this.element);
   }
+
+
 });
