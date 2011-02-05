@@ -410,12 +410,13 @@ Here's an example of combining render-update operations:
     (:princ-safe (or text ""))
    ))
     
-(defun checkbox-to-remote (text url &optional checked? &rest remote-function-options &key (id (string (gensym "check"))) html-options &allow-other-keys)
+;;; +++ copy params, class keyword functionality to link-to-remote, button-to-remote, etc
+(defun checkbox-to-remote (text url &optional checked? &rest remote-function-options &key params (id (string (gensym "check"))) class html-options &allow-other-keys)
   (checkbox-to-function
    text 
-   (apply #'remote-function url :in-function? nil :params `(:checked (:raw ,(format nil "$('~A').checked" id))) (delete-keyword-args '(:html-options :id) remote-function-options))
+   (apply #'remote-function url :in-function? nil :params `(:checked (:raw ,(format nil "$('~A').checked" id)) ,@params) (delete-keyword-args '(:html-options :id :class) remote-function-options))
    :html-options 
-   `(:id ,id ,@(if checked? '(:checked "true")) ,@html-options)))
+   `(:id ,id ,@(if class `(:class ,class)) ,@(if checked? '(:checked "true")) ,@html-options)))
 
 (defun radio-to-remote (text url &optional checked? &rest remote-function-options &key html-options &allow-other-keys)
   (html
