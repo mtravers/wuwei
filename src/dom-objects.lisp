@@ -41,7 +41,8 @@ Notes:
 	  dom-id parent			;+++ exporting slot names so they can be used in with-slots.  Probably no good, use methods instead.
 	  html-element-dom-id
 	  
-	  paging-mixin base-list display-base display-list render-paging-controls
+	  paging-mixin display-base display-list total-size render-paging-controls
+	  page-size current-page
 	  ))
 
 (defclass* html-element ()
@@ -80,8 +81,14 @@ Notes:
   ((page-size :initarg :page-size :initform 25)
    (current-page :initform 0)))
  
-(defmethod total-size ((elt paging-mixin))
-  (length (base-list elt)))
+;;; Returns a count of the total size of the paged set
+(defgeneric total-size (paged-element))
+;;; Returns the current elements to display based on current-page
+(defgeneric display-list (paged-element))
+
+(defmethod display-base ((object paging-mixin))
+  (with-slots (page-size current-page) object
+    (* page-size current-page)))
 
 ;;; Kind of wasteful to make a separate continuation for each page? ++
 ;;; Also needs to trim list down 
@@ -109,11 +116,17 @@ Notes:
 	    (page-link (+ current-page 1) "Next"))
 	  )))))
 
-(defgeneric base-list (paging-mixin))
-(defmethod display-list ((object paging-mixin))
-  (with-slots (page-size current-page) object
-    (mt::subseq-safe (base-list object) (* page-size current-page) (* page-size (1+ current-page)))))
+;;; Paging from a fixed list
 
-(defmethod display-base ((object paging-mixin))
-  (with-slots (page-size current-page) object
-    (* page-size current-page)))
+(defclass list-paging-mixin (paging-mixin)
+  ((list :initarg :list)))
+
+(defmethod total-size ((elt list-paging-mixin))
+  (with-slots (list) elt
+    (length list)))
+
+(defmethod display-list ((object list-paging-mixin))
+  (with-slots (page-size current-page list) object
+    (mt:subseq-safe list (* page-size current-page) (* page-size (1+ current-page)))))
+
+
