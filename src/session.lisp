@@ -143,8 +143,8 @@
 	   (dolist (v *session-variables*)
 	     (html
 	       (:tr
-		(:td (:princ-safe v))
-		(:td (:princ-safe (eval v)))))))
+		(:td (:princ-safe (prin1-to-string v)))
+		(:td (:princ-safe (prin1-to-string (eval v))))))))
 	  (link-to "Reset session" "/session-reset")
 	  )))))
 

@@ -77,9 +77,10 @@ Notes:
   
 ;;; Paging
 
+
 (defclass paging-mixin (html-element)
   ((page-size :initarg :page-size :initform 25)
-   (current-page :initform 0)))
+   (current-page :initform 0 :accessor current-page)))
  
 ;;; Returns a count of the total size of the paged set
 (defgeneric total-size (paged-element))
@@ -90,12 +91,16 @@ Notes:
   (with-slots (page-size current-page) object
     (* page-size current-page)))
 
+(defmethod total-pages ((object paging-mixin))
+  (with-slots (page-size current-page) object
+    (ceiling (total-size object) page-size)))
+
 ;;; Kind of wasteful to make a separate continuation for each page? ++
 ;;; Also needs to trim list down 
 ;;; should be customizable or use css classes +++
 (defmethod render-paging-controls ((object paging-mixin))
   (with-slots (page-size current-page) object
-    (let ((total-pages (ceiling (total-size object) page-size)))
+    (let ((total-pages (total-pages object)))
       (when (> total-pages 1)
 	(flet ((page-link (i &optional (label (princ-to-string (1+ i))))
 		 (link-to-remote label
