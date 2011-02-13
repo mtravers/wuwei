@@ -188,7 +188,8 @@ If you want a string, wrap the call with html-string.  For example:
 		      :if* url :onmouseup (remote-function url :params (append `(:type ,(format nil "~a" value)) params))
 		      :if* (equal value selected) :selected "selected"
 		      )
-             (:princ-safe name) :newline)))
+             (:princ-safe name)
+	     :newline)))
      )))
 
 ;;; Options is list of (value label) pairs.  Separator is html to stick in-between options (ie, :br).

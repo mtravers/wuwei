@@ -150,6 +150,7 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
 		      (json:encode-json-to-string (or options :empty-dict)))))))))
 
 ;;; A convenience for the simple case of a setfable field
+;;; Here, on-change has different semantics, it's just a code snippet.
 (defmacro in-place-setf-field (object accessor &rest all-keys &key on-change &allow-other-keys)
   `(in-place-field :value (,accessor ,object)
 		   :on-change #'(lambda (v) 
