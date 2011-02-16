@@ -116,6 +116,7 @@ If you want a string, wrap the call with html-string.  For example:
        (html-string ,@body)
        (progn ,@body)))
 
+;;; +++ should take same keywords as link-to-remote (ie html-options)
 (defun link-to (text url &key target)
   (html ((:a :href url :if* target :target target)
          ;; :princ rather than :princ-safe to allow html embedding
