@@ -79,21 +79,6 @@
 (defun freebase-url (id)
   (string+ "http://www.freebase.com/view" id))
 
-;;; the field
-(defun autocomplete-mql-field (&rest other &key anchor-start? type show-ids? &allow-other-keys)
-  (apply 'auto-complete-field 
-	 :completions-url (ajax-continuation (:args (prefix) :keep t :name "mql_completions" :content-type "text/html")
-			    (html
-			     (:ul
-			      (dolist (item (mql-autocomplete prefix type :anchor-start? anchor-start?))
-				(html
-				 ((:li :id (cdr (assoc :id item)))
-				  (:princ (cdr (assoc :|A:NAME| item)))
-				  (if show-ids?
-				      (html (:princ (format nil " (~A)" (cdr (assoc :id item))))))))))))
-	 (delete-keyword-args '(:anchor-start? :type :show-ids?) other)))
-
-;;; new improved
 (defun autocomplete-mql-field (&rest other &key anchor-start? type show-ids? &allow-other-keys)
   (apply 'auto-complete-field 
 	 :completions-generator
