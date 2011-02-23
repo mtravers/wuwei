@@ -47,6 +47,7 @@ Available render-update operations, hopefully mostly self-explanatory.  See the 
 (:hide <id>)
 (:show <id>)
 (:toggle <id>)
+;; +++ :add-class :remove-class, addClassName(<elt>, <name>)...
 
 (:draggable <id> <options>)
 (:drop-target <id> <options>)
