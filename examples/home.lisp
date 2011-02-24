@@ -47,9 +47,8 @@
 		  (:h4 "Features")
 		  (:ul
 		   (:li "Continuation-based AJAX user interfaces")
-		   (:li "Server-side high-level DOM operations (add/remove elements, visual fades, drag and drop")
-		   (:li "Extensions and fixes to Portable Allegroserve")
-		   (:li "High-level interfaces to in-place-editing and autocomplete widgets")
+		   (:li "Server-side high-level DOM operations (add/remove elements, visual fades, drag and drop)")
+		   (:li "High-level interfaces to in-place editing and autocomplete widgets")
 		   (:li "Login and session management")
 		   (:li "Runs in multiple Common Lisp implementations")
 		   (:li "Freely available under the MIT Open Source License")

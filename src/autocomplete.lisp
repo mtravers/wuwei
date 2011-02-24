@@ -129,8 +129,8 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
 		       submit-on-blur?
 		       (editable? t)
 		       )
-;  (when prompt
-;    (push `("emptyText" . ,prompt) options))
+  (when prompt
+    (push `("emptyText" . ,prompt) options))
   (when submit-on-blur?
     (push `("submitOnBlur" . "true") options))
   (let ((current-value value))
