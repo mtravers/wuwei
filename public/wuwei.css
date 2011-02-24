@@ -19,11 +19,14 @@ div.auto_complete ul {
     padding:0;
     width:100%;
     list-style-type:none;
+    text-indent:0px;
     font-family: 'Gill Sans'
 }
 div.auto_complete ul li {
     margin:0;
     padding:3px;
+    list-style-type:none;
+    text-indent:0px;
 }
 div.auto_complete ul li.selected {
     background-color: #ffb;
