@@ -443,7 +443,7 @@ Here's an example of combining render-update operations:
   )
 
 (defun remote-function (url &key form params (in-function? t) confirm before after spinner
-                        success failure complete eval-scripts?)
+                        success failure complete eval-scripts? stop-propagation?)
   #.(doc
      "Generate a remote function (javascript Ajax call)"
      " ex: (remote-function \"/new-chunk\" :params `(:user ,user :type (:raw ,(format nil \"$(~A).value\" selector-id))))"
@@ -460,7 +460,10 @@ Here's an example of combining render-update operations:
      ":spinner   The ID of an elt, a spinner will be inserted after the elt before the Ajax request and removed when completed"
      ":in-function?  "
      ":eval-scripts?  "
+     ":stop-propagation?   Stop propagation of events to parents. Forces :in-function? to be nil"
      )
+  (when stop-propagation?
+    (setq in-function? nil))
   (when spinner
     (let ((spin-js (format nil "add_spinner('~A');" spinner))
           (nospin-js (format nil "remove_spinner('~A');" spinner)))
@@ -490,6 +493,9 @@ Here's an example of combining render-update operations:
     (when before (setf result (string+ before result)))
     (when after (setf result (string+ result after)))
     (when confirm (setf result (format nil "if (confirm('~A')) { ~A };" confirm result)))
+    (when stop-propagation?
+;      (setf result (format nil "function (e) {~A Event.stop(e); }"  result)))
+      (setf result (format nil "~A Event.stop(event);"  result)))
     result))
 
 
