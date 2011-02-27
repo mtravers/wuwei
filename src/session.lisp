@@ -47,6 +47,8 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defparameter *default-login-handler* nil))
 
+(defparameter *cookie-name* (string+ *system-name* "-session"))
+
 ;;; Note: has to be OUTSIDE with-http-response-and-body or equiv
 ;;; +++ this expands body multiple times, bad.
 (defmacro with-session ((req ent &key (login-handler *default-login-handler*)) &body body)
@@ -109,10 +111,18 @@
       (new-session-hook req ent))
     *session*))
 
-;;; New secure cookies
+;;; New secure cookies. 
+#|
+Theory: there's one cookie that points to the session state on the server.  The cookie is of the form:
+    <session-key>|<system-start-time>|<hash>
+The hash prevents forgery; the system-start-time ensures that if the server is restarted all saved session cookies will
+be invalidated.
 
-;;; This should be set to something custom for each application/site
-(defparameter *session-secret* "barbie says: security is hard")
+This may be wrong. Maybe credentials should also be stored; so if the server is rebooted the user isn't forced to log
+in again.
+
+|#
+
 
 (defun generate-cookie ()
   (let* ((part1 (format nil "~A|~X" *session* *system-start-time*))
@@ -121,14 +131,17 @@
 
 ;;; Input: cookie value, output: session keyword
 (defun parse-and-validate-cookie (value)
-  (let* ((parts (string-split value #\|)))
-    (unless (= (parse-integer (third parts) :radix 16)
-	       (excl:md5-string (string+ (first parts) "|" (second parts) *session-secret*)))
-      (error "Invalid session cookie"))
-    (unless (= (parse-integer (second parts) :radix 16)
-	       *system-start-time*)
-      (error "Expired session cookie"))
-    (keywordize (first parts))))
+  (when value
+    (report-and-ignore-errors 
+      (let* ((parts (string-split value #\|)))
+	(unless (and (= 3 (length parts))
+		     (= (parse-integer (third parts) :radix 16)
+			(excl:md5-string (string+ (first parts) "|" (second parts) *session-secret*))))
+	  (error "Invalid session cookie ~A" value))
+	(unless (= (parse-integer (second parts) :radix 16)
+		   *system-start-time*)
+	  (error "Expired session cookie ~A" value))
+	(keywordize (first parts))))))
 
 ;;; applications can redefine this to do special actions to initialize a session
 (defun new-session-hook (req ent)

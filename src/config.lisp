@@ -6,8 +6,8 @@
 
 (defparameter *system-name* "WuWei")
 (defparameter *developer-mode* nil)
-(defparameter *cookie-name* (string+ *system-name* "-session"))		   ;+++ should be done dynamicaly from *system-name*
-(defparameter *bug-report-url* "https://github.com/mtravers/wuwei/issues") ;+++ not actually used anywhere.
+(defparameter *bug-report-url* "https://github.com/mtravers/wuwei/issues") 
+(defparameter *session-secret* "barbie says: security is hard")		   ;For hashing session cookies. Should be set to something unique for each server.
 
 ;;; Timeout for stored Ajax continuations
 (defparameter *default-responder-timeout* (* 30 60))
