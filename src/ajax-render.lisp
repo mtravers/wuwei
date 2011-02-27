@@ -463,7 +463,7 @@ Here's an example of combining render-update operations:
      ":stop-propagation?   Stop propagation of events to parents. Forces :in-function? to be nil"
      )
   (when stop-propagation?
-    (setq in-function? nil))
+    (setq in-function? nil))		;incompatible, at least for now.
   (when spinner
     (let ((spin-js (format nil "add_spinner('~A');" spinner))
           (nospin-js (format nil "remove_spinner('~A');" spinner)))
@@ -494,7 +494,6 @@ Here's an example of combining render-update operations:
     (when after (setf result (string+ result after)))
     (when confirm (setf result (format nil "if (confirm('~A')) { ~A };" confirm result)))
     (when stop-propagation?
-;      (setf result (format nil "function (e) {~A Event.stop(e); }"  result)))
       (setf result (format nil "~A Event.stop(event);"  result)))
     result))
 
