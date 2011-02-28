@@ -42,17 +42,18 @@
 
 ;;; Bound by session handler to the session name (a keyword)
 (defvar *session* nil)
-(defvar *system-start-time* (princ-to-string (get-universal-time)))
+(defvar *system-start-time* (get-universal-time))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defparameter *default-login-handler* nil))
 
+(defparameter *cookie-name* (string+ *system-name* "-session"))
+
 ;;; Note: has to be OUTSIDE with-http-response-and-body or equiv
 ;;; +++ this expands body multiple times, bad.
 (defmacro with-session ((req ent &key (login-handler *default-login-handler*)) &body body)
-  `(let ((*session* (keywordize (cookie-value ,req *cookie-name*)))
-	 (session-time (cookie-value ,req (string+ *cookie-name* "-time"))))
-     (cond ((session-named *session* t session-time)
+  `(let ((*session* (parse-and-validate-cookie (cookie-value ,req *cookie-name*))))
+     (cond ((session-named *session* t)
 	    (with-session-variables 
 	      ,@body))
 	   (,login-handler
@@ -64,8 +65,6 @@
 	    ))))
 
 (defvar *session-counter* 0)
-
-
     
 ;;; Session management
 
@@ -90,10 +89,8 @@
 	 (dolist (v *session-variables*)
 	   (set-session-variable-value *session* v (symbol-value v)))))))
 
-(defun session-named (session-key &optional no-error? (time nil time-provided?))
-  (cond ((and (or (not time-provided?)
-		  (equal time *system-start-time*))
-	      (gethash session-key *sessions*)))
+(defun session-named (session-key &optional no-error?)
+  (cond ((gethash session-key *sessions*))
 	(no-error? nil)
 	(t (error "Session ~A not found" session-key))))
 
@@ -105,16 +102,46 @@
   (setf (gethash var (session-named session)) val))
       
 (defun make-new-session (req ent)
-  (declare (ignore ent))
   ;; this did use gensym but OpenMCL's implementation is broken.
   (let ((*session* (keywordize (format nil "S~A" (incf *session-counter*)))))
     (when req
-      (set-cookie-header req :name *cookie-name* :value (string *session*))
-      (set-cookie-header req :name (string+ *cookie-name* "-time") :value (fast-string *system-start-time*)))
+      (set-cookie-header req :name *cookie-name* :value (generate-cookie) :expires :never))
     (setf (gethash *session* *sessions*) (make-hash-table :test #'eq))
     (with-session-variables
       (new-session-hook req ent))
     *session*))
+
+;;; New secure cookies. 
+#|
+Theory: there's one cookie that points to the session state on the server.  The cookie is of the form:
+    <session-key>|<system-start-time>|<hash>
+The hash prevents forgery; the system-start-time ensures that if the server is restarted all saved session cookies will
+be invalidated.
+
+This may be wrong. Maybe credentials should also be stored; so if the server is rebooted the user isn't forced to log
+in again.
+
+|#
+
+
+(defun generate-cookie ()
+  (let* ((part1 (format nil "~A|~X" *session* *system-start-time*))
+	 (hash (excl:md5-string (string+ part1 *session-secret*))))
+    (format nil "~A|~X" part1 hash)))
+
+;;; Input: cookie value, output: session keyword
+(defun parse-and-validate-cookie (value)
+  (when value
+    (report-and-ignore-errors 
+      (let* ((parts (string-split value #\|)))
+	(unless (and (= 3 (length parts))
+		     (= (parse-integer (third parts) :radix 16)
+			(excl:md5-string (string+ (first parts) "|" (second parts) *session-secret*))))
+	  (error "Invalid session cookie ~A" value))
+	(unless (= (parse-integer (second parts) :radix 16)
+		   *system-start-time*)
+	  (error "Expired session cookie ~A" value))
+	(keywordize (first parts))))))
 
 ;;; applications can redefine this to do special actions to initialize a session
 (defun new-session-hook (req ent)
