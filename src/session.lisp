@@ -123,11 +123,16 @@ in again.
 
 |#
 
+#-ALLEGRO (ql:quickload "ironclad")
+
+(defun string-md5 (string)
+  #+ALLEGRO (let ((*print-base* 16)) (princ-to-string (excl:md5-string string)))
+  #-ALLEGRO (ironclad:byte-array-to-hex-string (ironclad:digest-sequence :md5 string)))
 
 (defun generate-cookie ()
   (let* ((part1 (format nil "~A|~X" *session* *system-start-time*))
-	 (hash (excl:md5-string (string+ part1 *session-secret*))))
-    (format nil "~A|~X" part1 hash)))
+	 (hash (string-md5 (string+ part1 *session-secret*))))
+    (format nil "~A|~A" part1 hash)))
 
 ;;; Input: cookie value, output: session keyword
 (defun parse-and-validate-cookie (value)
@@ -135,8 +140,8 @@ in again.
     (report-and-ignore-errors 
       (let* ((parts (string-split value #\|)))
 	(unless (and (= 3 (length parts))
-		     (= (parse-integer (third parts) :radix 16)
-			(excl:md5-string (string+ (first parts) "|" (second parts) *session-secret*))))
+		     (equal (third parts)
+			    (string-md5 (string+ (first parts) "|" (second parts) *session-secret*))))
 	  (error "Invalid session cookie ~A" value))
 	(unless (= (parse-integer (second parts) :radix 16)
 		   *system-start-time*)
