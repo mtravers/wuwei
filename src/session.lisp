@@ -123,8 +123,6 @@ in again.
 
 |#
 
-#-ALLEGRO (ql:quickload "ironclad")
-
 (defun string-md5 (string)
   #+ALLEGRO (let ((*print-base* 16)) (princ-to-string (excl:md5-string string)))
   #-ALLEGRO (ironclad:byte-array-to-hex-string (ironclad:digest-sequence :md5 string)))

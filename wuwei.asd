@@ -12,7 +12,7 @@
     :author "Mike Travers <mt@hyperphor.com>"
     :license "MIT"
     :serial t
-    :depends-on (#-ALLEGRO :aserve #-:CL-JSON :cl-json :mtlisp)
+    :depends-on (#-ALLEGRO :aserve #-:CL-JSON :cl-json :mtlisp #-ALLEGRO :ironclad)
     :components 
     ((:static-file "wuwei.asd")
      (:module :src
