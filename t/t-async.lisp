@@ -1,5 +1,9 @@
 (in-package :wu)
 
+(5am:def-suite :async :in :wuwei)
+(5am:in-suite :async)
+;;; +++ write tests (or flush)
+
 ;;; An example of the use of ASYNC.
 
 (publish :path "/async-test"
