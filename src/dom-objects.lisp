@@ -103,23 +103,37 @@ Notes:
     (let ((total-pages (total-pages object)))
       (when (> total-pages 1)
 	(flet ((page-link (i &optional (label (princ-to-string (1+ i))))
-		 (link-to-remote label
-				 (ajax-continuation ()
-				   (setf current-page i)
-				   (element-update object)))))
+		 (html
+		   (if (= i current-page)
+		       (html (:b (:princ (1+ i))))
+		       (link-to-remote label
+				       (ajax-continuation ()
+					 (setf current-page i)
+					 (element-update object))))
+		   (nbsp))
+		 ))
 	  (unless (zerop current-page)
 	    (page-link (- current-page 1) "Prev"))
 	  (nbsp)
-	  (dotimes (i total-pages)
-	    (let ((i i))		;i i i!
-	      (html
-	       (if (= i current-page)
-		   (html (:b (:princ (1+ i))))
-		   (page-link i))
-	       (nbsp))))
+	  (if (< total-pages 16)	
+	      (dotimes (i total-pages)
+		(page-link i))
+	      ;; Too many pages, elide some
+	      (let ((pages (sort (mt:union* (list (mt:integers 0 2)
+						  (mt:integers (max 0 (- current-page 2))
+							       (min (1- total-pages) (+ current-page 2)))
+						  (mt:integers (- total-pages 3) (1- total-pages))))
+				 #'<))
+		    (last -1))
+		(dolist (i pages)
+		  (unless (= last (- i 1))
+		    (html (:princ "...")))
+		  (page-link i)
+		  (setq last i))))
 	  (unless (= current-page (1- total-pages))
 	    (page-link (+ current-page 1) "Next"))
 	  )))))
+
 
 ;;; Paging from a fixed list
 

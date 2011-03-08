@@ -135,7 +135,7 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
     (push `("submitOnBlur" . "true") options))
   (let ((current-value value))
     (html 
-     ((:span :id id :name name :if* class :class class); :style "border:1px solid gray"
+     ((:span :id id :if* name :name name :if* class :class class); :style "border:1px solid gray"
       (if current-value
 	  (html (:princ current-value)))) ;was :princ-safe, but this lets you use html markup
      (when editable?
