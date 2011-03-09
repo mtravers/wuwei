@@ -80,7 +80,8 @@ Notes:
 
 (defclass paging-mixin (html-element)
   ((page-size :initarg :page-size :initform 25)
-   (current-page :initform 0 :accessor current-page)))
+   (current-page :initform 0 :accessor current-page) ;page number or NIL to show all
+   (show-all? :initform nil :initarg :show-all?))) ;T to generate a show-all link
  
 ;;; Returns a count of the total size of the paged set
 (defgeneric total-size (paged-element))
@@ -89,37 +90,56 @@ Notes:
 
 (defmethod display-base ((object paging-mixin))
   (with-slots (page-size current-page) object
-    (* page-size current-page)))
+    (if current-page
+	(* page-size current-page)
+	0)))
 
 (defmethod total-pages ((object paging-mixin))
-  (with-slots (page-size current-page) object
+  (with-slots (page-size) object
     (ceiling (total-size object) page-size)))
 
 ;;; Kind of wasteful to make a separate continuation for each page? ++
 ;;; Also needs to trim list down 
 ;;; should be customizable or use css classes +++
 (defmethod render-paging-controls ((object paging-mixin))
-  (with-slots (page-size current-page) object
+  (with-slots (page-size current-page show-all?) object
     (let ((total-pages (total-pages object)))
       (when (> total-pages 1)
 	(flet ((page-link (i &optional (label (princ-to-string (1+ i))))
-		 (link-to-remote label
-				 (ajax-continuation ()
-				   (setf current-page i)
-				   (element-update object)))))
-	  (unless (zerop current-page)
+		 (html
+		   (if (eql i current-page)
+		       (html (:b (:princ label)))
+		       (link-to-remote label
+				       (ajax-continuation ()
+					 (setf current-page i)
+					 (element-update object))))
+		   (nbsp))
+		 ))
+	  (unless (or (not current-page) (zerop current-page))
 	    (page-link (- current-page 1) "Prev"))
 	  (nbsp)
-	  (dotimes (i total-pages)
-	    (let ((i i))		;i i i!
-	      (html
-	       (if (= i current-page)
-		   (html (:b (:princ (1+ i))))
-		   (page-link i))
-	       (nbsp))))
-	  (unless (= current-page (1- total-pages))
+	  (if (< total-pages 16)	
+	      (dotimes (i total-pages)
+		(page-link i))
+	      ;; Too many pages, elide some
+	      (let ((pages (sort (mt:union* (list (mt:integers 0 2)
+						  (when current-page
+						    (mt:integers (max 0 (- current-page 2))
+								 (min (1- total-pages) (+ current-page 2))))
+						  (mt:integers (- total-pages 3) (1- total-pages))))
+				 #'<))
+		    (last -1))
+		(dolist (i pages)
+		  (unless (= last (- i 1))
+		    (html (:princ "...")))
+		  (page-link i)
+		  (setq last i))))
+	  (unless (or (not current-page) (= current-page (1- total-pages)))
 	    (page-link (+ current-page 1) "Next"))
+	  (when show-all?
+	    (page-link nil "Show all"))
 	  )))))
+
 
 ;;; Paging from a fixed list
 
@@ -132,6 +152,8 @@ Notes:
 
 (defmethod display-list ((object list-paging-mixin))
   (with-slots (page-size current-page list) object
-    (mt:subseq-safe list (* page-size current-page) (* page-size (1+ current-page)))))
+    (if current-page
+	(mt:subseq-safe list (* page-size current-page) (* page-size (1+ current-page)))
+	list)))
 
 
