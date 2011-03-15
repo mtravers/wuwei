@@ -50,3 +50,12 @@ div.auto_complete ul strong.highlight {
     padding: 2px;
     margin: 2px;
 }
+.flash {
+    background-color: #FDD;
+    border: 1px solid gray;    
+    padding: 5px;
+    margin: 2px;
+}
+.ex {
+    float: right;
+}
