@@ -43,6 +43,8 @@ Notes:
 	  
 	  paging-mixin display-base display-list total-size render-paging-controls
 	  page-size current-page
+
+	  flash-box flash-message
 	  ))
 
 (defclass* html-element ()
@@ -155,5 +157,30 @@ Notes:
     (if current-page
 	(mt:subseq-safe list (* page-size current-page) (* page-size (1+ current-page)))
 	list)))
+
+
+;;; Flash
+
+(def-session-variable *flash-messages* nil)
+
+(defun flash-message (msg)
+  (mt:push-end msg *flash-messages*))
+
+(defclass flash-box (html-element)
+  ()
+  (:default-initargs :dom-id "flash"))
+
+(defmethod element-render ((box flash-box))
+  (when *flash-messages*
+    (html
+     ((:div :class "flash" :id "flash")
+      ((:img :src (public-url "images/ex.png") :class "ex" :onclick "Element.remove($('flash'))"))
+      (dolist (msg *flash-messages*)
+	(html
+	 ((:div :class "flash_i")
+	  (:princ-safe msg))))))
+    (setf *flash-messages* nil)))
+
+
 
 
