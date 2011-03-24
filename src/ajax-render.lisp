@@ -320,7 +320,7 @@ Here's an example of combining render-update operations:
       (unpublish-path (cadr item)))
     (setf *responder-timeouts* (nset-difference *responder-timeouts* expired))))
 
-(eval-when (:load-toplevel)
+(eval-when (:load-toplevel :execute)
   (in-background "Responder timeout"
                  (loop
                     (sleep (floor *default-responder-timeout* 2))
