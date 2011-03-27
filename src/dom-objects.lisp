@@ -105,8 +105,6 @@ Notes:
 ;;; should be customizable or use css classes +++
 (defmethod render-paging-controls ((object paging-mixin))
   (with-slots (page-size current-page show-all?) object
-    (let ((total-pages (total-pages object)))
-      (when (> total-pages 1)
 	(flet ((page-link (i &optional (label (princ-to-string (1+ i))))
 		 (html
 		   (if (eql i current-page)
@@ -117,30 +115,34 @@ Notes:
 					 (element-update object))))
 		   (nbsp))
 		 ))
-	  (unless (or (not current-page) (zerop current-page))
-	    (page-link (- current-page 1) "Prev"))
-	  (nbsp)
-	  (if (< total-pages 16)	
-	      (dotimes (i total-pages)
-		(page-link i))
-	      ;; Too many pages, elide some
-	      (let ((pages (sort (mt:union* (list (mt:integers 0 2)
-						  (when current-page
-						    (mt:integers (max 0 (- current-page 2))
-								 (min (1- total-pages) (+ current-page 2))))
-						  (mt:integers (- total-pages 3) (1- total-pages))))
-				 #'<))
-		    (last -1))
-		(dolist (i pages)
-		  (unless (= last (- i 1))
-		    (html (:princ "...")))
-		  (page-link i)
-		  (setq last i))))
-	  (unless (or (not current-page) (= current-page (1- total-pages)))
-	    (page-link (+ current-page 1) "Next"))
+	  (if (and show-all? (null current-page))
+	      (page-link 0 "Show paged")
+	      (let ((total-pages (total-pages object)))
+		(when (> total-pages 1)
+		  (unless (or (not current-page) (zerop current-page))
+		    (page-link (- current-page 1) "Prev"))
+		  (nbsp)
+		  (if (< total-pages 16)	
+		      (dotimes (i total-pages)
+			(page-link i))
+		      ;; Too many pages, elide some
+		      (let ((pages (sort (mt:union* (list (mt:integers 0 2)
+							  (when current-page
+							    (mt:integers (max 0 (- current-page 2))
+									 (min (1- total-pages) (+ current-page 2))))
+							  (mt:integers (- total-pages 3) (1- total-pages))))
+					 #'<))
+			    (last -1))
+			(dolist (i pages)
+			  (unless (= last (- i 1))
+			    (html (:princ "...")))
+			  (page-link i)
+			  (setq last i))))
+		  (unless (or (not current-page) (= current-page (1- total-pages)))
+		    (page-link (+ current-page 1) "Next")))))
 	  (when show-all?
 	    (page-link nil "Show all"))
-	  )))))
+	  )))
 
 
 ;;; Paging from a fixed list
