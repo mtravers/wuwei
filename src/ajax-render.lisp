@@ -148,7 +148,7 @@ Here's an example of combining render-update operations:
   `(format *html-stream* "~%Effect.~A('~A', ~A);" (camel-case (string ,effect)) ,elt (json-options (list ,@options))))
 
 (define-render-update :alert (message)
-  `(format *html-stream* "~%alert('~A');" ,message))
+  `(format *html-stream* "~%alert('~A');" (escape-single-quotes ,message)))
 
 ;;; dynamically bound to allow some things to change their behaviors.
 (defvar *within-render-update* nil)
