@@ -100,6 +100,11 @@ Notes:
   (with-slots (page-size) object
     (ceiling (total-size object) page-size)))
 
+(defmethod element-update :before ((object paging-mixin))
+  (with-slots (current-page) object
+    (setf current-page (min current-page (total-pages object)))
+    ))
+
 ;;; Kind of wasteful to make a separate continuation for each page? ++
 ;;; Also needs to trim list down 
 ;;; should be customizable or use css classes +++
@@ -117,7 +122,6 @@ Notes:
 	     ))
       (let ((total-pages (total-pages object)))
 	(when (> total-pages 1)
-
 	  (if (and show-all? (null current-page))
 	      (page-link 0 "Show paged")
 	      (unless (or (not current-page) (zerop current-page))
