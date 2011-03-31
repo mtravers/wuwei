@@ -102,8 +102,9 @@ Notes:
 
 (defmethod element-update :before ((object paging-mixin))
   (with-slots (current-page) object
-    (setf current-page (min current-page (total-pages object)))
-    ))
+    (when current-page
+      (setf current-page (min current-page (total-pages object)))
+      )))
 
 ;;; Kind of wasteful to make a separate continuation for each page? ++
 ;;; Also needs to trim list down 
