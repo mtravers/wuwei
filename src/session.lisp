@@ -161,22 +161,33 @@ in again.
 	 :function 'session-debug-page)
 
 (defun session-debug-page (req ent)
-  (when *developer-mode*
-    (with-session (req ent)
-      (with-http-response-and-body (req ent)
-	(html
-	  (:head
-	   (css-includes "wuwei.css"))
-	  (:h1 "Session State")
-	  (:p "Session name: " (:princ *session*))
-	  ((:table :border 1)
-	   (dolist (v *session-variables*)
-	     (html
-	       (:tr
-		(:td (:princ-safe (prin1-to-string v)))
-		(:td (:princ-safe (prin1-to-string (eval v))))))))
-	  (link-to "Reset session" "/session-reset")
-	  )))))
+  (with-session (req ent)
+    (with-http-response-and-body (req ent)
+      (html
+       (:head
+	(css-includes "wuwei.css"))
+       (:h1 "Session State")
+       (if *developer-mode*
+	    (html
+	     (:h2 "Cookies")
+	     ((:table :border 1)
+	      (dolist (v (get-cookie-values req))
+		(html
+		 (:tr
+		  (:td (:princ-safe (car v)))
+		  (:td (:princ-safe (cdr v)))))))
+	     (:h2 "Session state")
+	     (:p "Session name: " (:princ *session*))
+	     ((:table :border 1)
+	      (dolist (v *session-variables*)
+		(html
+		 (:tr
+		  (:td (:princ-safe (prin1-to-string v)))
+		  (:td (:princ-safe (prin1-to-string (eval v))))))))
+	     (link-to "Reset session" "/session-reset")
+	     )
+	    (html (:princ "Sorry, not in developer mode")))))))
+
 
 (publish :path "/session-reset"
 	 :function 
