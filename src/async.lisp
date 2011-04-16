@@ -32,7 +32,7 @@
 (export '(async))
 
 ;;; Render a DIV with PRE-TEXT now, and replace it with the results of BODY when that completes.
-;;; Note that theuse of continuations replaces a ton of special-purpose machinery.
+;;; Note that the use of continuations replaces a ton of special-purpose machinery.
 
 (defmacro async ((&key (pre-text "waiting...") spinner) &body body)
   `(let ((%id (gensym "async")))

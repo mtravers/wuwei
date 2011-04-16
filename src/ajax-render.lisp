@@ -474,7 +474,7 @@ Here's an example of combining render-update operations:
                          (string+ nospin-js complete)
                          nospin-js))))
   (let ((result
-         (format nil "new Ajax.Request('~A', ~A); ~:[~;return false;~]"
+         (format nil "new Ajax.Request('~A', ~A);"
                  url
                  (json-options `(:asynchronous t
                                                :parameters ,(if form
@@ -488,13 +488,15 @@ Here's an example of combining render-update operations:
                                                ,@(if failure `("onFailure" (:raw ,(format nil "function(request){~A}" failure))))
                                                ,@(if eval-scripts? `("evalScripts" t))
                                                ))
-                 in-function?)))
+		 )))
 
     (when before (setf result (string+ before result)))
     (when after (setf result (string+ result after)))
     (when confirm (setf result (format nil "if (confirm('~A')) { ~A };" confirm result)))
     (when stop-propagation?
       (setf result (format nil "~A Event.stop(event);"  result)))
+    (when in-function?
+      (setf result (string+ result "return false;")))
     result))
 
 
