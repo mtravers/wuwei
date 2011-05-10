@@ -61,6 +61,7 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
 			    textarea
 			    (update (string+ id "_auto_complete"))
 			    input-options
+			    (scroll? 30)
 			    )
   #.(doc "Generate an HTML autocompletion field. Arguments below (all except completions-url are optional)"
 	 "ID - the HTML ID of the element"
@@ -73,7 +74,8 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
 	 "EMBEDDED-HTML - T if strings can contain HTML markup"
 	 "COMPLETIONS-URL - a URL that supplies the completions.  Either this or COMPLETIONS-GENERATOR must be supplied, but not both"
 	 "ON-SELECTED - a function that is called with the value, value string, and id of the selected option"
-	 "UPDATE - the HTML ID of the autocompletion box")
+	 "UPDATE - the HTML ID of the autocompletion box"
+	 "SCROLL? - If an integer, add scroll bar if more completions than this (default to 30)")
   (flet ((default-option (optname value)
 	   (unless (member optname options :key #'car :test #'equal)
 	     (push (cons optname value) options))))
@@ -85,14 +87,15 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
     (assert completions-generator)
     (setq completions-url
 	  (ajax-continuation (:args (prefix) :keep t :name "ac_completions") 
-	    (html
-	     (:ul
-	      (dolist (completion (funcall completions-generator prefix))
-		(html
-		 ((:li :id (car completion))
-		  (if embedded-html
-		      (html (:princ (cdr completion)))
-		      (html (:princ-safe (cdr completion))))))))))))
+	    (let ((completions (funcall completions-generator prefix)))
+	      (html
+	       ((:ul :if* (> (length completions) 30) :style "height:500px;overflow:scroll;")
+		(dolist (completion completions)
+		  (html
+		   ((:li :id (car completion))
+		    (if embedded-html
+			(html (:princ (cdr completion)))
+			(html (:princ-safe (cdr completion)))))))))))))
   (if textarea
       (html ((:textarea :id id :name name :do* input-options) 
 	     (if value (html (:princ-safe value)))))
