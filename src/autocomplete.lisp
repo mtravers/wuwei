@@ -62,6 +62,7 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
 			    (update (string+ id "_auto_complete"))
 			    input-options
 			    (scroll? 30)
+			    spinner?
 			    )
   #.(doc "Generate an HTML autocompletion field. Arguments below (all except completions-url are optional)"
 	 "ID - the HTML ID of the element"
@@ -75,14 +76,17 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
 	 "COMPLETIONS-URL - a URL that supplies the completions.  Either this or COMPLETIONS-GENERATOR must be supplied, but not both"
 	 "ON-SELECTED - a function that is called with the value, value string, and id of the selected option"
 	 "UPDATE - the HTML ID of the autocompletion box"
-	 "SCROLL? - If an integer, add scroll bar if more completions than this (default to 30)")
+	 "SCROLL? - If an integer, add scroll bar if more completions than this (default to 30)"
+	 "SPINNER? - T to show a spinner while fetching completions")
   (flet ((default-option (optname value)
 	   (unless (member optname options :key #'car :test #'equal)
 	     (push (cons optname value) options))))
     (default-option "paramName" "prefix")
     (when on-selected
       (default-option "afterUpdateElement" 
-	  `(:raw "postAutocomplete"))))
+	  `(:raw "postAutocomplete")))
+    (when spinner?
+      (default-option "indicator" (string+ id "_spin"))))
   (unless completions-url
     (assert completions-generator)
     (setq completions-url
@@ -100,6 +104,9 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
       (html ((:textarea :id id :name name :do* input-options) 
 	     (if value (html (:princ-safe value)))))
       (html ((:input :id id :name name :if* value :value value :do* input-options))))
+  (if spinner?
+      (html 
+       ((:img :src "/wupub/images/spinner.gif" :id (string+ id "_spin") :style "display:none;"))))
   (render-scripts
     ;; put the autocomplete div somewhere where it won't get clipped
     (:insert :bottom "body"		
