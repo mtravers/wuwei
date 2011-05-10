@@ -28,7 +28,7 @@ function setupAutocomplete(input, continuation) {
     // 	}
     // });
 }
-		 
+
 
 function postAutocomplete(text, li) {
     var continuation = text.continuation;
@@ -37,49 +37,51 @@ function postAutocomplete(text, li) {
     var id = text.id
     if (continuation != null) {
 	new Ajax.Request(continuation, {asynchronous:true, evalScripts:true, parameters: {value: value, value_string: value_string, id: id} });
-//	text.continuation = null;
+	//	text.continuation = null;
     }
 }
 
 // inplace editor support
 
 // stupid that this isn't in the thing to being with.
-Ajax.InPlaceEditorWithEmptyText = Class.create(Ajax.InPlaceEditor, {
+if (Ajax.InPlaceEditor != null) {
+    Ajax.InPlaceEditorWithEmptyText = Class.create(Ajax.InPlaceEditor, {
 
-  initialize : function($super, element, url, options) {
-    if (!options.emptyText)        options.emptyText      = "click to edit…";
-    if (!options.emptyClassName)   options.emptyClassName = "inplaceeditor-empty";
-    $super(element, url, options);
-    this.checkEmpty();
-  },
+	initialize : function($super, element, url, options) {
+	    if (!options.emptyText)        options.emptyText      = "click to edit…";
+	    if (!options.emptyClassName)   options.emptyClassName = "inplaceeditor-empty";
+	    $super(element, url, options);
+	    this.checkEmpty();
+	},
 
-  checkEmpty : function() {
-    if (this.element.innerHTML.length == 0 && this.options.emptyText) {
-      this.element.appendChild(
-          new Element('span', { className : this.options.emptyClassName }).update(this.options.emptyText)
-        );
-    }
-  },
+	checkEmpty : function() {
+	    if (this.element.innerHTML.length == 0 && this.options.emptyText) {
+		this.element.appendChild(
+		    new Element('span', { className : this.options.emptyClassName }).update(this.options.emptyText)
+		);
+	    }
+	},
 
-  getText : function($super) {
-      if (empty_span = this.element.select('.' + this.options.emptyClassName).first()) {
-      empty_span.remove();
-    }
-    return $super();
-  },
+	getText : function($super) {
+	    if (empty_span = this.element.select('.' + this.options.emptyClassName).first()) {
+		empty_span.remove();
+	    }
+	    return $super();
+	},
 
-  onComplete : function($super, transport) {
-    this.checkEmpty();
-    return $super(transport);
-  },
+	onComplete : function($super, transport) {
+	    this.checkEmpty();
+	    return $super(transport);
+	},
 
-  wrapUp: function(transport) {
-      this.leaveEditMode();
-      this.checkEmpty();
-      // Can't use triggerCallback due to backward compatibility: requires
-      // binding + direct element
-      this._boundComplete(transport, this.element);
-  }
+	wrapUp: function(transport) {
+	    this.leaveEditMode();
+	    this.checkEmpty();
+	    // Can't use triggerCallback due to backward compatibility: requires
+	    // binding + direct element
+	    this._boundComplete(transport, this.element);
+	}
 
 
-});
+    });
+}
