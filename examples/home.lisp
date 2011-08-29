@@ -60,6 +60,10 @@
 		   (:li ((:a :href "/color-demo") "Ajax forms and third party javascript libraries"))
 		   (:li ((:a :href "/mql-autocomplete-simple-demo") "Autocomplete field"))
 		   (:li ((:a :href "/state-demo") "Session variables and state maintenance")))
+		  (:h4 "Users")
+		  (:ul
+		   (:li ((: :href "http://collabrx.com") "CollabRx"))
+		   (:li ((:a :href "http://biocyc.org/") "BioCyc") ))
 		  (tracker)
 		  )))))
 
