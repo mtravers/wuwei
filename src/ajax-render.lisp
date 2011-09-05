@@ -254,7 +254,7 @@ Here's an example of combining render-update operations:
               :function (named-lambda ,path (req ent)
 			  (let* ((*multipart-request* (multipart? req))
 				 (*ajax-request* req)
-				 (content-type (or ,content-type (if *multipart-request* "text/html" "text/javascript"))))
+				 (content-type ,(or content-type `(if *multipart-request* "text/html" "text/javascript"))))
 			    (,@(if session 
 				   `(with-session (req ent ,@(if login-handler `(:login-handler ,login-handler))))
 				   '(progn))

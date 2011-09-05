@@ -93,7 +93,7 @@ Requires a DOM element named "body" to control where the autocomplete box gets i
 	  (ajax-continuation (:args (prefix) :keep t :name "ac_completions") 
 	    (let ((completions (funcall completions-generator prefix)))
 	      (html
-	       ((:ul :if* (> (length completions) 30) :style "height:500px;overflow:scroll;")
+	       ((:ul :if* (> (length completions) scroll?) :style "height:500px;overflow:scroll;")
 		(dolist (completion completions)
 		  (html
 		   ((:li :id (car completion))

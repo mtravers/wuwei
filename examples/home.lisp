@@ -62,7 +62,7 @@
 		   (:li ((:a :href "/state-demo") "Session variables and state maintenance")))
 		  (:h4 "Users")
 		  (:ul
-		   (:li ((: :href "http://collabrx.com") "CollabRx"))
+		   (:li ((:a :href "http://collabrx.com") "CollabRx"))
 		   (:li ((:a :href "http://biocyc.org/") "BioCyc") ))
 		  (tracker)
 		  )))))

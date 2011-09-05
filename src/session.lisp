@@ -31,7 +31,8 @@
 ;;; Session management
 
 (export '(cookie-value
-	  with-session def-session-variable delete-session new-session-hook))
+	  with-session def-session-variable delete-session new-session-hook
+	  *aserve-request*))
 
 ;;; +++ these need to get timed out, otherwise they will accumulate ad infinitum
 
@@ -49,10 +50,16 @@
 
 (defparameter *cookie-name* (string+ *system-name* "-session"))
 
+;;; Dynamic bound to current request, makes life much easier
+;;; Bound in with-session, but should be universal
+;;; There is an aserve variable that is probably better to use, net.aserve::*worker-request* +++
+(defvar *aserve-request* nil)
+
 ;;; Note: has to be OUTSIDE with-http-response-and-body or equiv
 ;;; +++ this expands body multiple times, bad.
 (defmacro with-session ((req ent &key (login-handler *default-login-handler*)) &body body)
-  `(let ((*session* (parse-and-validate-cookie (cookie-value ,req *cookie-name*))))
+  `(let ((*aserve-request* ,req)
+	 (*session* (parse-and-validate-cookie (cookie-value ,req *cookie-name*))))
      (cond ((session-named *session* t)
 	    (with-session-variables 
 	      ,@body))
