@@ -32,6 +32,7 @@
 	     (:file "net-utils")
 	     (:file "web")
 	     (:file "ajax-render")
+	     (:file "wu")
 	     (:file "session")
 	     (:file "debug-utils")
 	     (:file "error")

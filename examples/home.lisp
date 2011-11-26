@@ -59,7 +59,8 @@
 		   (:li ((:a :href "/async-demo") "Asynchronus results and error handling"))
 		   (:li ((:a :href "/color-demo") "Ajax forms and third party javascript libraries"))
 		   (:li ((:a :href "/mql-autocomplete-simple-demo") "Autocomplete field"))
-		   (:li ((:a :href "/state-demo") "Session variables and state maintenance")))
+		   (:li ((:a :href "/state-demo") "Session variables and state maintenance"))
+		   (:li ((:a :href "/arc-challenge") "Answer to Paul Graham's ARC challenge")))
 		  (:h4 "Users")
 		  (:ul
 		   (:li ((:a :href "http://collabrx.com") "CollabRx"))

@@ -17,6 +17,9 @@
 	   #:html-string #:html-escape-string #:clean-js-string
 
 	   #:publish-ajax-update #:publish-ajax-func #:ajax-continuation 
+
+	   #:wu-publish #:wu-continuation #:wu-conversation
+
 	   #:*ajax-request* #:*within-render-update*
 
 	   #:image-tag 
