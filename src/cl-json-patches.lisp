@@ -12,6 +12,8 @@ New features, for encoding functions:
 TODO:  make these work in the decoding direction
 |#
 
+(#+:ALLEGRO excl:without-redefinition-warnings #-:ALLEGRO progn
+
 ;;; changed to compatible with cl-json 0.4 -- will break in earlier versions
 (defmethod encode-json ((s (eql :empty-dict)) &optional (stream *json-output*))
   (write-string "{}" stream))
@@ -33,3 +35,4 @@ TODO:  make these work in the decoding direction
       (return-from alistp nil))))
 
 
+);excl:without-redefinition-warnings

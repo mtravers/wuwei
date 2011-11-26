@@ -18,7 +18,7 @@
 
 	   #:publish-ajax-update #:publish-ajax-func #:ajax-continuation 
 
-	   #:wu-publish #:wu-continuation #:wu-conversation
+	   #:wu-publish #:wu-continuation #:wu-conversation #:-next-
 
 	   #:*ajax-request* #:*within-render-update*
 
