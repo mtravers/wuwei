@@ -1,6 +1,7 @@
 (in-package :wu)
 
 (publish :path "/fb-browse" 
+	 :content-type "text/html"
 	 :function 'fb-browse-page)
 
 (setq *default-no-session?* t)

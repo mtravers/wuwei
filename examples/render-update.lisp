@@ -3,6 +3,7 @@
 (publish-code)
 
 (publish :path "/render-update-demo" 
+	 :content-type "text/html"
 	 :function 'render-update-demo)
 
 (defun render-update-demo (req ent)

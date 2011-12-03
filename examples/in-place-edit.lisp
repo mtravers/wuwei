@@ -4,6 +4,7 @@
 ;;; Should exercise some of the extra features we layer on top of the scriptaculous control
 
 (publish :path "/in-place-edit-demo"
+	 :content-type "text/html"
 	 :function 'in-place-edit-demo)
 
 (publish-code)

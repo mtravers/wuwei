@@ -3,6 +3,7 @@
 ;;; +++ this is having json version trouble, should replace all keywords with strings in MQL.
 
 (publish :path "/mql-autocomplete-simple-demo"
+	 :content-type "text/html"
 	 :function 'mql-autocomplete-simple-demo)
 
 (publish-code)

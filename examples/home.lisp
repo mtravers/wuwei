@@ -23,6 +23,7 @@
   )
 
 (publish :path "/"
+	 :content-type "text/html"
 	 :function
 	 #'(lambda (req ent)
 	     (with-http-response-and-body (req ent)

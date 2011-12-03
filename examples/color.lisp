@@ -7,6 +7,7 @@ Illustrates:
 |#
 
 (publish :path "/color-demo"
+	 :content-type "text/html"
 	 :function 'color-demo)
 
 (publish-code)

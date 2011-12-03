@@ -9,6 +9,7 @@
       (* n (fact (- n 1)))))
 
 (publish :path "/async-demo"
+	 :content-type "text/html"
 	 :function 'async-demo)
 
 (defun async-demo (req ent)

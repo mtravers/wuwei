@@ -3,6 +3,7 @@
 (publish-code)
 
 (publish :path "/state-demo" 
+	 :content-type "text/html"
 	 :function 'state-demo)
 
 (def-session-variable *demo-counter* 0)
