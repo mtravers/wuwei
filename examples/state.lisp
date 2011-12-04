@@ -32,7 +32,8 @@
 	       (html
 		 :p
 		 "This counter is maintained in a session variable, so will persist across page refreshes and browser restarts.  "
-		 ((:a :href "/session-debug") "See or reset the session state")
+		 (when *developer-mode*
+		   (html ((:a :href "/session-debug") "See or reset the session state")))
 		 :br
 		 ((:span :id "s_c") (:princ *demo-counter*))
 		 (nbsp)

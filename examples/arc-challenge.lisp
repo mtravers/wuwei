@@ -22,24 +22,21 @@
 	 #'(lambda (req ent)
 	     (with-http-response-and-body (req ent)
 	       (html
-		((:form :action (ajax-continuation (:args (foo))
-				  (with-http-response-and-body (req ent)
-				    (html 
+		 ((:form :action (ajax-continuation (:args (foo) :content-type "text/html")
+				   (html 
 				     ((:a href (ajax-continuation ()
-						 (with-http-response-and-body (req ent)
-						   (html (:princ foo)))))
-				      "Click me")))))
-		 ((:input :name "foo"))
+						 (html (:princ foo))))
+				      "Click me"))))
+		  ((:input :name "foo"))
 		((:input :type :submit)))))))
 
 ;;; With high-level macros
 (wu-publish "/said2" 
-  (html
-    ((:form :action (wu-continuation (:args (foo))
-		      ((:a href (wu-continuation () (:princ foo)))
-		       "Click me")))
-     ((:input :name "foo"))
-     ((:input :type :submit)))))
+  ((:form :action (wu-continuation (:args (foo))
+		    ((:a href (wu-continuation () (:princ foo)))
+		     "Click me")))
+   ((:input :name "foo"))
+   ((:input :type :submit))))
 
 ;;; With partly-implict continuation management
 (wu-publish "/said3" 

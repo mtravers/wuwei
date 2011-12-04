@@ -254,12 +254,12 @@ Here's an example of combining render-update operations:
               :function (named-lambda ,path (req ent)
 			  (let* ((*multipart-request* (multipart? req))
 				 (*ajax-request* req)
+				 ;; +++ not sure what this condition on *multipart-request* was for, seems wrong
 				 (content-type ,(or content-type `(if *multipart-request* "text/html" "text/javascript"))))
 			    (,@(if session 
 				   `(with-session (req ent ,@(if login-handler `(:login-handler ,login-handler))))
 				   '(progn))
 			       (with-http-response-and-body (req ent :content-type content-type)
-
 				 (with-ajax-error-handler (,path)
 				   (with-render-update
 				     ,@body

@@ -59,6 +59,7 @@
 	      (:file "state")
 	      (:file "color")
 	      (:file "autocomplete-freebase")
+	      (:file "arc-challenge")
 	      ))))
 
 

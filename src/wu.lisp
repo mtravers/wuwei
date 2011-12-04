@@ -34,15 +34,17 @@ cleaner looking web code.
 ;;; Publish an explict URL, body is wrapped in lamda, response generation, HTML
 ;;; +++ Could extend URL to be list of url + options (eg content-type)
 (defmacro wu-publish (url &body body)
-  `(publish :path ,url :function #'(lambda (req ent) 
+  `(publish :path ,url :content-type "text/html"
+		       :function #'(lambda (req ent) 
 				   (with-http-response-and-body (req ent)
 				     (html
 				      ,@body)))))
 
-;;; As above, but generate a continuation url. OPTIONS are passed to AJAX-CONTINUATION
+;;; As above, A continuation that returns HTML (ajax-continuation by default returns javascript)
+;;; OPTIONS are passed to AJAX-CONTINUATION
+;;; Body is wrapped in HTML macro
 (defmacro wu-continuation (options &body body)
-  `(ajax-continuation ,options 
-    (with-http-response-and-body (req ent)
+  `(ajax-continuation (:content-type "text/html" ,@options )
       (html
        ,@body))))
 
