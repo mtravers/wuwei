@@ -46,7 +46,7 @@ cleaner looking web code.
 (defmacro wu-continuation (options &body body)
   `(ajax-continuation (:content-type "text/html" ,@options )
       (html
-       ,@body))))
+	,@body)))
 
 ;;; Generate a sequential series of actions, each a continuation of the next (eg a web progn).
 ;;; Each clause is of the form (<options> . <body>), options are passed to wu-continuation.
