@@ -112,7 +112,7 @@
   ;; this did use gensym but OpenMCL's implementation is broken.
   (let ((*session* (keywordize (format nil "S~A" (incf *session-counter*)))))
     (when req
-      (set-cookie-header req :name *cookie-name* :value (generate-cookie) :expires :never))
+      (set-cookie-header req :name *cookie-name* :value (generate-session-cookie) :expires :never))
     (setf (gethash *session* *sessions*) (make-hash-table :test #'eq))
     (with-session-variables
       (new-session-hook req ent))
@@ -134,7 +134,7 @@ in again.
   #+ALLEGRO (let ((*print-base* 16)) (princ-to-string (excl:md5-string string)))
   #-ALLEGRO (ironclad:byte-array-to-hex-string (ironclad:digest-sequence :md5 string)))
 
-(defun generate-cookie ()
+(defun generate-session-cookie ()
   (let* ((part1 (format nil "~A|~X" *session* *system-start-time*))
 	 (hash (string-md5 (string+ part1 *session-secret*))))
     (format nil "~A|~A" part1 hash)))

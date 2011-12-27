@@ -36,7 +36,7 @@
 	     (example-header #.(this-pathname))
 
 	     (:h3 "Async and error handling demo")
-	     (:princ "This demo shows off asynchronous results (with the async macro), error handling, and a few assorted other features.  The checkbox selects between tow different error handling styles.")
+	     (:princ "This demo shows off asynchronous results (with the async macro), error handling, and a few assorted other features.  The checkbox selects between two different error handling styles.")
 	     :p
 	     (checkbox-to-remote "Show errors on page?" 
 				 (ajax-continuation (:args (checked) :keep t)

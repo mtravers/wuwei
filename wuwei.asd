@@ -23,8 +23,8 @@
 	    ((:file "package")
 
 	     ;; Patches to existing systems
-;;; I believe this is no longer necessary
-;	     #-ALLEGRO (:file "aserve-patch")
+;;; I believe this is no longer necessary (oh but it is)
+	     #-ALLEGRO (:file "aserve-patch")
 	     (:file "htmlgen-patch")
 	     (:file "cl-json-patches")
      
