@@ -458,7 +458,7 @@ Here's an example of combining render-update operations:
      ":before    Javascript to run before the Ajax request"
      ":after     Javascript to run after the Ajax request"
      ":spinner   The ID of an elt, a spinner will be inserted after the elt before the Ajax request and removed when completed"
-     ":in-function?  "
+     ":in-function?  if T (default), returns a value of false from handler, blocking form submission. (+++ confusing name)"
      ":eval-scripts?  "
      ":stop-propagation?   Stop propagation of events to parents. Forces :in-function? to be nil"
      )

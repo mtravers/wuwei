@@ -64,11 +64,11 @@
 ;;; Define a directory and path for public files
 
 (defparameter *public-directory* (make-pathname 
-				  :defaults (this-pathname)
+				  :defaults (truename (this-pathname))
 				  :name nil
 				  :type nil
 				  :version nil
-				  :directory '#.(append (butlast (pathname-directory (this-pathname))) '("public"))))
+				  :directory '#.(append (butlast (pathname-directory (truename (this-pathname)))) '("public"))))
 
 ;;; +++ the expiry isn't working, hard to say why
 (publish-directory :destination (namestring *public-directory*)
