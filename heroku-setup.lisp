@@ -5,7 +5,7 @@
 (asdf:clear-system "wuwei")
 (asdf:clear-system "wuwei-examples")
 
-(load (make-pathname :directory *app-dir* :defaults "wuwei.asd"))
+(load (make-pathname :directory *build-dir* :defaults "wuwei.asd"))
 
 (ql:quickload :wuwei-examples)
 
