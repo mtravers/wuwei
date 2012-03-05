@@ -1,7 +1,5 @@
 (in-package :wu)
 
-(defparameter *demo-port* 8001)
-(start :port *demo-port*)
 ;(setq *developer-mode* t)		;necessary for the state demo
 
 (defmacro publish-code ()
