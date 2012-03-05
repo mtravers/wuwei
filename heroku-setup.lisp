@@ -1,6 +1,6 @@
 (in-package :cl-user)
 
-(print ">>> Building system....")
+(print ">>> Building system...")
 
 (asdf:clear-system "wuwei")
 (asdf:clear-system "wuwei-examples")
