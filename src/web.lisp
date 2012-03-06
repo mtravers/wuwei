@@ -63,14 +63,12 @@
 
 ;;; Define a directory and path for public files
 
-(defvar cl-user::*app-dir* (butlast (pathname-directory (truename (this-pathname)))))
-
 (defvar *public-directory* (make-pathname 
 			    :defaults (truename (this-pathname))
 			    :name nil
 			    :type nil
 			    :version nil
-			    :directory (append cl-user::*app-dir* '("public"))))
+			    :directory '(:relative "public")))
 
 ;;; +++ the expiry isn't working, hard to say why
 (publish-directory :destination (namestring *public-directory*)
