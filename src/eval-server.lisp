@@ -1,4 +1,4 @@
-(in-package :wb)
+(in-package :wu)
 
 ;;; An Eval server and page, for development and debugging
 ;;; Respects *developer-mode*
