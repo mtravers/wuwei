@@ -40,6 +40,7 @@
 	     (:file "async")
 	     (:file "autocomplete")
 	     (:file "dom-objects")
+	     (:file "eval-server")
 	     ))))
 
 (defsystem :wuwei-examples
