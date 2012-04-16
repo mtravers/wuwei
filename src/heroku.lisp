@@ -14,6 +14,6 @@
 	   )))
 
 ;;; Called from cl-user::initialize-application, which is called at startup
-(defun wuwei-initialize-application (&key (directory "./wupub/")))
+(defun wuwei-initialize-application (&key (directory "./wupub/"))
   (locate-public-directory directory)
   (setf *developer-mode* (equal (ccl:getenv "DEVELOPER_MODE") "Y")))  
