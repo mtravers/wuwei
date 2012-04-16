@@ -1,7 +1,9 @@
 (in-package :wu)
 
 ;;; An Eval server and page, for development and debugging
-;;; Respects *developer-mode*
+;;; Respects *developer-mode*.
+;;; On Heroku, turn on off with 
+;;; > heroku config:add DEVELOPER_MODE=Y[N]
 
 (publish :path "/eval-server"
 	 :function 'eval-server)
@@ -46,7 +48,7 @@
 					    (:princ-safe (cadr result)))
 					  (html 
 					    (:h4 "Result")
-					    (:princ-safe (car result))))))))
+					    (:princ-safe (prin1-to-string (car result)))))))))
 			))
 		    :form t))
 	    ((:textarea :name "form" :rows 4 :cols 100)) :br

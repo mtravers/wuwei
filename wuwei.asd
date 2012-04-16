@@ -42,6 +42,7 @@
 	     (:file "autocomplete")
 	     (:file "dom-objects")
 	     (:file "eval-server")
+	     (:file "heroku")
 	     ))))
 
 (defsystem :wuwei-examples
