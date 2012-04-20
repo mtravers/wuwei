@@ -42,7 +42,8 @@
 	     (:file "autocomplete")
 	     (:file "dom-objects")
 	     (:file "eval-server")
-	     (:file "heroku")
+	     ;; Currently I'm only supporting CCL for Heroku, but it wouldn't be hard to add other Lisps
+	     #+CCL (:file "heroku")
 	     ))))
 
 (defsystem :wuwei-examples
