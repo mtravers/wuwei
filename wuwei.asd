@@ -3,9 +3,6 @@
 #+ALLEGRO
 (require :aserve)
 
-(when (find-package :json)
-  (pushnew :cl-json *features*))
-
 (defsystem :wuwei
   :name "WuWei"
   :description "Tools for developing Ajaxy web applications"
@@ -14,7 +11,7 @@
   :author "Mike Travers <mt@hyperphor.com>"
   :license "MIT"
   :serial t
-  :depends-on (#-ALLEGRO :aserve #-:CL-JSON :cl-json :mtlisp #-ALLEGRO :ironclad)
+  :depends-on (#-ALLEGRO :aserve :cl-json :mtlisp #-ALLEGRO :ironclad)
   :components 
   ((:static-file "wuwei.asd")
    (:module :src
@@ -43,7 +40,7 @@
 	     (:file "dom-objects")
 	     (:file "eval-server")
 	     ;; Currently I'm only supporting CCL for Heroku, but it wouldn't be hard to add other Lisps
-	     #+CCL (:file "heroku")
+	     #+:CCL (:file "heroku")
 	     ))))
 
 (defsystem :wuwei-examples

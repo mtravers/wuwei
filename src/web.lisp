@@ -72,6 +72,7 @@
 ;;; Can be called at runtime to inform system where public files are.
 (defun locate-public-directory (&optional directory)
   (when directory (setq *public-directory* directory))
+  (format t "~%Wupub located at ~A" (truename *public-directory*))
   ;; +++ the expiry isn't working, hard to say why
   (publish-directory :destination (namestring *public-directory*)
 		     :prefix "/wupub/"
