@@ -2,12 +2,11 @@
 
 (print ">>> Building system....")
 
-(asdf:clear-system "wuwei")
-(asdf:clear-system "wuwei-examples")
+;(asdf:clear-system "wuwei")
+;(asdf:clear-system "wuwei-examples")
 
-(trace load)
-
-(load (make-pathname :directory *build-dir* :defaults "wuwei.asd"))
+;(load (make-pathname :directory *build-dir* :defaults "wuwei.asd"))
+(push (make-pathname :directory *build-dir*) asdf:*central-registry*)
 
 (ql:quickload :wuwei-examples)
 
