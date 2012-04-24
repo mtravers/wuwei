@@ -9,4 +9,6 @@
 
 (ql:quickload :wuwei-examples)
 
+(trace wu::wuwei-initialize-application wu::locate-public-directory cl-user::initialize-application)
+
 (print ">>> Done building system")
