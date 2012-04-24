@@ -2,10 +2,10 @@
 
 (print ">>> Building system....")
 
-(print *features*)
-
 (asdf:clear-system "wuwei")
 (asdf:clear-system "wuwei-examples")
+
+(trace load)
 
 (load (make-pathname :directory *build-dir* :defaults "wuwei.asd"))
 
