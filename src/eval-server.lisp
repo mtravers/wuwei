@@ -54,5 +54,5 @@
 	    ((:textarea :name "form" :rows 4 :cols 100)) :br
 	    ((:input :type :submit :value "Eval"))
 	    ((:div :id "result")))))
-	(html (:princ "Not enabled")))))
+	(html (:princ "Not enabled.")))))
 	   
