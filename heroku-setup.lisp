@@ -2,6 +2,8 @@
 
 (print ">>> Building system....")
 
+(print *features*)
+
 (asdf:clear-system "wuwei")
 (asdf:clear-system "wuwei-examples")
 
