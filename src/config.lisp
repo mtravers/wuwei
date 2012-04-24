@@ -5,7 +5,7 @@
 (export '(*system-name* *developer-mode* system-name))
 
 (defparameter *system-name* "WuWei")
-(defparameter *developer-mode* nil)
+(defparameter *developer-mode* nil)	;Warning: setting this true turns on an eval server that is a security risk
 (defparameter *bug-report-url* "https://github.com/mtravers/wuwei/issues") 
 (defparameter *session-secret* "barbie says: security is hard")		   ;For hashing session cookies. Should be set to something unique for each server.
 
@@ -16,4 +16,4 @@
   (if *developer-mode*
       (format nil "~A: ~A" (machine-instance) *system-name*)
       *system-name*))
-       
+

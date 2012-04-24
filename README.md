@@ -33,14 +33,21 @@ May be run at the demo site: [http://wuwei.name](http://wuwei.name)
 Easiest using QuickLisp:
 
 1. Install QuickLisp from http://www.quicklisp.org/
-2. Tell the install system where to find wuwei and mtlisp
+2. Tell the install system where to find wuwei and mtlisp:
+
      (push #p"/misc/repos/wuwei/" asdf:*central-registry*)
      (push #p"/misc/repos/mtlisp/")
-3. Load it:
+
+3. (OpenMCL only) Unfortunately there are some incompatabilities with the distributed version of Portable AllegroServe and OpenMCL, so:
+  - download [my patched version of aserve](https://github.com/mtravers/aserve)
+  - From that directory:
+
+    (load "acl-compat/acl-compat.asd")
+    (load "aserve/aserve.asd")
+
+4. Load everything:
+
      (ql:quickload "wuwei")
      (ql:quickload "wuwei-examples")  ; if wanted
 
-[** Note: in OpenMCL, you will need to manually patch a file in acl-compat:
-   ~/quicklisp/dists/quicklisp/software/portableaserve-20101006-cvs/acl-compat/mcl/acl-socket-openmcl.lisp
-   Add the keyword argument stream-args to the accept-connection method]
    

@@ -28,7 +28,7 @@
 
 ;;; Author:  Mike Travers
 
-(export '(*public-directory* public-url image-url
+(export '(*public-directory* locate-public-directory public-url image-url
 	  
 	  javascript-include javascript-includes css-include css-includes
 	  with-http-response-and-body	  
@@ -63,19 +63,24 @@
 
 ;;; Define a directory and path for public files
 
-(defparameter *public-directory* (make-pathname 
-				  :defaults (truename (this-pathname))
-				  :name nil
-				  :type nil
-				  :version nil
-				  :directory '#.(append (butlast (pathname-directory (truename (this-pathname)))) '("public"))))
+(defvar *public-directory* (make-pathname 
+			    :name nil
+			    :type nil
+			    :version nil
+			    :directory (append (butlast (pathname-directory #.(this-pathname))) '("public"))))
 
-;;; +++ the expiry isn't working, hard to say why
-(publish-directory :destination (namestring *public-directory*)
-                   :prefix "/wupub/"
-                   :headers `(("Cache-control" . ,(format nil "max-age=~A, public" 36000))
-			      ("Expires" . ,(net.aserve::universal-time-to-date (+ (get-universal-time) (* 20 60 60)))))
-		   )
+;;; Can be called at runtime to inform system where public files are.
+(defun locate-public-directory (&optional directory)
+  (when directory (setq *public-directory* directory))
+  (format t "~%Wupub located at ~A" (truename *public-directory*))
+  ;; +++ the expiry isn't working, hard to say why
+  (publish-directory :destination (namestring *public-directory*)
+		     :prefix "/wupub/"
+		     :headers `(("Cache-control" . ,(format nil "max-age=~A, public" 36000))
+				("Expires" . ,(net.aserve::universal-time-to-date (+ (get-universal-time) (* 20 60 60)))))
+		     ))
+
+(locate-public-directory)  
 
 (defun public-url (name)
   (string+ "/wupub/" name))

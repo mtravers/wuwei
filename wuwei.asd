@@ -3,9 +3,6 @@
 #+ALLEGRO
 (require :aserve)
 
-(when (find-package :json)
-  (pushnew :cl-json *features*))
-
 (defsystem :wuwei
   :name "WuWei"
   :description "Tools for developing Ajaxy web applications"
@@ -14,7 +11,7 @@
   :author "Mike Travers <mt@hyperphor.com>"
   :license "MIT"
   :serial t
-  :depends-on (#-ALLEGRO :aserve #-:CL-JSON :cl-json :mtlisp #-ALLEGRO :ironclad)
+  :depends-on (#-ALLEGRO :aserve :cl-json :mtlisp #-ALLEGRO :ironclad)
   :components 
   ((:static-file "wuwei.asd")
    (:module :src
@@ -24,6 +21,7 @@
 
 	     ;; Patches to existing systems
 ;;; I believe this is no longer necessary (oh but it is)
+;;; It's patched in my local copy of portable-allegroserve, but not everyone will be using that.
 	     #-ALLEGRO (:file "aserve-patch")
 	     (:file "htmlgen-patch")
 	     (:file "cl-json-patches")
@@ -40,6 +38,9 @@
 	     (:file "async")
 	     (:file "autocomplete")
 	     (:file "dom-objects")
+	     (:file "eval-server")
+	     ;; Currently I'm only supporting CCL for Heroku, but it wouldn't be hard to add other Lisps
+	     #+:CCL (:file "heroku")
 	     ))))
 
 (defsystem :wuwei-examples
@@ -60,6 +61,7 @@
 	      (:file "color")
 	      (:file "autocomplete-freebase")
 	      (:file "arc-challenge")
+	      (:file "go")		;set up for Heroku
 	      ))))
 
 

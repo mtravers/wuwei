@@ -1,7 +1,5 @@
 (in-package :wu)
 
-(defparameter *demo-port* 8001)
-(start :port *demo-port*)
 ;(setq *developer-mode* t)		;necessary for the state demo
 
 (defmacro publish-code ()
@@ -66,7 +64,14 @@
 		  (:ul
 		   (:li ((:a :href "http://collabrx.com") "CollabRx"))
 		   (:li ((:a :href "http://biocyc.org/") "BioCyc") ))
+		  (:h4 "See Also")
+		  (:ul
+		   (:li ((:a :href "https://github.com/mtravers/heroku-buildpack-cl/blob/master/README.md") 
+			 "Running Common Lisp applications in the cloud")
+			" on Heroku"))
+
 		  (tracker)
+
 		  )))))
 
 
