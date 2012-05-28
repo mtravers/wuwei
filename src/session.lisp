@@ -31,147 +31,348 @@
 ;;; Session management
 
 (export '(cookie-value
-	  with-session def-session-variable delete-session new-session-hook
+	  with-session with-session-response def-session-variable delete-session new-session-hook
 	  *aserve-request*))
 
-;;; +++ these need to get timed out, otherwise they will accumulate ad infinitum
+;;: Variables and parameters 
 
-(defvar *sessions* (make-hash-table :test #'eq))
+;;; Bound by session handler to the session name (a keyword)
+(defvar *session* nil)
+;;; Dynamic bound to current request, makes life much easier
+;;; Bound in with-session, but should be universal
+;;; There is an aserve variable, but not exported so not a good idea to use: net.aserve::*worker-request*
+(defvar *aserve-request* nil)
+;;; +++ document...and hook up or delete
+(defparameter *default-login-handler* nil)
+
+
+;;; Session store
+#|
+Theory:
+- there are multiple session stores, each represented by a session store object
+- each handles a certain set of variables,
+- each is indexed by the same session id
+
+- variables are CLOS objects that point to a symbol and have additional info about reading/writing
+
+|#
+
+;;;; :::::::::::::::::::::::::::::::: Utilities
+
+;;; Signatures
+
+(defun string-signature (string)
+  #+ALLEGRO (let ((*print-base* 36)) (princ-to-string (excl:sha1-string string)))
+  #-ALLEGRO (ironclad:byte-array-to-hex-string (ironclad:digest-sequence :sha1 string)))
+
+;;; Value is a list, gets written out as | separated values with the signature added
+(defun signed-value (v &key (secret *session-secret*))
+  (let* ((base-string (format nil "~{~A|~}" v))
+	 (sig (string-signature (string+ base-string secret))))
+    (format nil "~A~A" base-string sig)))
+  
+;; Return value is a list of strings, or NIL if it doesn't verify
+(defun verify-signed-value (rv &key (secret *session-secret*))
+  (when rv
+    (ignore-errors			;if error, just don't verify
+      (let* ((split-pos (1+ (position  #\| rv :from-end t)))
+	     (content (subseq rv 0 split-pos))
+	     (sig (subseq rv split-pos)))
+	(when (equal sig
+		     (string-signature (string+ content secret)))
+	  (butlast #+ALLEGRO (excl:split-re "\\|" content)
+		   #-ALLEGRO (mt:string-split content #\|)
+		   ))))))
+
+;;;; :::::::::::::::::::::::::::::::: Session Stores
+
+(defvar *session-stores* nil)
+
+(defclass session-store ()
+  ((variables :initform nil :reader session-variables)
+   ))
+
+(defmethod initialize-instance :after ((store session-store) &rest ignore)
+  (push store *session-stores*))
+
+;;; dev only
+(defun reset-session-stores ()
+  (setf *session-stores* nil))
+
+
+;;; Assumes there will be at most one of each, seems safe
+(defun find-or-make-session-store (class)
+  (or (find class *session-stores* :key #'type-of)
+      (make-instance class)))
 
 (defun cookie-value (req name)
   (assocdr name (get-cookie-values req) :test #'equal))
 
-;;; Bound by session handler to the session name (a keyword)
-(defvar *session* nil)
-(defvar *system-start-time* (get-universal-time))
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (defparameter *default-login-handler* nil))
+;;;; :::::::::::::::::::::::::::::::: Session Variables
 
-(defparameter *cookie-name* (string+ *system-name* "-session"))
+(defmacro def-session-variable (name &optional initform &key (store-type :memory) reader writer)
+  `(progn
+     (defvar ,name ,initform)
+     (let ((var (make-instance 'session-variable
+		  :symbol ',name
+		  :reader ',reader
+		  :writer ',writer
+		  :initform ',initform)))
+       (add-session-variable ,store-type var)
+       )))
 
-;;; Dynamic bound to current request, makes life much easier
-;;; Bound in with-session, but should be universal
-;;; There is an aserve variable that is probably better to use, net.aserve::*worker-request* +++
-(defvar *aserve-request* nil)
+;;; +++ these ought to delete var from other stores, for development purposes
+(defmethod add-session-variable ((type (eql :memory)) var)
+  (add-session-variable (find-or-make-session-store 'in-memory-session-store) var))
+
+(defmethod add-session-variable ((type (eql :cookie)) var)
+  (add-session-variable (find-or-make-session-store 'cookie-session-store) var))
+
+;;; These stores don't exist yet +++
+
+(defmethod add-session-variable ((type (eql :file)) var)
+  (add-session-variable (find-or-make-session-store 'file-session-store) var))
+
+(defmethod add-session-variable ((type (eql :sql)) var)
+  (add-session-variable (find-or-make-session-store 'sql-session-store) var))
+
+;;; This is constant once all session vars are defined, so kind of wasteful(+++)
+(defun all-session-variables ()
+  (mapappend #'session-variables *session-stores*))
+
+(defun all-session-variable-symbols ()
+  (mapappend #'session-variable-symbols *session-stores*))
+
+;;; +++ extend so nil arg returns default values
+(defun all-session-variable-values (session)
+  (mapappend #'(lambda (store) (session-values store session)) *session-stores*))
+
+(defun save-session-variables (&optional (session *session*))
+  (dolist (store *session-stores*)
+    (session-save-session-variables store session)))
+
+(defclass session-variable ()
+  ((symbol :initarg :symbol :reader session-variable-symbol)
+   (reader :initarg :reader :initform nil)
+   (writer :initarg :writer :initform nil)
+   (store :initarg :store)
+   (initform :initarg :initform :initform nil :reader session-variable-initform)))
+
+(defmethod print-object ((object session-variable) stream)
+  (with-slots (symbol) object
+    (print-unreadable-object (object stream :type t :identity t)
+      (princ symbol stream))))
+
+(defmethod session-variable-value ((ssv session-variable))
+  (symbol-value (session-variable-symbol ssv)))
+
+;;; temp theory -- all writing is in lisp syntax, reader/writer just transforms into readable if necessary
+
+(defmethod write-session-variable-value ((ssv session-variable) stream)
+  (with-slots (writer) ssv
+    (let ((raw (session-variable-value ssv)))
+      (if (and writer raw)
+	  (write (funcall writer raw) :stream stream)
+	  (write raw :stream stream))
+      (write-char #\space stream))))
+
+(defmethod read-session-variable-value ((ssv session-variable) stream)
+  (with-slots (reader) ssv
+    (let ((raw (read stream)))
+      (if (and reader raw)
+	  (funcall reader raw)
+	  raw))))
+
+
+;;;; :::::::::::::::::::::::::::::::: Response Generation
+
+
+
+(defmethod session-variable-symbols ((store session-store))
+  (with-slots (variables) store
+    (mapcar #'session-variable-symbol variables)))
+
+
+(defmethod add-session-variable ((store session-store) var)
+  (with-slots (variables) store
+    ;; +++ no, we want to update if its the same as existing
+    (replacef var variables :key #'session-variable-symbol)))
+
+
+;;;; :::::::::::::::::::::::::::::::: Memory Session Store
+
+(defclass in-memory-session-store (session-store)
+  ((sessions :initform (make-hash-table :test #'eq))))
+
+(defmethod session-values ((store in-memory-session-store) session)
+  (with-slots (sessions variables) store
+    (or (gethash session sessions)
+	(setf (gethash session sessions)
+	      (mapcar #'(lambda (var) (eval (session-variable-initform var))) variables))
+	)))
+
+;; +++ rename these methods, they are on session-store not session
+(defmethod session-save-session-variables ((store in-memory-session-store) session)
+  (with-slots (sessions variables) store
+    (setf (gethash session sessions)
+	  (mapcar #'session-variable-value variables))))
+
+(defmethod session-delete-session ((store in-memory-session-store) session)
+  (with-slots (sessions variables) store
+    (remhash session sessions)))
+
+(defmethod reset-session-store ((store in-memory-session-store))
+  (with-slots (sessions) store
+    (clrhash sessions)))
+  
+
+;;;; :::::::::::::::::::::::::::::::: Cookie Session Store
+
+;;; +++ warning overdesign, may throw some of this out in the interests of simplifying other things
+
+;;; +++ needs a timer and sweeper...could just make last-use-time a session variable
+
+;;; +++ I don't quite understand how cookie store can work, since cookie sets have to be done before
+;;; generating the body of a response.  Possibly through some javascript, but then that will affect
+;;; the page content (maybe breaking caching, argh).  Of course if we are buffering responses, like
+;;; we do on most cwest methods, then it could work.
+(defclass serialized-session-store (session-store)
+  ((package :initform (find-package :ec)))) ;+++ temp
+
+(defclass cookie-session-store (serialized-session-store) 
+  ((secret)
+   (cookie-name :initform (string+ *system-name* "-session"))
+   ))
+
+(defmethod initialize-instance :after ((store cookie-session-store) &rest ignore)
+  (recompute-secret store))
+
+;;; Incorporate the variables into the secret.  That way, if they change, existing cookies
+;;; will be invalidated, otherwise they will be mismatched.
+(defmethod recompute-secret ((store cookie-session-store))
+  (with-slots (variables secret) store
+    (setf secret
+	  (with-output-to-string (s)
+	    (write-string *session-secret* s)
+	    (dolist (v variables)
+	      (write (session-variable-symbol v) :stream s))))))
+
+(defmethod add-session-variable :after ((store cookie-session-store) var)
+  (recompute-secret store))
+
+;;; Encryption option would be good (see ironclad package)
+
+(defmethod session-values ((store cookie-session-store) session)
+  (unless *aserve-request*
+    (error "attempt to get cookie session vars without binding *aserve-request*"))
+  (with-slots (cookie-name variables package secret) store
+    (let ((value (verify-signed-value (cookie-value *aserve-request* cookie-name) :secret secret))
+	  (*package* package))
+      (if value
+	  (with-input-from-string (s (cadr value))
+	    (collecting
+	      (dolist (var variables)
+		(collect (report-and-ignore-errors
+			      (read-session-variable-value var s))))))
+	  (mapcar #'(lambda (var) (eval (session-variable-initform var))) variables)
+	  ))))
+
+(defmethod set-cookie-session-cookie ((store cookie-session-store) req)
+  (with-slots (cookie-name) store
+    (set-cookie-header req :name cookie-name :value (session-state-cookie-value store) :expires :never)))
+
+(defmethod session-state-cookie-value ((store cookie-session-store))
+  (with-slots (variables package secret) store
+    (signed-value
+     (list *session*
+	   (with-output-to-string (s)
+	     (let ((*print-readably* t)
+		   (*print-pretty* nil)
+		   (*package* package))
+;	 (unless compact?
+;	   (format s "~S " (mapcar #'session-variable-symbol variables)))
+	 (dolist (var variables)
+	   (write-session-variable-value var s)))))
+     :secret secret)))
+
+;;; No-op (should make sure vars have not changed since header was written +++)
+(defmethod session-save-session-variables ((store cookie-session-store) session)
+  (set-cookie-session-cookie store *aserve-request*))
+
+;;; +++ these need to get timed out, otherwise they will accumulate ad infinitum
+
+(defmethod session-delete-session ((store cookie-session-store) session)
+  (with-slots (cookie-name) store
+    (set-cookie-header *aserve-request* :name cookie-name :value ""))) 
+
+;;;; :::::::::::::::::::::::::::::::: Login, Session Creation, Etc
+
+(defun gensym-session-id ()
+  (keywordize (format nil "~A-~A" (machine-instance) (get-universal-time))))
 
 ;;; Note: has to be OUTSIDE with-http-response-and-body or equiv
-;;; +++ this expands body multiple times, bad.
+;;; +++ login-handler is ignored?
+;;; Assumes *session* set by with-session-vars, nil if invalid.
 (defmacro with-session ((req ent &key (login-handler *default-login-handler*)) &body body)
-  `(let ((*aserve-request* ,req)
-	 (*session* (parse-and-validate-cookie (cookie-value ,req *cookie-name*))))
-     (cond ((session-named *session* t)
-	    (with-session-variables 
-	      ,@body))
-	   (,login-handler
-	    (funcall ,login-handler ,req ,ent)) 
-	   (t
-	    (setf *session* (make-new-session ,req ,ent))
-	    (with-session-variables 
-	      ,@body)	    
-	    ))))
+  `(let* ((*aserve-request* ,req)
+	 (*session* (get-session-id (find-or-make-session-store 'cookie-session-store) ,req)) ;+++ assume this validates
+	 (new-session nil))
+     (unless *session*
+       (setq *session* (gensym-session-id)
+	     new-session t))
+     (with-session-variables
+       (when new-session (new-session-hook ,req ,ent))
+       ,@body)))
 
-(defvar *session-counter* 0)
-    
-;;; Session management
+(defmethod get-session-id ((store cookie-session-store) req)
+  (with-slots (cookie-name secret) store
+    (let ((value (verify-signed-value (cookie-value *aserve-request* cookie-name) :secret secret)))
+      (when value
+	(keywordize (first value))))))
 
-;;; Default value (for new sessions) is simply the symbol's global value, so we don't need to store it anywhere else.
-
-(defvar *session-variables* ())
-
-(defmacro def-session-variable (name &optional initform)
+;;; must be run inside with-session
+(defmacro with-session-response ((req ent &key content-type no-save?) &body body)
   `(progn
-    (defvar ,name ,initform)
-    (setf (get ',name :initform) ',initform)
-    (pushnew ',name *session-variables*)
-    ))
+     (assert *session* nil "With-session-response in bad context")
+     (unless ,no-save? (save-session-variables *session*))
+     (with-http-response (,req ,ent ,@(if content-type `(:content-type ,content-type)))
+       (with-http-body (,req ,ent)
+	 ,@body))))
+
+(defun logout (req ent)
+  (with-session (req ent)
+    (delete-session)))
+
+(defun delete-session (&optional (key *session*) store-class)
+  (if store-class
+      (session-delete-session (find-or-make-session-store store-class) key)
+      (dolist (store *session-stores*) (session-delete-session store key))))
 
 (defmacro with-session-variables (&body body)
-  `(progn
-     (unless *session* (error "No session"))
-     (progv *session-variables*
-	 (mapcar #'(lambda (var) (session-variable-value *session* var)) *session-variables*)
+  `(let ((%val nil))
+     (progv (all-session-variable-symbols) (all-session-variable-values *session*)
        (unwind-protect
-	    (progn ,@body)
-	 (dolist (v *session-variables*)
-	   (set-session-variable-value *session* v (symbol-value v)))))))
-
-(defun session-named (session-key &optional no-error?)
-  (cond ((gethash session-key *sessions*))
-	(no-error? nil)
-	(t (error "Session ~A not found" session-key))))
-
-(defun session-variable-value (session var)
-  (gethash var (session-named session) 
-	   (eval (get var :initform))))
-
-(defun set-session-variable-value (session var val)
-  (setf (gethash var (session-named session)) val))
-      
-(defun make-new-session (req ent)
-  ;; this did use gensym but OpenMCL's implementation is broken.
-  (let ((*session* (keywordize (format nil "S~A" (incf *session-counter*)))))
-    (when req
-      (set-cookie-header req :name *cookie-name* :value (generate-session-cookie) :expires :never))
-    (setf (gethash *session* *sessions*) (make-hash-table :test #'eq))
-    (with-session-variables
-      (new-session-hook req ent))
-    *session*))
-
-;;; New secure cookies. 
-#|
-Theory: there's one cookie that points to the session state on the server.  The cookie is of the form:
-    <session-key>|<system-start-time>|<hash>
-The hash prevents forgery; the system-start-time ensures that if the server is restarted all saved session cookies will
-be invalidated.
-
-This may be wrong. Maybe credentials should also be stored; so if the server is rebooted the user isn't forced to log
-in again.
-
-|#
-
-(defun string-md5 (string)
-  #+ALLEGRO (let ((*print-base* 16)) (princ-to-string (excl:md5-string string)))
-  #-ALLEGRO (ironclad:byte-array-to-hex-string (ironclad:digest-sequence :md5 string)))
-
-(defun generate-session-cookie ()
-  (let* ((part1 (format nil "~A|~X" *session* *system-start-time*))
-	 (hash (string-md5 (string+ part1 *session-secret*))))
-    (format nil "~A|~A" part1 hash)))
-
-;;; Input: cookie value, output: session keyword
-(defun parse-and-validate-cookie (value)
-  (when value
-    (report-and-ignore-errors 
-      (let* ((parts (string-split value #\|)))
-	(unless (and (= 3 (length parts))
-		     (equal (third parts)
-			    (string-md5 (string+ (first parts) "|" (second parts) *session-secret*))))
-	  (error "Invalid session cookie ~A" value))
-	(unless (= (parse-integer (second parts) :radix 16)
-		   *system-start-time*)
-	  (error "Expired session cookie ~A" value))
-	(keywordize (first parts))))))
+	    (setq %val (progn ,@body))
+	 (save-session-variables *session*)))
+     %val))
 
 ;;; applications can redefine this to do special actions to initialize a session
 (defun new-session-hook (req ent)
   (declare (ignore req ent))
   )
 
-;;; +++ Should be called from a logout or other state-flushing operation
-(defun delete-session (key)
-  (remhash key *sessions*))
-
-;;; Developer tools
+;;;; ::::::::::::::::::::::::::::::::  Developer tools
 
 (publish :path "/session-debug"
 	 :function 'session-debug-page)
 
 (defun session-debug-page (req ent)
   (with-session (req ent)
-    (with-http-response-and-body (req ent)
+    (with-session-response (req ent)
       (html
        (:head
+	(javascript-includes "prototype.js")
 	(css-includes "wuwei.css"))
        (:h1 "Session State")
        (if *developer-mode*
@@ -186,25 +387,27 @@ in again.
 	     (:h2 "Session state")
 	     (:p "Session name: " (:princ *session*))
 	     ((:table :border 1)
-	      (dolist (v *session-variables*)
+	      (dolist (v (all-session-variables))
 		(html
 		 (:tr
-		  (:td (:princ-safe (prin1-to-string v)))
-		  (:td (:princ-safe (prin1-to-string (eval v))))))))
-	     (link-to "Reset session" "/session-reset")
-	     )
+		  (:td (:princ-safe (prin1-to-string (session-variable-symbol v))))
+		  (:td (:princ-safe (prin1-to-string (mt::return-errors (session-variable-value v)))))))))
+	     (flet ((delete-session-cont (type)
+		      (ajax-continuation ()
+			(with-session (req ent)
+			  (delete-session *session* type)
+			  (with-session-response (req ent :no-save? t :content-type "text/javascript")
+			    (render-update
+			      (:redirect "/session-debug")
+			      ))))      ))
+	       (html
+	     (link-to-remote "Delete session" (delete-session-cont nil))
+	     :br
+	     (link-to-remote "Delete in-memory" (delete-session-cont 'in-memory-session-store))
+	     :br
+	     (link-to-remote "Delete session cookie" (delete-session-cont 'cookie-session-store)))))
 	    (html (:princ "Sorry, not in developer mode")))))))
 
 
-(publish :path "/session-reset"
-	 :function 
-	 #'(lambda (req ent)
-	     (when *developer-mode*
-	       (make-new-session req ent)
-	       (with-http-response-and-body (req ent)
-		 (html "session cleared"
-		       (render-scripts 
-			 (:redirect "/session-debug")))
-		 ))))
 
   

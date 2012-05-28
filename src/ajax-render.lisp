@@ -129,7 +129,10 @@ Here's an example of combining render-update operations:
   (render-script-later string))
 
 (define-render-update :redirect (url)
-  `(format *html-stream* "~%window.location.href = '~A';" ,url))
+  `(format *html-stream* "~%window.location.replace('~A');" ,url)) ;heard that this is better...
+
+(define-render-update :popup (url &optional (name "_popup") (width 300) (height 300))
+  `(format *html-stream* "~%window.open('~A', '~A', 'width=~A,height=~A');" ,url ,name ,width ,height))  
 
 (define-render-update :reload ()
   `(format *html-stream* "~%window.location.reload();"))
@@ -241,15 +244,17 @@ Here's an example of combining render-update operations:
 ;;; handling procedure if login is required.  The procedure takes req and ent and is responsible for
 ;;; redirecting to a login page. 
 (defmacro publish-ajax-update (path-or-options &body body)
-  (let ((path (if (listp path-or-options)
-                  (findprop :path path-or-options)
-                  path-or-options))
-        (content-type (and (listp path-or-options) (findprop :content-type path-or-options)))
-        (session (aif (and (listp path-or-options) (member :session path-or-options))
-		      (cadr it)
-		      t))		;defaults to t
-	(login-handler (aif (and (listp path-or-options) (member :login-handler path-or-options))
-		    (cadr it))))
+  (let* ((path (if (listp path-or-options)
+		   (findprop :path path-or-options)
+		   path-or-options))
+	 (options (if (listp path-or-options) path-or-options))
+	 (content-type (and (listp path-or-options) (findprop :content-type path-or-options)))
+	 (session (aif (and (listp path-or-options) (member :session path-or-options))
+		    (cadr it)
+		    t))		;defaults to t
+	 (login-handler (aif (and (listp path-or-options) (member :login-handler path-or-options))
+			  (cadr it))))
+    (setf options (delete-keyword-args '(:path :session) options))
     `(publish-temporarily ,path
               :function (named-lambda ,path (req ent)
 			  (let* ((*multipart-request* (multipart? req))
@@ -264,7 +269,9 @@ Here's an example of combining render-update operations:
 				   (with-render-update
 				     ,@body
 				     )))))
-			  ))))
+			  )
+	      ,@options
+	      )))
 
 (defmacro publish-ajax-func (path-or-options args &rest body)
   `(publish-ajax-update ,path-or-options
@@ -275,11 +282,13 @@ Here's an example of combining render-update operations:
 
 (defvar *ajax-counter* 0)
 
-(defmacro ajax-continuation ((&key args keep content-type session name login-handler) &body body)
+(defmacro ajax-continuation ((&key args keep (content-type "text/javascript")-type session name login-handler timeout) &body body)
   `(let ((fname (string+ "/ajax/" ,(or name "g") "/" (fast-string (incf *ajax-counter*)))))
-     (publish-ajax-func (:path fname :content-type ,content-type
+     (publish-ajax-func (:path fname 
+			       ,@(if content-type `(:content-type ,content-type))
 			       ,@(if session `(:session ,session))
-			       ,@(if login-handler `(:login-handler ,login-handler)))
+			       ,@(if login-handler `(:login-handler ,login-handler))
+			       ,@(if timeout `(:timeout ,timeout)))
 			,args
                         ,@body
                         ,(unless keep
@@ -443,7 +452,8 @@ Here's an example of combining render-update operations:
   )
 
 (defun remote-function (url &key form params (in-function? t) confirm before after spinner
-                        success failure complete eval-scripts? stop-propagation?)
+                        success failure complete eval-scripts? stop-propagation?
+			updater? periodic?)
   #.(doc
      "Generate a remote function (javascript Ajax call)"
      " ex: (remote-function \"/new-chunk\" :params `(:user ,user :type (:raw ,(format nil \"$(~A).value\" selector-id))))"
@@ -458,9 +468,11 @@ Here's an example of combining render-update operations:
      ":before    Javascript to run before the Ajax request"
      ":after     Javascript to run after the Ajax request"
      ":spinner   The ID of an elt, a spinner will be inserted after the elt before the Ajax request and removed when completed"
-     ":in-function?  if T (default), returns a value of false from handler, blocking form submission. (+++ confusing name)"
-     ":eval-scripts?  "
+     ":in-function?  "
+     ":eval-scripts?  "   ;;; +++ only valid for Ajax.Update object?
      ":stop-propagation?   Stop propagation of events to parents. Forces :in-function? to be nil"
+     ":updater?  Make an Ajax.Updater object rather than an Ajax.Request; value is dom id of item to be updated"
+     ":periodic? Make an Ajax.PeriodicalUpdater, updater? must be non-nil"
      )
   (when stop-propagation?
     (setq in-function? nil))		;incompatible, at least for now.
@@ -473,23 +485,28 @@ Here's an example of combining render-update operations:
       (setf complete (if complete
                          (string+ nospin-js complete)
                          nospin-js))))
-  (let ((result
-         (format nil "new Ajax.Request('~A', ~A);"
-                 url
-                 (json-options `(:asynchronous t
-                                               :parameters ,(if form
-                                                                `(:raw ,(format nil "Form.serialize(~A)"
-										(if (stringp form)
-										    (format nil "document.getElementById('~A')" form)
-										    "this")))
-                                                                (json-options-transform params))
-                                               ,@(if complete `("onComplete" (:raw ,(format nil "function(request){~A}" complete))))
-                                               ,@(if success `("onSuccess" (:raw ,(format nil "function(request){~A}" success))))
-                                               ,@(if failure `("onFailure" (:raw ,(format nil "function(request){~A}" failure))))
-                                               ,@(if eval-scripts? `("evalScripts" t))
-                                               ))
-		 )))
-
+  (let* ((options
+	  `(:asynchronous t
+			  :parameters ,(if form
+					   `(:raw ,(format nil "Form.serialize(~A)"
+							   (if (stringp form)
+							       (format nil "document.getElementById('~A')" form)
+							       "this")))
+					   (json-options-transform params))
+			  ,@(if complete `("onComplete" (:raw ,(format nil "function(request){~A}" complete))))
+			  ,@(if success `("onSuccess" (:raw ,(format nil "function(request){~A}" success))))
+			  ,@(if failure `("onFailure" (:raw ,(format nil "function(request){~A}" failure))))
+			  ,@(if eval-scripts? `("evalScripts" t))
+			  ))
+	(result
+	 (cond (periodic?
+		(assert updater?)
+		(setf options (append `(:frequency ,periodic?) options))
+		(format nil "new Ajax.PeriodicalUpdater('~A', '~A', ~A);" updater? url (json-options options)))
+	       (updater?
+		(format nil "new Ajax.Updater('~A', '~A', ~A);" updater? url (json-options options)))
+	       (t
+		(format nil "new Ajax.Request('~A', ~A);" url (json-options options))))))
     (when before (setf result (string+ before result)))
     (when after (setf result (string+ result after)))
     (when confirm (setf result (format nil "if (confirm('~A')) { ~A };" confirm result)))

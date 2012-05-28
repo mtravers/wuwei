@@ -35,7 +35,7 @@
 
 	  render-update render-scripts
 	  
-	  html-string 
+	  html-string html-to-stream
 	  html-escape-string clean-js-string
 
 	  publish-ajax-update publish-ajax-func ajax-continuation 
@@ -115,10 +115,16 @@ If you want a string, wrap the call with html-string.  For example:
          "/")
 |#
 
+
+
+(defmacro html-to-stream (stream &body stuff)
+  `(let ((*html-stream* ,stream))
+     (html ,@stuff)))
+
 (defmacro html-string (&body stuff)
   `(with-output-to-string (s)
-     (let ((*html-stream* s))
-       (html ,@stuff))))
+     (html-to-stream s
+		     ,@stuff)))
 
 (defmacro maybe-to-string (to-string? &body body)
   `(if ,to-string?
@@ -187,9 +193,9 @@ If you want a string, wrap the call with html-string.  For example:
   (html
     ((:select :if* name :name name
               :if* id :id id
-;;; Fix for Safari (but it depends on Ext which we no longer use)
-;;; ++ Prototype.Browser.WebKit may be equivalent but haven't tried it
-;;;            :if* url :onmouseup (format nil "if (Ext.isSafari){~a}" (remote-function url :params (append `(:type (:raw "this.value")) params)))
+;;; Fix for Safari (+++ not really tested)
+;;; +++ onchange seems to work better
+	      :if* url :onmouseup (format nil "if (Prototype.Browser.WebKit){~a}" (remote-function url :params (append `(:type (:raw "this.value")) params))) ;+++ :type looks baked in from whatever this was abstracted from....
 	      :do* html-options
               )
      (loop for (value name) in options do
@@ -213,10 +219,7 @@ If you want a string, wrap the call with html-string.  For example:
       
 (defmacro with-http-response-and-body ((req ent &rest keys) &body body)
   #.(doc
-     "Combines WITH-HTTP-RESPONSE and WITH-HTTP-BODY, which is the"
-     "normal way we use those macros.  In doing this we also gain in that"
-     "Lispworks will now indent this new macro properly, whereas for some"
-     "reason it won't indent WITH-HTTP-RESPONSE or WITH-HTTP-BODY sanely.")
+     "Combines WITH-HTTP-RESPONSE and WITH-HTTP-BODY")
   `(with-http-response (,req ,ent ,@keys)
      (with-http-body (,req ,ent)
        ,@body)

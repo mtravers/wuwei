@@ -6,7 +6,7 @@
 	:lisp-unit)
   (:export #:uploader #:*file-field-name* #:cookie-value
 	   #:*system-name* #:*developer-mode* #:system-name
-	   #:with-session #:def-session-variable #:delete-session #:new-session-hook
+	   #:with-session #:with-session-response #:def-session-variable #:delete-session #:new-session-hook
 	   #:*aserve-request*
 	   #:*public-directory* #:public-url #:image-url
 	   #:javascript-include #:javascript-includes #:css-include #:css-includes
