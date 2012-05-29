@@ -126,7 +126,6 @@
   `(without-unwinding-restart (create-block-for-error)
      (write-string (html-string ,@body) *html-stream*)))
 
-
 (defmacro with-ajax-error-handler ((name &key extra-js) &body body)
   `(without-unwinding-restart (compose-error-message ,name :extra-js ,extra-js)
     ,@body

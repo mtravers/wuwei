@@ -314,7 +314,7 @@ Theory:
 ;;; Note: has to be OUTSIDE with-http-response-and-body or equiv
 ;;; +++ login-handler is ignored?
 ;;; Assumes *session* set by with-session-vars, nil if invalid.
-(defmacro with-session ((req ent &key (login-handler *default-login-handler*)) &body body)
+(defmacro with-session ((req ent &key (login-handler '*default-login-handler*)) &body body)
   `(let* ((*aserve-request* ,req)
 	 (*session* (get-session-id (find-or-make-session-store 'cookie-session-store) ,req)) ;+++ assume this validates
 	 (new-session nil))
@@ -323,7 +323,10 @@ Theory:
 	     new-session t))
      (with-session-variables
        (when new-session (new-session-hook ,req ,ent))
-       ,@body)))
+       (save-session-variables)		;save cookie variables, especially *session*
+       ,@body
+       (save-session-variables)		;we also save the session variables here; let's memory state vars work more easily
+       )))
 
 (defmethod get-session-id ((store cookie-session-store) req)
   (with-slots (cookie-name secret) store

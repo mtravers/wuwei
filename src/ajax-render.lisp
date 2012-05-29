@@ -282,7 +282,7 @@ Here's an example of combining render-update operations:
 
 (defvar *ajax-counter* 0)
 
-(defmacro ajax-continuation ((&key args keep (content-type "text/javascript")-type session name login-handler timeout) &body body)
+(defmacro ajax-continuation ((&key args keep (content-type "text/javascript") session name login-handler timeout) &body body)
   `(let ((fname (string+ "/ajax/" ,(or name "g") "/" (fast-string (incf *ajax-counter*)))))
      (publish-ajax-func (:path fname 
 			       ,@(if content-type `(:content-type ,content-type))
