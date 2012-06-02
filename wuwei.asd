@@ -11,7 +11,8 @@
   :author "Mike Travers <mt@hyperphor.com>"
   :license "MIT"
   :serial t
-  :depends-on (#-ALLEGRO :aserve :cl-json :mtlisp #-ALLEGRO :ironclad)
+  :depends-on (#-ALLEGRO :aserve :cl-json :mtlisp #-ALLEGRO :ironclad 
+			 :drakma)	;for oauth2
   :components 
   ((:static-file "wuwei.asd")
    (:module :src
@@ -39,6 +40,7 @@
 	     (:file "autocomplete")
 	     (:file "dom-objects")
 	     (:file "eval-server")
+	     (:file "oauth2")
 	     ;; Currently I'm only supporting CCL for Heroku, but it wouldn't be hard to add other Lisps
 	     #+:CCL (:file "heroku")
 	     ))))
