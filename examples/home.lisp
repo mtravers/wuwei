@@ -49,6 +49,7 @@
 		   (:li "Server-side high-level DOM operations (add/remove elements, visual fades, drag and drop)")
 		   (:li "High-level interfaces to in-place editing and autocomplete widgets")
 		   (:li "Login and session management")
+		   (:li "OAuth2 support")
 		   (:li "Runs in multiple Common Lisp implementations")
 		   (:li "Freely available under the MIT Open Source License")
 		   )
@@ -70,9 +71,10 @@
 			 "Running Common Lisp applications in the cloud")
 			" on Heroku"))
 
+
 		  (tracker)
 
 		  )))))
 
-
+;;;<a href='http://www.monitor.us'><img src='http://images.monitor.us/monbadges120-40.png' title='Monitor.Us - Free website, server & network monitoring tool' border=0 /></a>
 

@@ -10,6 +10,7 @@ light-weight, a toolkit rather than a platform.
 * Server-side DOM operations (add/remove elements, visual fades, drag and drop)
 * High-level interfaces to in-place-editing and autocomplete widgets
 * Login and session management
+* OAuth2 client
 
 ## Examples
 
