@@ -43,7 +43,7 @@
 ;;; There is an aserve variable, but not exported so not a good idea to use: net.aserve::*worker-request*
 (defvar *aserve-request* nil)
 ;;; +++ document...and hook up or delete
-(defparameter *default-login-handler* nil)
+;;; (defparameter *default-login-handler* nil)
 
 
 ;;; Session store
@@ -93,6 +93,7 @@ Theory:
    ))
 
 (defmethod initialize-instance :after ((store session-store) &rest ignore)
+  (declare (ignore ignore))
   (push store *session-stores*))
 
 ;;; dev only
@@ -246,6 +247,7 @@ Theory:
    ))
 
 (defmethod initialize-instance :after ((store cookie-session-store) &rest ignore)
+  (declare (ignore ignore))
   (recompute-secret store))
 
 ;;; Incorporate the variables into the secret.  That way, if they change, existing cookies
@@ -311,10 +313,19 @@ Theory:
 (defun gensym-session-id ()
   (keywordize (format nil "~A-~A" (machine-instance) (get-universal-time))))
 
+(defmacro with-session-variables (&body body)
+  `(let ((%val nil))
+     (progv (all-session-variable-symbols) (all-session-variable-values *session*)
+       (unwind-protect
+	    (setq %val (progn ,@body))
+	 (save-session-variables *session*)))
+     %val))
+
 ;;; Note: has to be OUTSIDE with-http-response-and-body or equiv
 ;;; +++ login-handler is ignored?
 ;;; Assumes *session* set by with-session-vars, nil if invalid.
-(defmacro with-session ((req ent &key (login-handler '*default-login-handler*)) &body body)
+;;; no longer implemented, but maybe should be brought back  (login-handler '*default-login-handler*)
+(defmacro with-session ((req ent &key) &body body)
   `(let* ((*aserve-request* ,req)
 	 (*session* (get-session-id (find-or-make-session-store 'cookie-session-store) ,req)) ;+++ assume this validates
 	 (new-session nil))
@@ -352,64 +363,14 @@ Theory:
       (session-delete-session (find-or-make-session-store store-class) key)
       (dolist (store *session-stores*) (session-delete-session store key))))
 
-(defmacro with-session-variables (&body body)
-  `(let ((%val nil))
-     (progv (all-session-variable-symbols) (all-session-variable-values *session*)
-       (unwind-protect
-	    (setq %val (progn ,@body))
-	 (save-session-variables *session*)))
-     %val))
+
 
 ;;; applications can redefine this to do special actions to initialize a session
 (defun new-session-hook (req ent)
   (declare (ignore req ent))
   )
 
-;;;; ::::::::::::::::::::::::::::::::  Developer tools
-
-(publish :path "/session-debug"
-	 :function 'session-debug-page)
-
-(defun session-debug-page (req ent)
-  (with-session (req ent)
-    (with-session-response (req ent)
-      (html
-       (:head
-	(javascript-includes "prototype.js")
-	(css-includes "wuwei.css"))
-       (:h1 "Session State")
-       (if *developer-mode*
-	    (html
-	     (:h2 "Cookies")
-	     ((:table :border 1)
-	      (dolist (v (get-cookie-values req))
-		(html
-		 (:tr
-		  (:td (:princ-safe (car v)))
-		  (:td (:princ-safe (cdr v)))))))
-	     (:h2 "Session state")
-	     (:p "Session name: " (:princ *session*))
-	     ((:table :border 1)
-	      (dolist (v (all-session-variables))
-		(html
-		 (:tr
-		  (:td (:princ-safe (prin1-to-string (session-variable-symbol v))))
-		  (:td (:princ-safe (prin1-to-string (mt::return-errors (session-variable-value v)))))))))
-	     (flet ((delete-session-cont (type)
-		      (ajax-continuation ()
-			(with-session (req ent)
-			  (delete-session *session* type)
-			  (with-session-response (req ent :no-save? t :content-type "text/javascript")
-			    (render-update
-			      (:redirect "/session-debug")
-			      ))))      ))
-	       (html
-	     (link-to-remote "Delete session" (delete-session-cont nil))
-	     :br
-	     (link-to-remote "Delete in-memory" (delete-session-cont 'in-memory-session-store))
-	     :br
-	     (link-to-remote "Delete session cookie" (delete-session-cont 'cookie-session-store)))))
-	    (html (:princ "Sorry, not in developer mode")))))))
+;;; See session-debug page in eval-server.lisp
 
 
 

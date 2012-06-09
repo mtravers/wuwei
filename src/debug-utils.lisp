@@ -57,7 +57,7 @@ Borrowed from BioBike
 
 #+:sbcl
 (defun get-frames-list ()
-  (sb-debug::backtrace-as-list :count *stack-frame-limit*))
+  (sb-debug::backtrace-as-list *stack-frame-limit*))
 
 #-(or :ccl :sbcl :allegro)
 (defun get-frames-list ()

@@ -256,7 +256,7 @@ Here's an example of combining render-update operations:
 			  (cadr it))))
     (setf options (delete-keyword-args '(:path :session) options))
     `(publish-temporarily ,path
-              :function (named-lambda ,path (req ent)
+              :function #'(lambda (req ent)
 			  (let* ((*multipart-request* (multipart? req))
 				 (*ajax-request* req)
 				 ;; +++ not sure what this condition on *multipart-request* was for, seems wrong
@@ -329,6 +329,7 @@ Here's an example of combining render-update operations:
       (unpublish-path (cadr item)))
     (setf *responder-timeouts* (nset-difference *responder-timeouts* expired))))
 
+#-:SBCL
 (eval-when (:load-toplevel :execute)
   (in-background "Responder timeout"
                  (loop
@@ -420,6 +421,7 @@ Here's an example of combining render-update operations:
     (:princ-safe (or text ""))
    ))
     
+;;; +++ SBCL sniffs at having &optional and &key in the same arglist, and maybe it should be changed
 ;;; +++ copy params, class keyword functionality to link-to-remote, button-to-remote, etc
 (defun checkbox-to-remote (text url &optional checked? &rest remote-function-options &key params (id (string (gensym "check"))) class html-options &allow-other-keys)
   (checkbox-to-function

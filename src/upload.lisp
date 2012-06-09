@@ -14,6 +14,7 @@
       (())
     (multiple-value-bind (part-type field filename content-type)
 	(parse-multipart-header (get-multipart-header req))
+      (declare (ignorable content-type))
 ;      (format t "~%Multipart part-type=~s name=~s filename=~s content-type=~s~%" part-type field filename content-type)      
       (case part-type
 	(:eof
@@ -22,19 +23,19 @@
 	 (let ((pathname (funcall pathname-maker filename))
 	       (element-type '(unsigned-byte 8)))
 	   (with-open-file (s pathname :direction :output :if-exists :supersede :element-type element-type)
-	     (slurp-part req s :element-type element-type))
+	     (slurp-part req :stream s :element-type element-type))
 	   (push (list field pathname) result)))
 	(:nofile
 	 (push (list field nil) result))
 	(:data
 	 (push (list field (slurp-part req)) 
 	       result))
-	(t (warn "Unknown par ttype ~A" part-type)
+	(t (warn "Unknown part type ~A" part-type)
 	   (slurp-part req))))))		
 
 (defparameter *buffer-size* (* 4 1024))
 
-(defun slurp-part (req &optional stream &key (element-type '(unsigned-byte 8)))
+(defun slurp-part (req &key stream (element-type '(unsigned-byte 8)))
   (loop with buffer = (make-array *buffer-size* :element-type element-type)
      for n = (get-multipart-sequence req buffer)
      with len = 0

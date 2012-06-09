@@ -39,7 +39,7 @@
 		      ("client_secret" . ,*oauth2-client-secret*)
 		      ("redirect_uri" . ,*oauth2-callback*) 
 		      ("grant_type" . "authorization_code"))))
-    (multiple-value-bind (body status headers) ;...
+    (multiple-value-bind (body status) ;...
 	(drakma:http-request *oauth-token-endpoint*
 			     :method :post
 			     :parameters parameters)
@@ -53,6 +53,10 @@
 	  (error "Failed to get access token ~A ~A" status json-response))))))
 
 ;;; access-protected-resource needs to be defined on a server-specific basis, AFAIKT
+;;; This gets redefined.
+(defun access-protected-resource (url &rest ignore)
+  (declare (ignore url ignore))
+  (error "access-protected-resource needs to be defined"))
 
 (defun access-protected-resource-with-error (url &rest other-args)
   (multiple-value-bind  (result status prob-hint prob-advice)

@@ -56,3 +56,48 @@
 	    ((:div :id "result")))))
 	(html (:princ "Not enabled.")))))
 	   
+;;;; ::::::::::::::::::::::::::::::::  Session debug tool
+
+(publish :path "/session-debug"
+	 :function 'session-debug-page)
+
+(defun session-debug-page (req ent)
+  (with-session (req ent)
+    (with-session-response (req ent)
+      (html
+       (:head
+	(javascript-includes "prototype.js")
+	(css-includes "wuwei.css"))
+       (:h1 "Session State")
+       (if *developer-mode*
+	    (html
+	     (:h2 "Cookies")
+	     ((:table :border 1)
+	      (dolist (v (get-cookie-values req))
+		(html
+		 (:tr
+		  (:td (:princ-safe (car v)))
+		  (:td (:princ-safe (cdr v)))))))
+	     (:h2 "Session state")
+	     (:p "Session name: " (:princ *session*))
+	     ((:table :border 1)
+	      (dolist (v (all-session-variables))
+		(html
+		 (:tr
+		  (:td (:princ-safe (prin1-to-string (session-variable-symbol v))))
+		  (:td (:princ-safe (prin1-to-string (mt::return-errors (session-variable-value v)))))))))
+	     (flet ((delete-session-cont (type)
+		      (ajax-continuation ()
+			(with-session (req ent)
+			  (delete-session *session* type)
+			  (with-session-response (req ent :no-save? t :content-type "text/javascript")
+			    (render-update
+			      (:redirect "/session-debug")
+			      ))))      ))
+	       (html
+	     (link-to-remote "Delete session" (delete-session-cont nil))
+	     :br
+	     (link-to-remote "Delete in-memory" (delete-session-cont 'in-memory-session-store))
+	     :br
+	     (link-to-remote "Delete session cookie" (delete-session-cont 'cookie-session-store)))))
+	    (html (:princ "Sorry, not in developer mode")))))))

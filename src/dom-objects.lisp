@@ -60,15 +60,18 @@ Notes:
 
 (def-session-variable *dom-ht* (make-hash-table :test #'equal))
 
-(defmethod* initialize-instance :after ((e html-element) &rest ignore)
-            (unless dom-id
-              (setf dom-id (gen-dom-id)))
-            (setf (gethash dom-id *dom-ht*) e))
+(defmethod initialize-instance :after ((e html-element) &rest ignore)
+  (declare (ignore ignore))
+  (with-slots (dom-id) e
+    (unless dom-id
+      (setf dom-id (gen-dom-id)))
+    (setf (gethash dom-id *dom-ht*) e)))
 
-(defmethod* element-update ((e html-element))
-  (render-update
-    (:replace dom-id
-             (element-render e))))
+(defmethod element-update ((e html-element))
+  (with-slots (dom-id) e
+    (render-update
+      (:replace dom-id
+		(element-render e)))))
 
 (defun element-named (dom-id)
   (or (gethash dom-id *dom-ht*)
