@@ -61,18 +61,24 @@ Theory:
 
 ;;; Signatures
 
-(defun string-signature (string)
-  #+ALLEGRO (let ((*print-base* 36)) (princ-to-string (excl:sha1-string string)))
-  #-ALLEGRO (ironclad:byte-array-to-hex-string (ironclad:digest-sequence :sha1 string)))
+(defun string-signature (string &optional (secret *session-secret*))
+  #+ALLEGRO (let ((*print-base* 36)) (princ-to-string (excl:hmac-sha1-string secret string)))
+  #-ALLEGRO (hmac-sha1-string string secret))
+
+#-ALLEGRO
+(defun hmac-sha1-string (string &optional (secret *session-secret*))
+  (let ((hmac (ironclad:make-hmac (ironclad:ascii-string-to-byte-array secret) :sha1)))
+    (ironclad:update-hmac hmac (ironclad:ascii-string-to-byte-array string))
+    (ironclad:byte-array-to-hex-string (ironclad:hmac-digest hmac))))
 
 ;;; Value is a list, gets written out as | separated values with the signature added
-(defun signed-value (v &key (secret *session-secret*))
+(defun signed-value (v &optional (secret *session-secret*))
   (let* ((base-string (format nil "~{~A|~}" v))
 	 (sig (string-signature (string+ base-string secret))))
     (format nil "~A~A" base-string sig)))
   
 ;; Return value is a list of strings, or NIL if it doesn't verify
-(defun verify-signed-value (rv &key (secret *session-secret*))
+(defun verify-signed-value (rv &optional (secret *session-secret*))
   (when rv
     (ignore-errors			;if error, just don't verify
       (let* ((split-pos (1+ (position  #\| rv :from-end t)))
@@ -269,7 +275,7 @@ Theory:
   (unless *aserve-request*
     (error "attempt to get cookie session vars without binding *aserve-request*"))
   (with-slots (cookie-name variables package secret) store
-    (let ((value (verify-signed-value (cookie-value *aserve-request* cookie-name) :secret secret))
+    (let ((value (verify-signed-value (cookie-value *aserve-request* cookie-name) secret))
 	  (*package* package))
       (if value
 	  (with-input-from-string (s (cadr value))
@@ -296,7 +302,7 @@ Theory:
 ;	   (format s "~S " (mapcar #'session-variable-symbol variables)))
 	 (dolist (var variables)
 	   (write-session-variable-value var s)))))
-     :secret secret)))
+     secret)))
 
 ;;; No-op (should make sure vars have not changed since header was written +++)
 (defmethod session-save-session-variables ((store cookie-session-store) session)
@@ -341,7 +347,7 @@ Theory:
 
 (defmethod get-session-id ((store cookie-session-store) req)
   (with-slots (cookie-name secret) store
-    (let ((value (verify-signed-value (cookie-value *aserve-request* cookie-name) :secret secret)))
+    (let ((value (verify-signed-value (cookie-value *aserve-request* cookie-name) secret)))
       (when value
 	(keywordize (first value))))))
 
