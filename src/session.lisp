@@ -66,10 +66,12 @@ Theory:
   #-ALLEGRO (hmac-sha1-string string secret))
 
 #-ALLEGRO
-(defun hmac-sha1-string (string &optional (secret *session-secret*))
+(defun hmac-sha1-string (string &optional (secret *session-secret*) (return :hex))
   (let ((hmac (ironclad:make-hmac (ironclad:ascii-string-to-byte-array secret) :sha1)))
     (ironclad:update-hmac hmac (ironclad:ascii-string-to-byte-array string))
-    (ironclad:byte-array-to-hex-string (ironclad:hmac-digest hmac))))
+    (ecase return
+      (:hex (ironclad:byte-array-to-hex-string (ironclad:hmac-digest hmac)))
+      (:bytes (ironclad:hmac-digest hmac)))))
 
 ;;; Value is a list, gets written out as | separated values with the signature added
 (defun signed-value (v &optional (secret *session-secret*))
