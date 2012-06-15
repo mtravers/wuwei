@@ -80,7 +80,7 @@
 				("Expires" . ,(net.aserve::universal-time-to-date (+ (get-universal-time) (* 20 60 60)))))
 		     ))
 
-(locate-public-directory)  
+;;; (locate-public-directory)  
 
 (defun public-url (name)
   (string+ "/wupub/" name))
