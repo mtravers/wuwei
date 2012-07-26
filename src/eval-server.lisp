@@ -36,7 +36,7 @@
 	   ((:form :method :post 
 		   :onsubmit
 		   (remote-function 
-		    (ajax-continuation (:keep t :args (form))
+		    (ajax-continuation (:keep t :args (form) :session nil)
 		      (let ((result (multiple-value-list (ignore-errors (eval (read-from-string form))))))
 			(render-update
 			  (:update "result"
