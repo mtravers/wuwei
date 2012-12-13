@@ -65,12 +65,18 @@
 		  (:ul
 		   (:li ((:a :href "http://collabrx.com") "CollabRx"))
 		   (:li ((:a :href "http://biocyc.org/") "BioCyc") ))
+		  (:h4 "Credits")
+		  (:ul
+		   (:li "Author: " ((:a :href "http://hyperphor.com") "Mike Travers"))
+		   (:li "Support: his former employers, " 
+			((:a :href "http://collabrx.com") "CollabRx")
+			" and "
+			((:a :href "http://sri.com") "SRI")))
 		  (:h4 "See Also")
 		  (:ul
 		   (:li ((:a :href "https://github.com/mtravers/heroku-buildpack-cl/blob/master/README.md") 
 			 "Running Common Lisp applications in the cloud")
 			" on Heroku"))
-
 
 		  (tracker)
 
