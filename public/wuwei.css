@@ -59,3 +59,7 @@ div.auto_complete ul strong.highlight {
 .ex {
     float: right;
 }
+
+#panel {
+    border: 4px solid gray;
+}

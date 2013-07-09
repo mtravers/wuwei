@@ -55,6 +55,8 @@ Available render-update operations, hopefully mostly self-explanatory.  See the 
 (:js <javascript>)
 
 (:redirect <url>)
+(:navigate <url>)
+
 (:reload)
 (:delay <seconds> <other-forms>)
 (:alert <msg>)
@@ -129,7 +131,11 @@ Here's an example of combining render-update operations:
   (render-script-later string))
 
 (define-render-update :redirect (url)
-  `(format *html-stream* "~%window.location.replace('~A');" ,url)) ;heard that this is better...
+  `(format *html-stream* "~%window.location.replace('~A');" ,url)) 
+
+;;; "redirect" and "navigate to new page" have different behaviors re browser history
+(define-render-update :navigate (url)
+  `(format *html-stream* "~%window.location.href = '~A';" ,url))
 
 (define-render-update :popup (url &optional (name "_popup") (width 300) (height 300))
   `(format *html-stream* "~%window.open('~A', '~A', 'width=~A,height=~A');" ,url ,name ,width ,height))  
@@ -205,6 +211,16 @@ Here's an example of combining render-update operations:
               (render-update ,@clauses)))
        ))
 
+;;; Version of above that takes raw script rather than render-update clauses
+(defmacro render-script (script)
+  `(if *within-render-update*
+       (render-script-later ,script)
+       (html ((:script :type "text/javascript")
+	      (render-debug "rendering <script> elt")
+	      :newline
+	      (:princ ,script))
+	     )))
+
 (defun html-escape-string (string)
   (with-output-to-string (stream)
     (net.html.generator::emit-safe stream string)))
@@ -240,9 +256,41 @@ Here's an example of combining render-update operations:
                    "multipart/form-data"))))
 
 
-;;; :SESSION is NIL if no session management, T for session management, or the name of login
-;;; handling procedure if login is required.  The procedure takes req and ent and is responsible for
-;;; redirecting to a login page. 
+;;;; :::::::::::::::::::::::::::::::: Ajax-continuation and friends ::::::::::::::::::::::::::::::::
+
+#| 
+
+publish-ajax-update, publish-ajax-func, and ajax-continuation all do similar things: that is,
+they publish a temporary URL that, upon receipt at server, executes BODY.
+
+- publish-ajax-update is the lowest level
+
+- publish-ajax-func wraps publish-ajax-update, but also implements argument processing (that is, it
+  will convert request parameters into variables bound around BODY).
+
+- ajax-continuation wraps publish-ajax-func, and in adddition handles automatically generating the
+  URL and decomissioning it when done.
+
+Options
+
+:SESSION : NIL if no session management, T for session management, or the name of login handling
+    procedure if login is required.  The procedure takes req and ent and is responsible for
+    redirecting to a login page.
+
+:PRE-RESPONSE is a list of forms executed before the response (so things that affect cookie session
+  state should go there)
+
+:KEEP (ajax-continuation) T if continuation should be kept around after use (that is, it is something 
+  that may be called more than once).
+
+:ARGS (ajax-continuation) a list of arguments to be bound around BODY, and should be supplied in the POST.
+
+:CONTENT-TYPE
+:TIMEOUT  (specifiy a timeout, looks like this is not actually implemented)
+
+
+|#
+
 (defmacro publish-ajax-update (path-or-options &body body)
   (let* ((path (if (listp path-or-options)
 		   (findprop :path path-or-options)
@@ -252,9 +300,10 @@ Here's an example of combining render-update operations:
 	 (session (aif (and (listp path-or-options) (member :session path-or-options))
 		    (cadr it)
 		    t))		;defaults to t
+	 (pre-response (and (listp path-or-options) (findprop :pre-response path-or-options)))
 	 (login-handler (aif (and (listp path-or-options) (member :login-handler path-or-options))
 			  (cadr it))))
-    (setf options (delete-keyword-args '(:path :session) options))
+    (setf options (delete-keyword-args '(:path :session :pre-response) options))
     `(publish-temporarily ,path
               :function #'(lambda (req ent)
 			  (let* ((*multipart-request* (multipart? req))
@@ -453,6 +502,7 @@ Here's an example of combining render-update operations:
   (format nil *uploader-html* id id url *file-field-name* (if isDrugrank "true" "false"))
   )
 
+;;; Note: response content type of text/javascript determines whether response is evaled or not
 (defun remote-function (url &key form params (in-function? t) confirm before after spinner
                         success failure complete eval-scripts? stop-propagation?
 			updater? periodic?)
@@ -505,10 +555,11 @@ Here's an example of combining render-update operations:
 		(assert updater?)
 		(setf options (append `(:frequency ,periodic?) options))
 		(format nil "new Ajax.PeriodicalUpdater('~A', '~A', ~A);" updater? url (json-options options)))
+	       ;;; +++ temp patch to use abortable hacks in sss, 
 	       (updater?
-		(format nil "new Ajax.Updater('~A', '~A', ~A);" updater? url (json-options options)))
+		(format nil "new AbortableAjaxUpdater('~A', '~A', ~A);" updater? url (json-options options)))
 	       (t
-		(format nil "new Ajax.Request('~A', ~A);" url (json-options options))))))
+		(format nil "new AbortableAjaxRequest('~A', ~A);" url (json-options options))))))
     (when before (setf result (string+ before result)))
     (when after (setf result (string+ result after)))
     (when confirm (setf result (format nil "if (confirm('~A')) { ~A };" confirm result)))

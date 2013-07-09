@@ -1,14 +1,14 @@
 (in-package :net.aserve)
 
-#|
+#| No longer loaded by default.
+
 Fixes a bug in portableaserve.  Modern browsers return headers like this:
  Content-type:  application/x-www-form-urlencoded; charset=utf-8
 The patch below makes aserve ignore the semicolon and following text. 
 
 Kudos to David Sobeck for figuring this out.
 
-HAS BEEN FIXED in more recent versions of aserve (+++ conditionalize properly)
-|#
+HAS BEEN FIXED in more recent versions of aserve (+++ conditionalize properly) |#
 
 (defun header-first-field (s)
   (let ((sep (position #\; s)))

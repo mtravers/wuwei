@@ -20,10 +20,6 @@
 	    :components
 	    ((:file "package")
 
-	     ;; Patches to existing systems
-;;; I believe this is no longer necessary (oh but it is)
-;;; It's patched in my local copy of portable-allegroserve, but not everyone will be using that.
-	     #-ALLEGRO (:file "aserve-patch")
 	     (:file "htmlgen-patch")
 	     (:file "cl-json-patches")
      
@@ -31,6 +27,7 @@
 	     (:file "net-utils")
 	     (:file "web")
 	     (:file "ajax-render")
+	     (:file "web2")
 	     (:file "wu")
 	     (:file "debug-utils")
 	     (:file "session")

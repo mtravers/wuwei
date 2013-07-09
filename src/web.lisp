@@ -88,8 +88,10 @@
 (defun image-url (img)
   (public-url (string+ "images/" (string img))))
 
+;;; +++ kind of random rules
 (defun coerce-url  (file-or-url)
-  (if (string-prefix-equals file-or-url "http:")
+  (if (or (string-prefix-equals file-or-url "http:")
+	  (string-prefix-equals file-or-url "/"))
       file-or-url
       (public-url file-or-url)))
 
@@ -103,7 +105,7 @@
 
 (defun css-include (file-or-url)
   (html
-   ((:link :rel "stylesheet" :type "text/css" :href (coerce-url file-or-url)))))
+    ((:link :rel "stylesheet" :type "text/css" :href  (coerce-url file-or-url)))))
 
 (defun css-includes (&rest files)
   (mapc #'css-include files))
@@ -182,31 +184,6 @@ If you want a string, wrap the call with html-string.  For example:
   `(:ul
     ,@(loop for i in (eval var)
          collecting `(:li (:princ (symbol-name ,i))))))
-
-
-;;; Make a Select element 
-
-(defun select-field (&key id name options url params selected html-options)
-  #.(doc "Generate an HTML select field."
-	 "If URL is given, trigger off of the mouseup event"
-	 "OPTIONS is a list of (value name) pairs.")
-  (html
-    ((:select :if* name :name name
-              :if* id :id id
-;;; Fix for Safari (+++ not really tested)
-;;; +++ onchange seems to work better
-	      :if* url :onmouseup (format nil "if (Prototype.Browser.WebKit){~a}" (remote-function url :params (append `(:type (:raw "this.value")) params))) ;+++ :type looks baked in from whatever this was abstracted from....
-	      :do* html-options
-              )
-     (loop for (value name) in options do
-          (html
-            ((:option :value value
-		      :if* url :onmouseup (remote-function url :params (append `(:type ,(format nil "~a" value)) params))
-		      :if* (equal value selected) :selected "selected"
-		      )
-             (:princ-safe name)
-	     :newline)))
-     )))
 
 ;;; Options is list of (value label) pairs.  Separator is html to stick in-between options (ie, :br).
 ;;; +++ hm, wrapping something AROUND options would make more sense.
