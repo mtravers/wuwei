@@ -48,7 +48,7 @@
     :author "Mike Travers <mt@hyperphor.com>"
     :license "MIT"
     :serial t
-    :depends-on (:wuwei)
+    :depends-on (:wuwei :drakma)
     :components 
     ((:module "examples"
 	     :serial t

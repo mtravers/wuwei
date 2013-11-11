@@ -45,7 +45,7 @@
 							  (cdr (assoc :works_written 
 								      (car
 								       (mql-read
-									`((:id . ,value)
+									`(((:id . ,value)
 									  (:type . "/book/author")
 									  ("works_written" . (((:id . nil) 
 											       ("a:name" . nil)
@@ -56,7 +56,7 @@
 																("optional" . t))))
 											       )))
 									  
-									  ))))))
+									  )))))))
 						  (html
 						   (:tr
 						    (:td ((:a href (freebase-url (cdr (assoc :id book-mql)))  :target "freebase")
@@ -97,16 +97,12 @@
 
 ;;; MQL machinery
 
-(defvar *freebase-host* "www.freebase.com") ; The Metaweb host
-(defvar *freebase-readservice* "/api/service/mqlread")   ; Path to mqlread service
+(defparameter *freebase-readservice* "https://www.googleapis.com/freebase/v1/mqlread")   ; Path to mqlread service
 
 (defvar *mql-debug* nil)
 
 (defun mql-read (q)
-  (let* ((env2 `(("query" . ,(list q)))) ; )   `((:query . ,q)) -- but this way we always do multiple, which is usually right
-	 (json (json:encode-json-to-string env2))
-	 (args (net.aserve:uriencode-string json))
-	 (url (format nil "http://~A~A?query=~A" *freebase-host* *freebase-readservice* args))
+  (let ((json (json:encode-json-to-string q))
 	 response)
     (when *mql-debug*
       (terpri)
@@ -115,10 +111,11 @@
 	  ;; Behavior changed in cl-json 0.4.0, this changes it back.
 	  (let ((json:*json-identifier-name-to-lisp* #'json:simplified-camel-case-to-lisp)) 
 	    (json:decode-json-from-string 
-	     (get-url url)
-	     )))
-    (unless (equal "/api/status/ok" (assocdr :code response))
-      (error "MQL error ~A" response))
+	     (coerce-drakma-to-string
+	      (drakma:http-request *freebase-readservice* :parameters `(("query" . ,json)))
+	     ))))
+    (aif (assocdr :error response)
+	 (error "MQL error ~A" it))
     (when *mql-debug*
       (terpri)
       (print response))
@@ -127,13 +124,13 @@
 ;;; eg: (mql-autocomplete "Marv" "/people/person")
 (defun mql-autocomplete (prefix type &key (property "name") (anchor-start? nil) (limit 10))
   (mql-read
-   `((,(string+ (string property) "~=") . ,(string+ (if anchor-start? "^" "") prefix "*"))
+   `(((,(string+ (string property) "~=") . ,(string+ (if anchor-start? "^" "") prefix "*"))
      ("type" . ,type)
      ("id" . nil)
      ("a:name" . nil)
      ("limit" . ,limit)
      ("sort" . "a:name")
-     )))
+     ))))
 
 
 
