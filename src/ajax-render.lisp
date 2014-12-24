@@ -556,9 +556,9 @@ Options
 		(setf options (append `(:frequency ,periodic?) options))
 		(format nil "new Ajax.PeriodicalUpdater('~A', '~A', ~A);" updater? url (json-options options)))
 	       (updater?
-		(format nil "new AjaxUpdater('~A', '~A', ~A);" updater? url (json-options options)))
+		(format nil "new Ajax.Updater('~A', '~A', ~A);" updater? url (json-options options)))
 	       (t
-		(format nil "new AjaxRequest('~A', ~A);" url (json-options options))))))
+		(format nil "new Ajax.Request('~A', ~A);" url (json-options options))))))
     (when before (setf result (string+ before result)))
     (when after (setf result (string+ result after)))
     (when confirm (setf result (format nil "if (confirm('~A')) { ~A };" confirm result)))
