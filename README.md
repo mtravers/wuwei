@@ -51,4 +51,7 @@ Easiest using QuickLisp:
      (ql:quickload "wuwei")
      (ql:quickload "wuwei-examples")  ; if wanted
 
-   
+5. Start the server
+
+    (net.aserve :port 3333)
+
