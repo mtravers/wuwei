@@ -9,7 +9,8 @@
       `(publish :path (string+ "/code/" ,(pathname-name here) ".lisp")
 		:content-type "text/plain"
 		:function ,#'(lambda (req ent)
-			       content
+			       (with-http-response-and-body (req ent)
+				 (html content))
 			       )))))
 
 (defun example-header (pathname)
