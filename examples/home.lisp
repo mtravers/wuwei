@@ -3,11 +3,14 @@
 ;(setq *developer-mode* t)		;necessary for the state demo
 
 (defmacro publish-code ()
-  (let ((here (this-pathname)))
-    (when here
-      `(publish-file :file ,here
-		     :path (string+ "/code/" ,(pathname-name here) ".lisp")
-		     :content-type "text/plain" ))))
+  (let* ((here (this-pathname))
+	 (content (if here (mt:file-to-string here))))
+    (when content
+      `(publish :path (string+ "/code/" ,(pathname-name here) ".lisp")
+		:content-type "text/plain"
+		:function ,#'(lambda (req ent)
+			       content
+			       )))))
 
 (defun example-header (pathname)
   (html
