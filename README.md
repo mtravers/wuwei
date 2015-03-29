@@ -53,5 +53,5 @@ Easiest using QuickLisp:
 
 5. Start the server
 
-    (net.aserve :port 3333)
+    (net.aserve:start :port 3333)
 

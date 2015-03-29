@@ -24,7 +24,7 @@
 	       (html
 		 ((:form :action (ajax-continuation (:args (foo) :content-type "text/html")
 				   (html 
-				     ((:a href (ajax-continuation ()
+				     ((:a href (wu-continuation ()
 						 (html (:princ foo))))
 				      "Click me"))))
 		  ((:input :name "foo"))
