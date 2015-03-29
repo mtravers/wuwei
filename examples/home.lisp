@@ -75,7 +75,7 @@
 			((:a :href "http://collabrx.com") "CollabRx")
 			" and "
 			((:a :href "http://sri.com") "SRI")))
-		  (:h4 "See Also")
+		  (:h4 "See also")
 		  (:ul
 		   (:li ((:a :href "https://github.com/mtravers/heroku-buildpack-cl/blob/master/README.md") 
 			 "Running Common Lisp applications in the cloud")
