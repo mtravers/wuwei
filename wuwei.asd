@@ -44,6 +44,7 @@
 
 (defsystem :wuwei-examples
     :name "WuWei Examples"
+    :description "Example for WuWei"
     :version "0.1"
     :author "Mike Travers <mt@hyperphor.com>"
     :license "MIT"
