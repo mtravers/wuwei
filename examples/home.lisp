@@ -68,7 +68,7 @@
 		  (:h4 "Users")
 		  (:ul
 		   (:li ((:a :href "http://collabrx.com") "CollabRx"))
-		   (:li ((:a :href "http://biocyc.org/") "BioCyc") ))
+		   (:li ((:a :href "http://biocyc.org/") "BioCyc") "Smart Tables" ))
 		  (:h4 "Credits")
 		  (:ul
 		   (:li "Author: " ((:a :href "http://hyperphor.com") "Mike Travers"))
