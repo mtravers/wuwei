@@ -20,9 +20,18 @@
      (when pathname 
        (html ((:a :href (string+ "/code/" (pathname-name pathname) ".lisp") :target "code") "Code"))))))
 
-;;; overwritten on demo site
+
 (defun tracker ()
-  )
+  "<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-345282-10', 'auto');
+  ga('send', 'pageview');
+
+ </script>")
 
 (publish :path "/"
 	 :content-type "text/html"
@@ -68,7 +77,7 @@
 		  (:h4 "Users")
 		  (:ul
 		   (:li ((:a :href "http://collabrx.com") "CollabRx"))
-		   (:li ((:a :href "http://biocyc.org/") "BioCyc") "Smart Tables" ))
+		   (:li ((:a :href "http://biocyc.org/") "BioCyc") " Smart Tables" ))
 		  (:h4 "Credits")
 		  (:ul
 		   (:li "Author: " ((:a :href "http://hyperphor.com") "Mike Travers"))
