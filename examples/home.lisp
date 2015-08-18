@@ -82,7 +82,7 @@
 			 "Running Common Lisp applications in the cloud")
 			" on Heroku"))
 
-		  (tracker)
+		  (html (tracker))
 
 		  )))))
 

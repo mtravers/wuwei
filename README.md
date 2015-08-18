@@ -16,6 +16,9 @@ light-weight, a toolkit rather than a platform.
 
 May be run at the demo site: [http://wuwei.name](http://wuwei.name)
 
+For a real application, take a look at [BioCyc Smart Tables](http://biocyc.org/groups).
+
+
 ## Credits
 
   WuWei was written primarily by Mike Travers, originally under the sponsorship of CollabRx, Inc.
