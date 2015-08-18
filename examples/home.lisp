@@ -21,7 +21,7 @@
        (html ((:a :href (string+ "/code/" (pathname-name pathname) ".lisp") :target "code") "Code"))))))
 
 
-(defun tracker ()
+(defparameter tracker
   "<script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -90,9 +90,7 @@
 		   (:li ((:a :href "https://github.com/mtravers/heroku-buildpack-cl/blob/master/README.md") 
 			 "Running Common Lisp applications in the cloud")
 			" on Heroku"))
-
-		  (html (tracker))
-
+		  tracker
 		  )))))
 
 ;;;<a href='http://www.monitor.us'><img src='http://images.monitor.us/monbadges120-40.png' title='Monitor.Us - Free website, server & network monitoring tool' border=0 /></a>
