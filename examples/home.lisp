@@ -90,7 +90,7 @@
 		   (:li ((:a :href "https://github.com/mtravers/heroku-buildpack-cl/blob/master/README.md") 
 			 "Running Common Lisp applications in the cloud")
 			" on Heroku"))
-		  tracker
+		  (:princ tracker)
 		  )))))
 
 ;;;<a href='http://www.monitor.us'><img src='http://images.monitor.us/monbadges120-40.png' title='Monitor.Us - Free website, server & network monitoring tool' border=0 /></a>
