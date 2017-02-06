@@ -67,7 +67,7 @@
 			    :name nil
 			    :type nil
 			    :version nil
-			    :directory (append (butlast (pathname-directory #.(this-pathname))) '("public"))))
+			    :directory (append (butlast (pathname-directory #.(truename (this-pathname)))) '("public"))))
 
 ;;; Can be called at runtime to inform system where public files are.
 (defun locate-public-directory (&optional directory)
