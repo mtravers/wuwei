@@ -52,7 +52,7 @@ Easiest using QuickLisp:
 4. Load everything:
 
      (ql:quickload "wuwei")
-     (ql:quickload "wuwei-examples")  ; if wanted
+     (ql:quickload "wuwei/examples")  ; if wanted
 
 5. Start the server
 
