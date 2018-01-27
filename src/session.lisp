@@ -247,7 +247,7 @@ Theory:
 ;;; the page content (maybe breaking caching, argh).  Of course if we are buffering responses, like
 ;;; we do on most cwest methods, then it could work.
 (defclass serialized-session-store (session-store)
-  ((package :initform (find-package :ec)))) ;+++ temp
+  ((package :initform (find-package :wuwei)))) ;+++ temp
 
 (defclass cookie-session-store (serialized-session-store) 
   ((secret)
