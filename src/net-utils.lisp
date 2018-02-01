@@ -9,13 +9,12 @@
 ;;; Alternate get-url that doesn't use net.aserve.client::do-http-request, which will sometimes get borked for no apparent reason.
 
 (defun wget-url (url &key query)
-  (let ((temp-file (make-pathname :name (string (gensym)) :directory "/tmp"))
-	(url (if query
-		 (string+ url "?" (query-to-form-urlencoded query))
-		 url)))
-    (unless (zerop (asdf:run-shell-command "wget -c \"~A\" -O ~A" url (pathname temp-file)))
-      (error "Shell command failed"))
-    (file-to-string temp-file)))
+  (uiop:with-temporary-file (:pathname temp-file)
+    (let ((url (if query
+                   (string+ url "?" (query-to-form-urlencoded query))
+                   url)))
+    (uiop:run-program `("wget" "-c" ,url "-O" ,(uiop:native-namestring temp-file)))
+    (file-to-string temp-file))))
 
 (defun get-url-with-backoff (url &rest keys)
   (multiple-value-bind (body response)
