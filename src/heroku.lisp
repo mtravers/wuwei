@@ -7,7 +7,7 @@
 ;;; Called from an application's heroku-setup.lisp
 ;;; Directory is a relative path from the app root.
 (defun heroku-install-wupub-files (&optional (directory '("wupub")))
-  (asdf:run-shell-command
+  (uiop:run-program
    (format nil "cp -r ~Apublic ~A"
 	   (namestring (asdf:component-pathname (asdf:find-system :wuwei)))
 	   (namestring (make-pathname :directory (append cl-user::*build-dir* directory))) 
