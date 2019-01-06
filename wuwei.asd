@@ -38,8 +38,7 @@
 	     (:file "dom-objects")
 	     (:file "eval-server")
 	     (:file "oauth2")
-	     ;; Currently I'm only supporting CCL for Heroku, but it wouldn't be hard to add other Lisps
-	     #+:CCL (:file "heroku")
+	     (:file "heroku")
 	     ))))
 
 (defsystem :wuwei-examples
