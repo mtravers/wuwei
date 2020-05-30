@@ -13,7 +13,7 @@
 	(url (if query
 		 (string+ url "?" (query-to-form-urlencoded query))
 		 url)))
-    (unless (zerop (asdf:run-shell-command "wget -c \"~A\" -O ~A" url (pathname temp-file)))
+    (unless (zerop (uiop:run-program (format nil "wget -c \"~A\" -O ~A" url (pathname temp-file))))
       (error "Shell command failed"))
     (file-to-string temp-file)))
 
